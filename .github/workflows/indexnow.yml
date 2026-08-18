@@ -1,0 +1,56 @@
+# Vercel 部署完成后把改动的 URL 推给 IndexNow（Bing / Yandex / Seznam / Naver）。
+#
+# 不需要任何 secret：IndexNow 的 key 本来就得公开在 public/<key>.txt 才能验证所有权。
+# 默认只推本次提交改过的词条——IndexNow 明确不建议反复推没变的 URL。
+# 想补推全站：Actions 页面手动运行，勾上 full。
+
+name: IndexNow
+
+on:
+  push:
+    branches: [main]
+    paths:
+      - "content/**"
+      - "public/*.txt"
+  workflow_dispatch:
+    inputs:
+      full:
+        description: 推 sitemap 全量（不勾则只推最近一次提交的改动）
+        type: boolean
+        default: false
+
+# 连续几次 push 时按顺序推完，不要互相取消——每次的改动集不同。
+concurrency:
+  group: indexnow
+  cancel-in-progress: false
+
+jobs:
+  push:
+    runs-on: ubuntu-latest
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0 # --changed 要比对历史
+
+      - uses: actions/setup-node@v4
+        with:
+          node-version: "22"
+
+      # --verify 会轮询等 URL 真的返回 200，所以不用猜 Vercel 部署要多久：
+      # 部署没生效前一直等，最多 3 分钟，没等到的跳过而不是推个 404 给 Bing。
+      - name: 推送
+        env:
+          NEXT_PUBLIC_SITE_URL: https://yanfa.lol
+        run: |
+          set -euo pipefail
+          BASE="${{ github.event.before || '' }}"
+          if [ "${{ github.event_name }}" = "workflow_dispatch" ] && [ "${{ inputs.full }}" = "true" ]; then
+            echo "手动全量推送"
+            node scripts/indexnow-push.mjs --verify
+          elif [ -z "$BASE" ] || [ "$BASE" = "0000000000000000000000000000000000000000" ] || ! git cat-file -e "$BASE^{commit}" 2>/dev/null; then
+            # 首次 push、force push 后拿不到可用的 before，退化成最近一次提交
+            echo "没有可用的 before（$BASE），改用 HEAD~1..HEAD"
+            node scripts/indexnow-push.mjs --changed HEAD~1..HEAD --verify
+          else
+            node scripts/indexnow-push.mjs --changed "$BASE..${{ github.sha }}" --verify
+          fi

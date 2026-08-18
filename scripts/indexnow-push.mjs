@@ -4,20 +4,27 @@
 // 所以它必须进仓库、必须可匿名访问。脚本默认就从 public/ 里认出那个文件，
 // key 只存一处，不会出现文件和参数两边不同步。
 //
-//   npm run push:indexnow                      # 推 sitemap 全量
-//   npm run push:indexnow -- --since 2026-08-01  # 只推这天之后改过的
-//   npm run push:indexnow -- --url /meme/wo-chovy --url /memes
-//   npm run push:indexnow -- --dry-run         # 只打印，不发请求
+//   npm run push:indexnow                              # 推 sitemap 全量
+//   npm run push:indexnow -- --changed HEAD~1..HEAD    # 只推这些提交改过的词条
+//   npm run push:indexnow -- --since 2026-08-01        # 按 sitemap 的 lastmod 筛
+//   npm run push:indexnow -- --url /meme/wo-chovy
+//   npm run push:indexnow -- --verify                  # 推前确认线上已 200（CI 用）
+//   npm run push:indexnow -- --dry-run                 # 只打印，不发请求
 
+import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
 
 const ENDPOINT = "https://api.indexnow.org/indexnow";
 const PUBLIC_DIR = "public";
 const BATCH = 10000; // IndexNow 单请求 URL 上限
+// content/ 的目录名 → 路由前缀。和 app/sitemap.ts 的单数路径保持一致。
+const CONTENT_ROUTES = { memes: "meme", players: "player", teams: "team", events: "event" };
+const VERIFY_TIMEOUT_MS = 180000;
+const VERIFY_INTERVAL_MS = 10000;
 
 function parseArgs(argv) {
-  const opts = { urls: [], dryRun: false, limit: Infinity, since: null, site: null, key: null };
+  const opts = { urls: [], dryRun: false, verify: false, limit: Infinity, since: null, changed: null, site: null, key: null };
   for (let i = 0; i < argv.length; i += 1) {
     const arg = argv[i];
     const next = () => {
@@ -27,8 +34,10 @@ function parseArgs(argv) {
       return value;
     };
     if (arg === "--dry-run") opts.dryRun = true;
+    else if (arg === "--verify") opts.verify = true;
     else if (arg === "--url") opts.urls.push(next());
     else if (arg === "--since") opts.since = next();
+    else if (arg === "--changed") opts.changed = next();
     else if (arg === "--site") opts.site = next();
     else if (arg === "--key") opts.key = next();
     else if (arg === "--limit") {
@@ -58,6 +67,56 @@ function normalizeSite(raw) {
   const url = new URL(withScheme);
   if (url.hostname === "localhost" || url.hostname === "127.0.0.1") throw new Error(`站点是 ${url.origin}，本地地址推不了，用 --site 或 NEXT_PUBLIC_SITE_URL 指定线上域名`);
   return url.origin;
+}
+
+// 只认新增/改名/修改，删掉的词条不推：它的 URL 已经 404，等不到 --verify 通过，
+// 让 Bing 按 sitemap 自然移除即可。
+function changedContentPaths(range) {
+  let out;
+  try {
+    out = execFileSync("git", ["diff", "--name-only", "--diff-filter=ACMR", range, "--", "content/"], { encoding: "utf8" });
+  } catch {
+    throw new Error(`git diff ${range} 失败：范围不存在或仓库历史不完整（CI 里记得 fetch-depth: 0）`);
+  }
+  const paths = [];
+  const skipped = [];
+  for (const line of out.split("\n").map((l) => l.trim()).filter(Boolean)) {
+    const match = line.match(/^content\/([^/]+)\/(.+)\.mdx$/);
+    const route = match && CONTENT_ROUTES[match[1]];
+    if (route) paths.push(`/${route}/${match[2]}`);
+    else skipped.push(line);
+  }
+  if (skipped.length > 0) console.log(`跳过 ${skipped.length} 个无法映射成路由的文件：${skipped.slice(0, 3).join(", ")}`);
+  return paths;
+}
+
+async function isLive(url) {
+  try {
+    const res = await fetch(url, { method: "HEAD", redirect: "follow", headers: { "user-agent": "indexnow-push" } });
+    return res.status === 200;
+  } catch {
+    return false;
+  }
+}
+
+// 部署是原子切换的，推早了 Bing 会抓到旧部署上的 404，反而伤信任度。
+async function waitLive(urls, singlePass = false) {
+  const pending = new Set(urls);
+  const live = [];
+  const deadline = Date.now() + VERIFY_TIMEOUT_MS;
+  for (;;) {
+    const results = await Promise.all([...pending].map(async (url) => [url, await isLive(url)]));
+    for (const [url, ok] of results) {
+      if (ok) {
+        live.push(url);
+        pending.delete(url);
+      }
+    }
+    if (pending.size === 0 || singlePass || Date.now() >= deadline) break;
+    console.log(`等 ${pending.size} 条上线，${VERIFY_INTERVAL_MS / 1000}s 后重试…`);
+    await new Promise((resolve) => setTimeout(resolve, VERIFY_INTERVAL_MS));
+  }
+  return { live: urls.filter((url) => live.includes(url)), missing: [...pending] };
 }
 
 async function fetchSitemap(site) {
@@ -95,12 +154,15 @@ async function main() {
   const opts = parseArgs(process.argv.slice(2));
   const site = normalizeSite(opts.site ?? process.env.NEXT_PUBLIC_SITE_URL ?? "");
   const key = opts.key ?? process.env.INDEXNOW_KEY ?? detectKey();
+  const toAbsolute = (raw) => (/^https?:\/\//.test(raw) ? raw : `${site}${raw.startsWith("/") ? "" : "/"}${raw}`);
 
   let urls;
   let scope;
-  if (opts.urls.length > 0) {
-    urls = opts.urls.map((raw) => (/^https?:\/\//.test(raw) ? raw : `${site}${raw.startsWith("/") ? "" : "/"}${raw}`));
-    scope = "手动指定";
+  if (opts.urls.length > 0 || opts.changed) {
+    const manual = opts.urls;
+    const fromGit = opts.changed ? changedContentPaths(opts.changed) : [];
+    urls = [...manual, ...fromGit].map(toAbsolute);
+    scope = [manual.length > 0 ? `手动 ${manual.length} 条` : null, opts.changed ? `${opts.changed} 改动 ${fromGit.length} 条` : null].filter(Boolean).join(" + ");
   } else {
     let entries = await fetchSitemap(site);
     const total = entries.length;
@@ -126,6 +188,19 @@ async function main() {
   if (urls.length === 0) {
     console.log("没有要推的 URL。");
     return;
+  }
+
+  // dry-run 也走 verify，否则预演看不到哪些会被筛掉；但只探一轮，不干等 3 分钟。
+  if (opts.verify) {
+    const { live, missing } = await waitLive(urls, opts.dryRun);
+    if (missing.length > 0) console.warn(`${missing.length} 条${opts.dryRun ? "当前不可访问" : ` ${VERIFY_TIMEOUT_MS / 1000}s 内没等到 200`}，跳过：${missing.slice(0, 5).join(", ")}`);
+    urls = live;
+    console.log(`--verify 通过 ${urls.length} 条`);
+    if (urls.length === 0 && !opts.dryRun) {
+      console.error("没有已上线的 URL 可推。");
+      process.exitCode = 1;
+      return;
+    }
   }
 
   if (opts.dryRun) {
