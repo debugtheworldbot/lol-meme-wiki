@@ -1,3 +1,4 @@
+import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { AnalyticsScript } from "@/components/analytics-script";
 import { SiteFooter } from "@/components/site-footer";
@@ -43,6 +44,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
         <main id="main-content">{children}</main>
         <SiteFooter />
         <AnalyticsScript />
+        <Analytics />
       </body>
     </html>
   );
