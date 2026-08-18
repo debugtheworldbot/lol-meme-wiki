@@ -24,7 +24,7 @@ export const metadata: Metadata = {
   category: "reference",
 };
 
-export const viewport: Viewport = { themeColor: "#07110f", colorScheme: "dark" };
+export const viewport: Viewport = { themeColor: "#ffffff", colorScheme: "light" };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const records = getSearchRecords();
