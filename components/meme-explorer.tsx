@@ -9,13 +9,17 @@ import type { MemeEntry } from "@/lib/types";
 
 export function MemeExplorer({ memes }: { memes: MemeEntry[] }) {
   const searchParams = useSearchParams();
-  const tags = useMemo(
-    () => ["全部", ...Array.from(new Set(memes.flatMap((meme) => meme.tags))).slice(0, 12)],
-    [memes],
-  );
+  const allTags = useMemo(() => Array.from(new Set(memes.flatMap((meme) => meme.tags))), [memes]);
   const requested = searchParams.get("tag") ?? "全部";
+  const tags = useMemo(() => {
+    const chips = ["全部", ...allTags.slice(0, 12)];
+    if (requested !== "全部" && allTags.includes(requested) && !chips.includes(requested)) {
+      chips.splice(1, 0, requested);
+    }
+    return chips;
+  }, [allTags, requested]);
   const [query, setQuery] = useState(() => (searchParams.get("q") ?? "").slice(0, 80));
-  const [tag, setTag] = useState(tags.includes(requested) ? requested : "全部");
+  const [tag, setTag] = useState(() => (allTags.includes(requested) ? requested : "全部"));
   const fuse = useMemo(() => new Fuse(memes, { keys: ["title", "aliases", "summary", "tags"], threshold: 0.35 }), [memes]);
   const searched = query ? fuse.search(query).map((result) => result.item) : memes;
   const visible = tag === "全部" ? searched : searched.filter((meme) => meme.tags.includes(tag));

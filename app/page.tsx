@@ -15,6 +15,14 @@ export default function HomePage() {
   const popular = [...memes].sort((a, b) => (b.heat ?? 0) - (a.heat ?? 0)).slice(0, 8);
   const latest = [...memes].sort((a, b) => (b.updated_at ?? "").localeCompare(a.updated_at ?? "")).slice(0, 8);
   const tags = [...new Set(memes.flatMap((meme) => meme.tags))].slice(0, 12);
+  const typeCounts = [
+    { tag: "游戏梗", suffix: "条" },
+    { tag: "赛事梗", suffix: "条" },
+    { tag: "英雄台词", suffix: "条" },
+  ].map((item) => ({
+    ...item,
+    count: memes.filter((meme) => meme.tags.includes(item.tag)).length,
+  }));
 
   const jsonLd = {
     "@context": "https://schema.org",
@@ -81,6 +89,16 @@ export default function HomePage() {
               <tbody>
                 <tr><th>类型</th><td>社区百科</td></tr>
                 <tr><th>梗</th><td><Link href="/memes">{memes.length} 条</Link></td></tr>
+                {typeCounts.map((item) => (
+                  <tr key={item.tag}>
+                    <th>{item.tag}</th>
+                    <td>
+                      <Link href={`/memes?tag=${encodeURIComponent(item.tag)}`}>
+                        {item.count} {item.suffix}
+                      </Link>
+                    </td>
+                  </tr>
+                ))}
                 <tr><th>选手</th><td><Link href="/players">{players.length} 人</Link></td></tr>
                 <tr><th>战队</th><td><Link href="/teams">{teams.length} 支</Link></td></tr>
                 <tr><th>赛事</th><td><Link href="/events">{events.length} 项</Link></td></tr>
