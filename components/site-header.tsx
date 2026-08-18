@@ -1,3 +1,4 @@
+/* 赛后公报室：导航是克制的编辑部工具栏，品牌标记与检索入口必须始终清晰。 */
 import Link from "next/link";
 import { GitFork } from "lucide-react";
 import Image from "next/image";

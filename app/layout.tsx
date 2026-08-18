@@ -1,3 +1,4 @@
+/* 赛后公报室：全站以暖象牙、深墨与赛点朱砂维持统一阅读氛围。 */
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
 import { AnalyticsScript } from "@/components/analytics-script";
@@ -31,7 +32,7 @@ export const metadata: Metadata = {
 };
 
 export const viewport: Viewport = {
-  themeColor: "#ffffff",
+  themeColor: "#f7f1e5",
   colorScheme: "light",
   width: "device-width",
   initialScale: 1,
