@@ -4,6 +4,8 @@ import { Suspense } from "react";
 import { MemeExplorer } from "@/components/meme-explorer";
 import { RandomMemeButton } from "@/components/random-meme-button";
 import { getMemes } from "@/lib/content";
+import { buildBreadcrumbJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
   title: "全部 LOL 梗",
@@ -23,6 +25,7 @@ export default function MemesPage() {
           </div>
           <RandomMemeButton compact slugs={memes.map((meme) => meme.slug)} />
         </header>
+        <JsonLd data={buildBreadcrumbJsonLd([{ name: "首页", path: "/" }, { name: "梗目录", path: "/memes" }])} />
         <nav className="wiki-crumb" aria-label="面包屑">
           <ol>
             <li><Link href="/">首页</Link></li>

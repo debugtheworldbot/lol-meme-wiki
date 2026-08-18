@@ -4,11 +4,12 @@ import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getEntity, getEntityTitle, getMeme, getMemes, getRelatedMemes } from "@/lib/content";
-import { buildMemeMetadata } from "@/lib/seo";
+import { buildBreadcrumbJsonLd, buildMemeMetadata } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 import type { EntityKind, MemeEntry } from "@/lib/types";
 import { getIssueUrl } from "@/lib/utils";
 import { WikiLinkedText } from "@/components/wiki-linked-text";
+import { JsonLd } from "@/components/json-ld";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -85,7 +86,8 @@ export default async function MemeDetailPage({ params }: PageProps) {
 
   return (
     <article className="wiki-page">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLd data={jsonLd} />
+      <JsonLd data={buildBreadcrumbJsonLd([{ name: "首页", path: "/" }, { name: "梗目录", path: "/memes" }, { name: meme.title, path: `/meme/${meme.slug}` }])} />
       <div className="wiki-shell">
         <header className="wiki-head">
           <h1>{meme.title}</h1>

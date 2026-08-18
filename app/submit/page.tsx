@@ -1,6 +1,8 @@
 import type { Metadata } from "next";
 import Link from "next/link";
 import { SubmissionForm } from "@/components/submission-form";
+import { buildBreadcrumbJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
   title: "提交新梗",
@@ -16,6 +18,7 @@ export default function SubmitPage() {
           <h1>提交新梗</h1>
           <p className="wiki-meta">投稿进入 GitHub Issues，核对来源后才会写入词条</p>
         </header>
+        <JsonLd data={buildBreadcrumbJsonLd([{ name: "首页", path: "/" }, { name: "提交", path: "/submit" }])} />
         <nav className="wiki-crumb" aria-label="面包屑">
           <ol>
             <li><Link href="/">首页</Link></li>

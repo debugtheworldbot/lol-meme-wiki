@@ -4,6 +4,7 @@ import { InlineSearch } from "@/components/inline-search";
 import { RandomMemeButton } from "@/components/random-meme-button";
 import { getEvents, getMemes, getPlayers, getSearchRecords, getTeams } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
+import { JsonLd } from "@/components/json-ld";
 
 export default function HomePage() {
   const memes = getMemes();
@@ -28,6 +29,7 @@ export default function HomePage() {
     "@context": "https://schema.org",
     "@type": "WebSite",
     name: "LOL 梗 Wiki",
+    url: siteConfig.url,
     description: "英雄联盟与电竞社区梗文化档案",
     potentialAction: {
       "@type": "SearchAction",
@@ -38,7 +40,7 @@ export default function HomePage() {
 
   return (
     <div className="wiki-page wiki-home">
-      <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(jsonLd) }} />
+      <JsonLd data={jsonLd} />
       <div className="wiki-shell">
         <header className="wiki-head">
           <h1>LOL 梗 Wiki</h1>

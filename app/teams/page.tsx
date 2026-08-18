@@ -2,6 +2,8 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { EntityDirectory } from "@/components/entity-directory";
 import { getTeams } from "@/lib/content";
+import { buildBreadcrumbJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
   title: "战队梗档案",
@@ -18,6 +20,7 @@ export default function TeamsPage() {
           <h1>战队</h1>
           <p className="wiki-meta">共 {entries.length} 支 · 战队留下的社区说法</p>
         </header>
+        <JsonLd data={buildBreadcrumbJsonLd([{ name: "首页", path: "/" }, { name: "战队", path: "/teams" }])} />
         <nav className="wiki-crumb" aria-label="面包屑">
           <ol>
             <li><Link href="/">首页</Link></li>

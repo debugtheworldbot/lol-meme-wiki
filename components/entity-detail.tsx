@@ -5,6 +5,8 @@ import { MDXRemote } from "next-mdx-remote/rsc";
 import { getEntity, getMemesForEntity } from "@/lib/content";
 import type { EntityKind } from "@/lib/types";
 import { getIssueUrl } from "@/lib/utils";
+import { buildBreadcrumbJsonLd } from "@/lib/seo";
+import { JsonLd } from "@/components/json-ld";
 
 const config = {
   player: { label: "选手", list: "/players" },
@@ -21,6 +23,13 @@ export function EntityDetail({ kind, slug }: { kind: Exclude<EntityKind, "meme">
 
   return (
     <article className="wiki-page">
+      <JsonLd
+        data={buildBreadcrumbJsonLd([
+          { name: "首页", path: "/" },
+          { name: meta.label, path: meta.list },
+          { name: entry.title, path: `/${kind}/${slug}` },
+        ])}
+      />
       <div className="wiki-shell">
         <header className="wiki-head">
           <h1>{entry.title}</h1>

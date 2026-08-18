@@ -1,5 +1,6 @@
 import type { Metadata } from "next";
 import { getMemesForEntity } from "@/lib/content";
+import { siteConfig } from "@/lib/site";
 import type { EntityEntry, EntityKind, MemeEntry } from "@/lib/types";
 
 const DESCRIPTION_MAX = 155;
@@ -64,5 +65,22 @@ export function buildEntityMetadata(kind: EntityKindWithoutMeme, entry: EntityEn
     ]),
     alternates: { canonical: url },
     openGraph: { type: "article", title, description, url, modifiedTime: entry.updated_at },
+  };
+}
+
+export type Crumb = { name: string; path: string };
+
+// 页面上已有可见面包屑，这里只是把同一条路径喂给搜索引擎，让结果页显示层级而不是裸 URL。
+// item 必须是绝对地址；末级 Google 允许省略，但显式写出对其它抓取器更稳。
+export function buildBreadcrumbJsonLd(trail: Crumb[]) {
+  return {
+    "@context": "https://schema.org",
+    "@type": "BreadcrumbList",
+    itemListElement: trail.map((crumb, index) => ({
+      "@type": "ListItem",
+      position: index + 1,
+      name: crumb.name,
+      item: `${siteConfig.url}${crumb.path === "/" ? "" : crumb.path}`,
+    })),
   };
 }
