@@ -22,7 +22,11 @@ function clamp(text: string, max = DESCRIPTION_MAX) {
 const KEYWORDS_MAX = 16;
 
 function unique(values: string[]) {
-  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean))).slice(0, KEYWORDS_MAX);
+  return Array.from(new Set(values.map((value) => value.trim()).filter(Boolean)));
+}
+
+function toKeywords(values: string[]) {
+  return unique(values).slice(0, KEYWORDS_MAX);
 }
 
 export function buildMemeMetadata(meme: MemeEntry): Metadata {
@@ -33,7 +37,7 @@ export function buildMemeMetadata(meme: MemeEntry): Metadata {
     title,
     description,
     // 别名是最主要的长尾入口（“不会真有人”和“不会吧不会吧”是两个搜索词），页面正文已有“又称”，这里再给一遍。
-    keywords: unique([
+    keywords: toKeywords([
       meme.title,
       ...(meme.aliases ?? []),
       `${meme.title}是什么梗`,
@@ -58,7 +62,7 @@ export function buildEntityMetadata(kind: EntityKindWithoutMeme, entry: EntityEn
     title,
     description,
     // 只给主名和全名做疑问词组合；单字别名（“彬”）组合出来全是噪音。
-    keywords: unique([
+    keywords: toKeywords([
       ...names,
       ...names.filter((name) => name.length >= 2).flatMap((name) => copy.intent.map((intent) => `${name}${intent}`)),
       ...BASE_KEYWORDS,
@@ -82,5 +86,60 @@ export function buildBreadcrumbJsonLd(trail: Crumb[]) {
       name: crumb.name,
       item: `${siteConfig.url}${crumb.path === "/" ? "" : crumb.path}`,
     })),
+  };
+}
+
+const entitySchemaType = { player: "Person", team: "SportsTeam", event: "SportsEvent" } as const;
+
+// active_years 的格式很规整："2013—至今" / "2016—2024" / "2016-09—2016-10" / "2025"。
+// 破折号是 U+2014；右侧“至今”不是日期，解析不出来就当没有结束时间。
+function parseActiveYears(value?: string) {
+  const parts = (value ?? "").split("—").map((part) => part.trim());
+  const asDate = (part?: string) => (part && /^\d{4}(-\d{2})?$/.test(part) ? part : undefined);
+  return { start: asDate(parts[0]), end: asDate(parts[1]) };
+}
+
+// region 是“<赛区> / <国籍或地区>”，两段含义不同，不能混：Rookie 是 "LPL / 韩国"。
+function parseRegion(value?: string) {
+  const [league, area] = (value ?? "").split("/").map((part) => part.trim());
+  return { league: league || undefined, area: area || undefined };
+}
+
+export function buildEntityJsonLd(kind: EntityKindWithoutMeme, entry: EntityEntry) {
+  const { league, area } = parseRegion(entry.region);
+  const { start, end } = parseActiveYears(entry.active_years);
+  // name 用页面 title（H1 和 canonical 都是它，且一定干净）；全名和别名进 alternateName。
+  const alternateName = unique([entry.display_name ?? "", ...(entry.aliases ?? [])]).filter(
+    (name) => name !== entry.title,
+  );
+  const base = {
+    "@context": "https://schema.org",
+    "@type": entitySchemaType[kind],
+    name: entry.title,
+    ...(alternateName.length ? { alternateName } : {}),
+    description: entry.summary,
+    url: `${siteConfig.url}/${kind}/${entry.slug}`,
+  };
+
+  if (kind === "player") {
+    return {
+      ...base,
+      jobTitle: "英雄联盟职业选手",
+      ...(area ? { nationality: { "@type": "Country", name: area } } : {}),
+    };
+  }
+  if (kind === "team") {
+    return {
+      ...base,
+      sport: "英雄联盟",
+      ...(league ? { memberOf: { "@type": "SportsOrganization", name: league } } : {}),
+      ...(start ? { foundingDate: start } : {}),
+    };
+  }
+  return {
+    ...base,
+    sport: "英雄联盟",
+    ...(start ? { startDate: start } : {}),
+    ...(end ? { endDate: end } : {}),
   };
 }
