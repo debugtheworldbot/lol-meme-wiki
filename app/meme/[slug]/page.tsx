@@ -4,6 +4,7 @@ import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getEntity, getEntityTitle, getMeme, getMemes, getRelatedMemes } from "@/lib/content";
+import { buildMemeMetadata } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 import type { EntityKind, MemeEntry } from "@/lib/types";
 import { getIssueUrl } from "@/lib/utils";
@@ -25,14 +26,7 @@ export function generateStaticParams() {
 export async function generateMetadata({ params }: PageProps): Promise<Metadata> {
   const { slug } = await params;
   const meme = getMeme(slug);
-  if (!meme) return {};
-  const description = meme.summary.length > 155 ? `${meme.summary.slice(0, 152)}…` : meme.summary;
-  return {
-    title: `${meme.title} 是什么梗？出处和含义`,
-    description,
-    alternates: { canonical: `/meme/${meme.slug}` },
-    openGraph: { type: "article", title: `${meme.title} 是什么梗？出处和含义`, description, url: `/meme/${meme.slug}`, modifiedTime: meme.updated_at },
-  };
+  return meme ? buildMemeMetadata(meme) : {};
 }
 
 function collectWikiTerms(meme: MemeEntry) {
