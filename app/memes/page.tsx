@@ -1,4 +1,5 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { Suspense } from "react";
 import { MemeExplorer } from "@/components/meme-explorer";
 import { RandomMemeButton } from "@/components/random-meme-button";
@@ -13,14 +14,25 @@ export const metadata: Metadata = {
 export default function MemesPage() {
   const memes = getMemes();
   return (
-    <div className="directory-page page-shell section-pad">
-      <header className="directory-header">
-        <div><p className="eyebrow">MEME DIRECTORY / {memes.length.toString().padStart(3, "0")}</p><h1>全部梗</h1><p>从数字黑话到名场面，按你记得的任何一个词开始找。</p></div>
-        <RandomMemeButton compact slugs={memes.map((meme) => meme.slug)} />
-      </header>
-      <Suspense fallback={null}>
-        <MemeExplorer memes={memes} />
-      </Suspense>
-    </div>
+    <article className="wiki-page">
+      <div className="wiki-shell">
+        <header className="wiki-head dir-head">
+          <div>
+            <h1>全部梗</h1>
+            <p className="wiki-meta">共 {memes.length} 条 · 从数字黑话到名场面</p>
+          </div>
+          <RandomMemeButton compact slugs={memes.map((meme) => meme.slug)} />
+        </header>
+        <nav className="wiki-crumb" aria-label="面包屑">
+          <ol>
+            <li><Link href="/">首页</Link></li>
+            <li aria-current="page">梗目录</li>
+          </ol>
+        </nav>
+        <Suspense fallback={null}>
+          <MemeExplorer memes={memes} />
+        </Suspense>
+      </div>
+    </article>
   );
 }

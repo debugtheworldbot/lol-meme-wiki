@@ -173,7 +173,7 @@ export default function HomePage() {
               {tags.map((tag, index) => (
                 <Fragment key={tag}>
                   {index > 0 ? "、" : null}
-                  <Link href="/memes">{tag}</Link>
+                  <Link href={`/memes?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
                 </Fragment>
               ))}
             </p>

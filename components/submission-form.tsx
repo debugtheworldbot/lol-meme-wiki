@@ -39,8 +39,7 @@ export function SubmissionForm() {
   if (result) {
     return (
       <div className="submission-success">
-        <span className="success-icon"><Check size={28} /></span>
-        <p className="eyebrow">SUBMISSION READY</p>
+        <span className="success-icon"><Check size={20} /></span>
         <h2>{result.mode === "created" ? "投稿已进入审核队列" : "投稿草稿已生成"}</h2>
         <p>{result.mode === "created" ? "感谢补全这份社区档案。维护者会在 GitHub Issue 中审核来源与措辞。" : "当前环境未启用自动建 Issue。你可以复制规范化草稿，或前往已配置的 GitHub 仓库提交。"}</p>
         <div className="success-actions">

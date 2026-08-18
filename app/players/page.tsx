@@ -1,6 +1,32 @@
 import type { Metadata } from "next";
+import Link from "next/link";
 import { EntityDirectory } from "@/components/entity-directory";
 import { getPlayers } from "@/lib/content";
 
-export const metadata: Metadata = { title: "选手梗档案", description: "按英雄联盟职业选手浏览相关社区梗与赛事出处。", alternates: { canonical: "/players" } };
-export default function PlayersPage() { const entries = getPlayers(); return <div className="directory-page page-shell section-pad"><header className="directory-header"><div><p className="eyebrow">PLAYER INDEX / {entries.length.toString().padStart(3, "0")}</p><h1>选手档案</h1><p>从一个 ID 出发，找到与他有关的名场面、称呼和社区叙事。</p></div></header><EntityDirectory entries={entries} kind="player" /></div>; }
+export const metadata: Metadata = {
+  title: "选手梗档案",
+  description: "按英雄联盟职业选手浏览相关社区梗与赛事出处。",
+  alternates: { canonical: "/players" },
+};
+
+export default function PlayersPage() {
+  const entries = getPlayers();
+  return (
+    <article className="wiki-page">
+      <div className="wiki-shell">
+        <header className="wiki-head">
+          <h1>选手</h1>
+          <p className="wiki-meta">共 {entries.length} 人 · 从一个 ID 找到相关梗</p>
+        </header>
+        <nav className="wiki-crumb" aria-label="面包屑">
+          <ol>
+            <li><Link href="/">首页</Link></li>
+            <li aria-current="page">选手</li>
+          </ol>
+        </nav>
+        <h2 className="wiki-h">全部选手</h2>
+        <EntityDirectory entries={entries} kind="player" />
+      </div>
+    </article>
+  );
+}

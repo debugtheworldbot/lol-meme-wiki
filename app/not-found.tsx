@@ -1,4 +1,25 @@
 import Link from "next/link";
-import { ArrowLeft, SearchX } from "lucide-react";
 
-export default function NotFound() { return <div className="not-found page-shell"><SearchX size={42} /><p className="eyebrow">ERROR / 404</p><h1>这条梗，还没被记下来。</h1><p>可能是链接写错了，也可能你刚好发现了一个档案空缺。</p><div><Link className="button-secondary" href="/"><ArrowLeft size={17} /> 返回首页</Link><Link className="button-primary" href="/submit">提交新梗 ↗</Link></div></div>; }
+export default function NotFound() {
+  return (
+    <article className="wiki-page not-found">
+      <div className="wiki-shell">
+        <header className="wiki-head">
+          <h1>未找到页面</h1>
+          <p className="wiki-meta">这条词条还不存在，或者链接写错了</p>
+        </header>
+        <nav className="wiki-crumb" aria-label="面包屑">
+          <ol>
+            <li><Link href="/">首页</Link></li>
+            <li aria-current="page">404</li>
+          </ol>
+        </nav>
+        <h2 className="wiki-h">接下来</h2>
+        <p className="wiki-lead">
+          可以回 <Link href="/">首页</Link> 或 <Link href="/memes">梗目录</Link> 再找，
+          也可以 <Link href="/submit">提交新梗</Link>。
+        </p>
+      </div>
+    </article>
+  );
+}
