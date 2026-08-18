@@ -5,6 +5,7 @@ import { RandomMemeButton } from "@/components/random-meme-button";
 import { getEvents, getMemes, getPlayers, getSearchRecords, getTeams } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
 import { JsonLd } from "@/components/json-ld";
+import { HomeMemeLists } from "@/components/home-meme-lists";
 
 export default function HomePage() {
   const memes = getMemes();
@@ -12,9 +13,12 @@ export default function HomePage() {
   const players = getPlayers();
   const teams = getTeams();
   const events = getEvents();
-  const featured = memes.find((meme) => meme.featured) ?? memes[0];
-  const popular = [...memes].sort((a, b) => (b.heat ?? 0) - (a.heat ?? 0)).slice(0, 8);
-  const latest = [...memes].sort((a, b) => (b.updated_at ?? "").localeCompare(a.updated_at ?? "")).slice(0, 8);
+  const popular = [...memes].sort((a, b) => (b.heat ?? 0) - (a.heat ?? 0));
+  const recommended = Array.from(
+    new Map([...memes.filter((meme) => meme.featured), ...popular].map((meme) => [meme.slug, meme])).values(),
+  ).slice(0, 4);
+  const chronological = [...memes].sort((a, b) => (b.first_seen ?? "").localeCompare(a.first_seen ?? ""));
+  const latest = [...memes].sort((a, b) => (b.updated_at ?? "").localeCompare(a.updated_at ?? ""));
   const tags = [...new Set(memes.flatMap((meme) => meme.tags))].slice(0, 12);
   const typeCounts = [
     { tag: "游戏梗", suffix: "条" },
@@ -64,25 +68,33 @@ export default function HomePage() {
         ) : null}
 
         <div className="home-top">
-          {featured ? (
-            <section>
-              <h2 className="wiki-h">推荐词条</h2>
-              <p className="wiki-lead">
-                <Link href={`/meme/${featured.slug}`}>{featured.title}</Link>
-                {featured.summary ? `：${featured.summary}` : null}
-              </p>
-              {featured.tags.length ? (
-                <p className="wiki-note">
-                  分类：
-                  {featured.tags.map((tag, index) => (
-                    <Fragment key={tag}>
-                      {index > 0 ? "、" : null}
-                      <span className="wiki-tag">{tag}</span>
-                    </Fragment>
-                  ))}
-                  {featured.first_seen ? ` · 首次出现 ${featured.first_seen}` : null}
-                </p>
-              ) : null}
+          {recommended.length ? (
+            <section className="home-recommendations">
+              <div className="home-recommendations-heading">
+                <h2 className="wiki-h">推荐词条</h2>
+                <span>编辑精选</span>
+              </div>
+              <div className="home-recommendation-grid">
+                {recommended.map((meme) => (
+                  <article key={meme.slug}>
+                    <div>
+                      <Link href={`/meme/${meme.slug}`}>{meme.title}</Link>
+                      {meme.first_seen ? <time>{meme.first_seen}</time> : null}
+                    </div>
+                    <p>{meme.summary}</p>
+                    {meme.tags.length ? (
+                      <p className="wiki-note">
+                        {meme.tags.slice(0, 3).map((tag, index) => (
+                          <Fragment key={tag}>
+                            {index > 0 ? "、" : null}
+                            <span className="wiki-tag">{tag}</span>
+                          </Fragment>
+                        ))}
+                      </p>
+                    ) : null}
+                  </article>
+                ))}
+              </div>
             </section>
           ) : <div />}
           <aside className="wiki-infobox">
@@ -110,32 +122,7 @@ export default function HomePage() {
         </div>
 
         <div className="wiki-main">
-            <div className="home-split">
-              <section>
-                <h2 className="wiki-h">热门梗</h2>
-                <ol className="home-list">
-                  {popular.map((meme) => (
-                    <li key={meme.slug}>
-                      <Link href={`/meme/${meme.slug}`}>{meme.title}</Link>
-                      <span>{meme.summary}</span>
-                    </li>
-                  ))}
-                </ol>
-                <p className="home-more"><Link href="/memes">全部梗</Link></p>
-              </section>
-              <section>
-                <h2 className="wiki-h">最新收录</h2>
-                <ul className="home-list">
-                  {latest.map((meme) => (
-                    <li key={meme.slug}>
-                      {meme.updated_at ? <time>{meme.updated_at}</time> : null}
-                      <Link href={`/meme/${meme.slug}`}>{meme.title}</Link>
-                      <span>{meme.summary}</span>
-                    </li>
-                  ))}
-                </ul>
-              </section>
-            </div>
+            <HomeMemeLists chronologicalMemes={chronological} latestMemes={latest} />
 
             <section>
               <h2 className="wiki-h">分类</h2>
