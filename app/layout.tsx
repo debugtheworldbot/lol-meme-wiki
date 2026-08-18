@@ -24,6 +24,10 @@ export const metadata: Metadata = {
   // 只声明卡片类型：title/description 留空，好让每个页面的 metadata 自己填，否则全站分享卡片都是站点名。
   twitter: { card: "summary_large_image" },
   category: "reference",
+  icons: {
+    icon: "/lol-meme-wiki-mark.png",
+    apple: "/lol-meme-wiki-mark.png",
+  },
 };
 
 export const viewport: Viewport = {

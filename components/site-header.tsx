@@ -1,5 +1,6 @@
 import Link from "next/link";
-import { BookOpenText, GitFork } from "lucide-react";
+import { GitFork } from "lucide-react";
+import Image from "next/image";
 import { SearchDialog } from "@/components/search-dialog";
 import { siteConfig } from "@/lib/site";
 import type { SearchRecord } from "@/lib/types";
@@ -16,7 +17,7 @@ export function SiteHeader({ records }: { records: SearchRecord[] }) {
     <header className="site-header">
       <div className="page-shell header-inner">
         <Link href="/" className="brand" aria-label="LOL 梗 Wiki 首页">
-          <span className="brand-mark" aria-hidden="true"><BookOpenText size={18} /></span>
+          <span className="brand-mark" aria-hidden="true"><Image src="/lol-meme-wiki-mark.png" alt="" width={30} height={30} priority /></span>
           <span>LOL 梗 Wiki</span>
           <span className="brand-beta">BETA</span>
         </Link>
