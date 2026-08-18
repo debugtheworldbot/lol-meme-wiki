@@ -386,14 +386,16 @@ button { color: inherit; }
 .wiki-infobox td { color: #222; }
 .wiki-tag { color: #c0392b; }
 
-.wiki-timeline { margin: 0 0 8px; padding: 0; list-style: none; }
-.wiki-timeline li {
+.wiki-timeline {
   display: grid;
-  grid-template-columns: 52px 1fr;
+  grid-template-columns: minmax(52px, max-content) 1fr;
   gap: 12px;
-  padding: 0 0 12px;
+  margin: 0 0 8px;
+  padding: 0;
+  list-style: none;
 }
-.wiki-timeline time { color: #666; font-variant-numeric: tabular-nums; }
+.wiki-timeline li { display: contents; }
+.wiki-timeline time { color: #666; font-variant-numeric: tabular-nums; white-space: nowrap; }
 .wiki-timeline strong { display: block; margin-bottom: 2px; color: #111; }
 
 .wiki-refs { margin: 0 0 8px; padding-left: 22px; }
