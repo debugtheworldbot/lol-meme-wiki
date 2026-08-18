@@ -80,7 +80,7 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
                 onKeyDown={(event) => {
                   if (event.key === "Enter" && results[0]) visit(results[0]);
                 }}
-                placeholder="试试 4396、红温、厂长……"
+                placeholder="试试 YYDS、大魔王、世一上……"
                 aria-label="搜索梗、选手、战队或赛事"
               />
               <button onClick={() => setOpen(false)} aria-label="关闭搜索"><X size={19} /></button>

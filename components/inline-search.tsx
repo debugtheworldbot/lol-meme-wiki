@@ -34,7 +34,7 @@ export function InlineSearch({ records }: { records: SearchRecord[] }) {
           onChange={(event) => setQuery(event.target.value)}
           onFocus={() => setFocused(true)}
           onBlur={() => window.setTimeout(() => setFocused(false), 140)}
-          placeholder="搜索「4396」「红温」「大飞」……"
+          placeholder="搜索「YYDS」「大魔王」「世一上」……"
           aria-label="搜索 LOL 梗"
         />
         <button type="submit" aria-label="搜索"><ArrowRight size={21} /></button>
