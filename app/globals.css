@@ -20,13 +20,14 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; touch-action: manipulation; }
+html { scroll-behavior: smooth; touch-action: manipulation; overflow-x: clip; }
 body {
   margin: 0;
   color: #222;
   background: #fff;
   font-family: var(--sans);
   min-height: 100vh;
+  overflow-x: clip;
   -webkit-font-smoothing: antialiased;
 }
 a { color: inherit; text-decoration: none; }
@@ -419,7 +420,7 @@ button { color: inherit; }
   gap: 10px;
   margin: 18px 0 10px;
 }
-.wiki-home .inline-search-wrap { width: min(640px, 100%); flex: 1; }
+.wiki-home .inline-search-wrap { width: min(640px, 100%); min-width: 0; flex: 1; }
 .wiki-home .inline-search {
   height: 42px;
   border: 1px solid #c8c8c8;
@@ -428,7 +429,7 @@ button { color: inherit; }
   color: #888;
   padding-left: 12px;
 }
-.wiki-home .inline-search input { color: #222; font-size: 16px; }
+.wiki-home .inline-search input { min-width: 0; color: #222; font-size: 16px; }
 .wiki-home .inline-search input::placeholder { color: #999; }
 .wiki-home .inline-search button {
   width: 48px;
@@ -485,7 +486,7 @@ button { color: inherit; }
 .home-hotwords span { color: #888; }
 .home-split {
   display: grid;
-  grid-template-columns: 1fr 1fr;
+  grid-template-columns: minmax(0, 1fr) minmax(0, 1fr);
   gap: 0 28px;
 }
 .home-list { margin: 0 0 8px; padding: 0; list-style: none; }
@@ -514,13 +515,16 @@ button { color: inherit; }
 .home-more { display: inline-block; margin-top: 8px; font-size: 13px; }
 .home-cats {
   display: grid;
-  grid-template-columns: repeat(3, 1fr);
+  grid-template-columns: repeat(3, minmax(0, 1fr));
   gap: 18px 24px;
   font-size: 14px;
   line-height: 1.75;
+  min-width: 0;
 }
+.home-cats > div,
+.home-cats p { min-width: 0; }
 .home-cats strong { display: block; margin-bottom: 6px; color: #111; }
-.home-cats p { margin: 0; }
+.home-cats p { margin: 0; overflow-wrap: anywhere; }
 
 .entity-directory-grid { display: grid; grid-template-columns: repeat(3, 1fr); border-top: 1px solid var(--line); border-left: 1px solid var(--line); }
 .entity-directory-grid > a { min-height: 310px; display: flex; flex-direction: column; border-right: 1px solid var(--line); border-bottom: 1px solid var(--line); padding: 27px; transition: background .2s ease; }
@@ -599,7 +603,7 @@ button { color: inherit; }
   .footer-grid { grid-template-columns: 1fr auto; }
   .footer-note { grid-column: 1 / -1; justify-self: start; max-width: none; text-align: left; }
   .wiki-infobox { width: 240px; margin-left: 18px; }
-  .home-cats { grid-template-columns: 1fr; }
+  .home-cats { grid-template-columns: minmax(0, 1fr); }
   .entity-directory-grid { grid-template-columns: repeat(2, 1fr); }
   .submit-layout { grid-template-columns: 1fr; }
   .submission-guide { position: static; }
@@ -654,7 +658,7 @@ button { color: inherit; }
   .wiki-infobox { float: none; width: auto; margin: 0 0 18px; }
   .wiki-home .home-search { flex-direction: column; }
   .wiki-home .random-button { width: 100%; }
-  .home-split, .home-top { grid-template-columns: 1fr; }
+  .home-split, .home-top { grid-template-columns: minmax(0, 1fr); }
   .wiki-home .wiki-infobox { order: -1; }
   .entity-directory-grid { grid-template-columns: 1fr; }
   .submit-page-hero .page-shell { min-height: 400px; }
