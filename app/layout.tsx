@@ -24,7 +24,14 @@ export const metadata: Metadata = {
   category: "reference",
 };
 
-export const viewport: Viewport = { themeColor: "#ffffff", colorScheme: "light" };
+export const viewport: Viewport = {
+  themeColor: "#ffffff",
+  colorScheme: "light",
+  width: "device-width",
+  initialScale: 1,
+  maximumScale: 1,
+  userScalable: false,
+};
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const records = getSearchRecords();

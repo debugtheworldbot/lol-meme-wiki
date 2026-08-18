@@ -20,7 +20,7 @@
 }
 
 * { box-sizing: border-box; }
-html { scroll-behavior: smooth; }
+html { scroll-behavior: smooth; touch-action: manipulation; }
 body {
   margin: 0;
   color: #222;
@@ -428,7 +428,7 @@ button { color: inherit; }
   color: #888;
   padding-left: 12px;
 }
-.wiki-home .inline-search input { color: #222; font-size: 14px; }
+.wiki-home .inline-search input { color: #222; font-size: 16px; }
 .wiki-home .inline-search input::placeholder { color: #999; }
 .wiki-home .inline-search button {
   width: 48px;
