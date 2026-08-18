@@ -4,25 +4,35 @@ import { useMemo, useState } from "react";
 import Link from "next/link";
 import Fuse from "fuse.js";
 import { Search } from "lucide-react";
-import { useSearchParams } from "next/navigation";
+import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { MemeEntry } from "@/lib/types";
 
 export function MemeExplorer({ memes }: { memes: MemeEntry[] }) {
   const searchParams = useSearchParams();
+  const router = useRouter();
+  const pathname = usePathname();
   const allTags = useMemo(() => Array.from(new Set(memes.flatMap((meme) => meme.tags))), [memes]);
   const requested = searchParams.get("tag") ?? "全部";
+  const tag = allTags.includes(requested) ? requested : "全部";
   const tags = useMemo(() => {
     const chips = ["全部", ...allTags.slice(0, 12)];
-    if (requested !== "全部" && allTags.includes(requested) && !chips.includes(requested)) {
-      chips.splice(1, 0, requested);
+    if (tag !== "全部" && !chips.includes(tag)) {
+      chips.splice(1, 0, tag);
     }
     return chips;
-  }, [allTags, requested]);
+  }, [allTags, tag]);
   const [query, setQuery] = useState(() => (searchParams.get("q") ?? "").slice(0, 80));
-  const [tag, setTag] = useState(() => (allTags.includes(requested) ? requested : "全部"));
   const fuse = useMemo(() => new Fuse(memes, { keys: ["title", "aliases", "summary", "tags"], threshold: 0.35 }), [memes]);
   const searched = query ? fuse.search(query).map((result) => result.item) : memes;
   const visible = tag === "全部" ? searched : searched.filter((meme) => meme.tags.includes(tag));
+
+  function selectTag(next: string) {
+    const params = new URLSearchParams(searchParams.toString());
+    if (next === "全部") params.delete("tag");
+    else params.set("tag", next);
+    const qs = params.toString();
+    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  }
 
   return (
     <>
@@ -35,7 +45,7 @@ export function MemeExplorer({ memes }: { memes: MemeEntry[] }) {
       </div>
       <div className="tag-filter" aria-label="按类型筛选">
         {tags.map((item) => (
-          <button key={item} className={item === tag ? "active" : ""} onClick={() => setTag(item)}>{item}</button>
+          <button key={item} className={item === tag ? "active" : ""} onClick={() => selectTag(item)}>{item}</button>
         ))}
       </div>
       {visible.length ? (

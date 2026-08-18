@@ -130,7 +130,7 @@ export default async function MemeDetailPage({ params }: PageProps) {
                       ? meme.tags.map((tag, index) => (
                           <Fragment key={tag}>
                             {index > 0 ? "、" : null}
-                            <span className="wiki-tag">{tag}</span>
+                            <Link className="wiki-tag" href={`/memes?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
                           </Fragment>
                         ))
                       : "—"}
@@ -198,7 +198,7 @@ export default async function MemeDetailPage({ params }: PageProps) {
               {meme.tags.map((tag, index) => (
                 <Fragment key={tag}>
                   {index > 0 ? "、" : null}
-                  <Link href="/memes">{tag}</Link>
+                  <Link href={`/memes?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
                 </Fragment>
               ))}
             </p>
