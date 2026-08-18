@@ -30,6 +30,7 @@ npm run build        # 改路由、metadata、内容集合或生产配置时再�
 
 - TypeScript 严格；沿用现有组件和 `lib/content.ts` 的读取方式，勿另起内容层。
 - 新词条对齐现有 MDX 字段（`slug`、关联实体、`sources`、`timeline`）。关联用已有 slug，不要写死展示名当外键。
+- 加 `sources` 时优先用 Bilibili（`bilibili.com` / `b23.tv`）的原视频或合集；没有再退到赛事官网、新闻或其它平台。链接用可打开的 BV 页，`kind` 多为 `video`。
 - 令牌和站点配置走环境变量，见 `README.md`。不要把 `GITHUB_TOKEN`、`.env*` 写进仓库。
 - 生产依赖先问再加。脚本名以 `package.json` 为准。
 
