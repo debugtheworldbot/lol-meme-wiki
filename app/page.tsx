@@ -1,13 +1,13 @@
 /* 赛后公报室：首页以不对称档案首屏、朱砂索引与高密度可读信息为核心。 */
 import Link from "next/link";
 import { Fragment } from "react";
-import { ArrowUpRight, BookOpenText, CircleDot, Layers3, Sparkles } from "lucide-react";
+import { ArrowUpRight, BookOpenText, CircleDot, Layers3 } from "lucide-react";
 import { InlineSearch } from "@/components/inline-search";
 import { RandomMemeButton } from "@/components/random-meme-button";
 import { getEvents, getMemes, getPlayers, getSearchRecords, getTeams } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
 import { JsonLd } from "@/components/json-ld";
-import { HomeMemeLists } from "@/components/home-meme-lists";
+import { HomeMemeList } from "@/components/home-meme-lists";
 
 export default function HomePage() {
   const memes = getMemes();
@@ -16,9 +16,6 @@ export default function HomePage() {
   const teams = getTeams();
   const events = getEvents();
   const popular = [...memes].sort((a, b) => (b.heat ?? 0) - (a.heat ?? 0));
-  const recommended = Array.from(
-    new Map([...memes.filter((meme) => meme.featured), ...popular].map((meme) => [meme.slug, meme])).values(),
-  ).slice(0, 4);
   const chronological = [...memes].sort((a, b) => (b.first_seen ?? "").localeCompare(a.first_seen ?? ""));
   const latest = [...memes].sort((a, b) => (b.updated_at ?? "").localeCompare(a.updated_at ?? ""));
   const tags = [...new Set(memes.flatMap((meme) => meme.tags))].slice(0, 12);
@@ -79,27 +76,10 @@ export default function HomePage() {
       </section>
 
       <div className="wiki-shell home-content">
-        <section className="home-featured" aria-labelledby="featured-title">
-          <div className="section-label"><span>01 / 编辑台</span><p>从高频复读中，挑出值得回看的四份赛后卷宗。</p></div>
+        <section className="home-featured" aria-labelledby="timeline-title">
+          <div className="section-label"><span>01 / 时间线</span><p>按初见时间倒着回看，最近发生的复读句排在最前。</p></div>
           <div className="home-top">
-            {recommended.length ? (
-              <section className="home-recommendations">
-                <div className="home-recommendations-heading">
-                  <h2 id="featured-title">今日焦点</h2>
-                  <span><Sparkles size={13} /> 编辑精选</span>
-                </div>
-                <div className="home-recommendation-grid">
-                  {recommended.map((meme, index) => (
-                    <article key={meme.slug} className={index === 0 ? "lead-card" : ""}>
-                      <div className="recommendation-meta"><span>卷宗 {String(index + 1).padStart(2, "0")}</span>{meme.first_seen ? <time>{meme.first_seen}</time> : null}</div>
-                      <Link href={`/meme/${meme.slug}`}>{meme.title}<ArrowUpRight size={16} /></Link>
-                      <p>{meme.summary}</p>
-                      {meme.tags.length ? <div className="recommendation-tags">{meme.tags.slice(0, 3).map((tag) => <span key={tag}>{tag}</span>)}</div> : null}
-                    </article>
-                  ))}
-                </div>
-              </section>
-            ) : <div />}
+            <HomeMemeList headingId="timeline-title" title="按时间排序" description="从刚刚诞生的复读句，倒着回看那些至今仍在被引用的名场面。" memes={chronological} showFirstSeen />
             <aside className="wiki-infobox home-index-card">
               <div className="wiki-infobox-title"><Layers3 size={15} /> 收录索引</div>
               <table><tbody>
@@ -115,8 +95,8 @@ export default function HomePage() {
         </section>
 
         <main className="wiki-main home-main">
-          <div className="section-label home-list-label"><span>02 / 时间线</span><p>一边按发生时间回看，一边追踪站内最近补全的资料。</p></div>
-          <HomeMemeLists chronologicalMemes={chronological} latestMemes={latest} />
+          <div className="section-label home-list-label"><span>02 / 归档动态</span><p>追踪站内最近补齐出处、更新语境的词条。</p></div>
+          <HomeMemeList title="最新收录" description="最近补齐出处、更新语境或刚刚被整理进档案室的词条。" memes={latest} />
           <section className="home-catalogue" aria-labelledby="catalogue-title">
             <div className="section-label"><span>03 / 索引柜</span><p>从人、队伍与赛事三个入口，继续追踪一条梗的来处。</p></div>
             <h2 id="catalogue-title">继续翻阅</h2>

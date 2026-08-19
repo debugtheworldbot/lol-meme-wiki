@@ -8,9 +8,9 @@ import type { MemeEntry } from "@/lib/types";
 
 const PAGE_SIZE = 6;
 
-type PaginatedListProps = { title: string; description: string; memes: MemeEntry[]; showFirstSeen?: boolean; };
+type HomeMemeListProps = { title: string; description: string; memes: MemeEntry[]; showFirstSeen?: boolean; headingId?: string; };
 
-function PaginatedList({ title, description, memes, showFirstSeen = false }: PaginatedListProps) {
+export function HomeMemeList({ title, description, memes, showFirstSeen = false, headingId }: HomeMemeListProps) {
   const [page, setPage] = useState(1);
   const totalPages = Math.max(1, Math.ceil(memes.length / PAGE_SIZE));
   const currentPage = Math.min(page, totalPages);
@@ -20,7 +20,7 @@ function PaginatedList({ title, description, memes, showFirstSeen = false }: Pag
 
   return (
     <section className="home-list-section" aria-label={title}>
-      <div className="home-list-heading"><div><h2>{title}</h2><p>{description}</p></div><span>{memes.length} 条</span></div>
+      <div className="home-list-heading"><div><h2 id={headingId}>{title}</h2><p>{description}</p></div><span>{memes.length} 条</span></div>
       <ol className="home-list">
         {visible.map((meme, index) => (
           <li key={meme.slug}>
@@ -45,8 +45,4 @@ function PaginatedList({ title, description, memes, showFirstSeen = false }: Pag
       </div>
     </section>
   );
-}
-
-export function HomeMemeLists({ chronologicalMemes, latestMemes }: { chronologicalMemes: MemeEntry[]; latestMemes: MemeEntry[] }) {
-  return <div className="home-split"><PaginatedList title="按时间排序" description="从刚刚诞生的复读句，倒着回看那些至今仍在被引用的名场面。" memes={chronologicalMemes} showFirstSeen /><PaginatedList title="最新收录" description="最近补齐出处、更新语境或刚刚被整理进档案室的词条。" memes={latestMemes} /></div>;
 }
