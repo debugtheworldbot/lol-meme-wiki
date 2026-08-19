@@ -9,3 +9,5 @@ out
 .wrangler
 work
 .env*
+
+next-env.d.ts
