@@ -3,7 +3,7 @@
 import { useMemo, useState } from "react";
 import Link from "next/link";
 import Fuse from "fuse.js";
-import { Search } from "lucide-react";
+import { ArrowUpRight, Search } from "lucide-react";
 import { usePathname, useRouter, useSearchParams } from "next/navigation";
 import type { MemeEntry } from "@/lib/types";
 
@@ -49,11 +49,12 @@ export function MemeExplorer({ memes }: { memes: MemeEntry[] }) {
         ))}
       </div>
       {visible.length ? (
-        <ul className="home-list">
+        <ul className="entry-list">
           {visible.map((meme) => (
             <li key={meme.slug}>
-              <Link href={`/meme/${meme.slug}`}>{meme.title}</Link>
-              <span>{meme.summary}</span>
+              <Link href={`/meme/${meme.slug}`}>{meme.title}<ArrowUpRight size={14} /></Link>
+              {meme.tags.length ? <span className="entry-alias">{meme.tags.slice(0, 3).join(" · ")}</span> : null}
+              <p>{meme.summary}</p>
             </li>
           ))}
         </ul>
