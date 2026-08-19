@@ -16,7 +16,9 @@ export default function HomePage() {
   const teams = getTeams();
   const events = getEvents();
   const popular = [...memes].sort((a, b) => (b.heat ?? 0) - (a.heat ?? 0));
-  const chronological = [...memes].sort((a, b) => (b.first_seen ?? "").localeCompare(a.first_seen ?? ""));
+  /* 初见只认 YYYY / YYYY-MM 这类可比较写法；“更早”等未定时间沉到时间线末尾，不占头部。 */
+  const datedFirstSeen = (value?: string) => (/^\d{4}/.test(value ?? "") ? (value as string) : "");
+  const chronological = [...memes].sort((a, b) => datedFirstSeen(b.first_seen).localeCompare(datedFirstSeen(a.first_seen)));
   const latest = [...memes].sort((a, b) => (b.updated_at ?? "").localeCompare(a.updated_at ?? ""));
   const tags = [...new Set(memes.flatMap((meme) => meme.tags))].slice(0, 12);
   const typeCounts = [
