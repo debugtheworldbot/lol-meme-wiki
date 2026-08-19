@@ -797,3 +797,23 @@ body { color: var(--ink-editorial); background: var(--paper-warm); }
 .button-primary { background: var(--ink-editorial); box-shadow: 3px 3px 0 var(--vermilion); }.button-primary:hover { background: var(--vermilion); box-shadow: 1px 1px 0 var(--ink-editorial); transform: translate(2px,2px); }.button-secondary { border-color: var(--rule); background: rgba(255,255,255,.48); color: var(--ink-editorial); }.button-secondary:hover { border-color: var(--vermilion); }.text-button { border-color: var(--vermilion); color: var(--vermilion); }
 .site-footer { border-top-color: var(--rule); background: #efe5d5; color: #68716b; }.footer-logo { color: var(--ink-editorial); }.footer-links a { color: var(--ink-editorial); border-bottom: 1px solid transparent; }.footer-links a:hover { color: var(--vermilion); border-color: var(--vermilion); }
 @media (max-width:680px) { .wiki-page:not(.wiki-home) .wiki-shell { padding-block: 34px 52px; }.wiki-head h1 { font-size:34px; }.wiki-h,.wiki-prose h2 { font-size:23px; }.home-tag-footer p:last-child { justify-self:start; } }
+
+/* ─── 纠错弹层：站内直接提交，不跳转 GitHub ─────────────────────────────── */
+.wiki-tool-button { border: 0; background: transparent; padding: 0 0 2px; font: inherit; line-height: 1.2; color: #1a7dc0; cursor: pointer; border-bottom: 1px solid currentColor; }
+.wiki-tool-button:hover { color: var(--vermilion); }
+.correction-overlay { position: fixed; inset: 0; z-index: 120; display: grid; place-items: center; padding: 20px; background: rgba(18,26,30,.4); animation: fade-in .16s ease-out; }
+.correction-modal { width: min(560px, 100%); max-height: calc(100dvh - 40px); overflow-y: auto; border: 1px solid var(--rule); background: #fbf8f2; box-shadow: 0 18px 52px rgba(18,26,30,.22); animation: modal-in .22s ease-out; color: #222; }
+.correction-head { display: flex; align-items: flex-start; justify-content: space-between; gap: 16px; border-bottom: 1px solid var(--rule); padding: 18px 20px; }
+.correction-eyebrow { display: inline-flex; align-items: center; gap: 6px; color: var(--vermilion); font: 800 10px var(--mono); letter-spacing: .12em; text-transform: uppercase; }
+.correction-head strong { display: block; margin-top: 6px; color: var(--ink-editorial); font: 800 20px var(--serif); letter-spacing: -.02em; }
+.correction-close { display: grid; place-items: center; width: 32px; height: 32px; flex: none; border: 0; background: transparent; color: #888; cursor: pointer; }
+.correction-close:hover { color: var(--ink-editorial); }
+.correction-form.submission-form { border: 0; background: transparent; box-shadow: none; padding: 20px; }
+.correction-form.submission-form > label { margin-bottom: 14px; }
+.correction-submit { display: flex; align-items: center; justify-content: space-between; gap: 16px; border-top: 1px solid #e6e6e6; padding-top: 16px; }
+.correction-submit p { margin: 0; max-width: 300px; color: #666; font-size: 12px; line-height: 1.6; }
+.correction-result { padding: 24px 20px 26px; }
+.correction-result h3 { margin: 14px 0 8px; color: var(--ink-editorial); font: 700 19px var(--sans); }
+.correction-result > p { margin: 0; color: #555; font-size: 14px; line-height: 1.7; }
+.correction-result .text-button { margin-top: 16px; }
+@media (max-width: 680px) { .correction-submit { flex-direction: column; align-items: stretch; }.correction-submit .button-primary { width: 100%; } }

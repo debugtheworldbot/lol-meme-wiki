@@ -4,9 +4,9 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getEntity, getMemesForEntity } from "@/lib/content";
 import type { EntityKind } from "@/lib/types";
-import { getIssueUrl } from "@/lib/utils";
 import { buildBreadcrumbJsonLd, buildEntityJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/json-ld";
+import { CorrectionDialog } from "@/components/correction-dialog";
 
 const config = {
   player: { label: "选手", list: "/players" },
@@ -19,7 +19,6 @@ export function EntityDetail({ kind, slug }: { kind: Exclude<EntityKind, "meme">
   if (!entry) notFound();
   const memes = getMemesForEntity(kind, slug);
   const meta = config[kind];
-  const issueUrl = getIssueUrl(entry.title, `/${kind}/${slug}`);
 
   return (
     <article className="wiki-page">
@@ -48,7 +47,7 @@ export function EntityDetail({ kind, slug }: { kind: Exclude<EntityKind, "meme">
             <li aria-current="page">{entry.title}</li>
           </ol>
           <div className="wiki-tools">
-            <Link href={issueUrl}>纠错</Link>
+            <CorrectionDialog title={entry.title} pathname={`/${kind}/${slug}`} />
           </div>
         </nav>
 

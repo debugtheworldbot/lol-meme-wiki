@@ -7,9 +7,9 @@ import { getEntity, getEntityTitle, getMeme, getMemes, getRelatedMemes } from "@
 import { buildBreadcrumbJsonLd, buildMemeMetadata } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 import type { EntityKind, MemeEntry } from "@/lib/types";
-import { getIssueUrl } from "@/lib/utils";
 import { WikiLinkedText } from "@/components/wiki-linked-text";
 import { JsonLd } from "@/components/json-ld";
+import { CorrectionDialog } from "@/components/correction-dialog";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -72,7 +72,6 @@ export default async function MemeDetailPage({ params }: PageProps) {
   const meme = getMeme(slug);
   if (!meme) notFound();
   const related = getRelatedMemes(meme);
-  const issueUrl = getIssueUrl(meme.title, `/meme/${meme.slug}`);
   const terms = collectWikiTerms(meme);
   const jsonLd = {
     "@context": "https://schema.org",
@@ -105,7 +104,7 @@ export default async function MemeDetailPage({ params }: PageProps) {
             <li aria-current="page">{meme.title}</li>
           </ol>
           <div className="wiki-tools">
-            <Link href={issueUrl}>纠错</Link>
+            <CorrectionDialog title={meme.title} pathname={`/meme/${meme.slug}`} />
           </div>
         </nav>
 

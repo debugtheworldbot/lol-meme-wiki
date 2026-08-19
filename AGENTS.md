@@ -23,7 +23,7 @@ components/                                UI
 - **搜索索引在服务端生成。** `getSearchRecords()` 把四个集合拍平成 `SearchRecord[]`，含 aliases 和从关联实体展开的 keywords；`layout.tsx` 注入后由 Fuse.js 在客户端（`search-dialog` / `inline-search` / `meme-explorer`）检索。想让某词能搜到，加进 `aliases` 或 `tags`，不要改搜索组件。
 - **加 MDX 文件即上线**：静态路由、目录页、聚合页、搜索索引、`sitemap.ts` 全部自动跟随，无需注册。
 - **样式是 `app/globals.css` 里一套语义类名**（`wiki-page` / `wiki-shell` / `wiki-infobox` / `wiki-prose`…，~670 行 + CSS 变量）。Tailwind v4 只是 `@import` 进来，组件里**不写 utility class**；`lib/utils.ts` 的 `cn()` 目前无人使用。新 UI 沿用语义类名，不要开始堆 utility。
-- **`/api/submit` 三态降级**：有 `GITHUB_TOKEN` + repo → 建 Issue；只有 repo → 返回预填 Issue 链接；都没有 → 返回可复制的 markdown 草稿。含 honeypot 字段 `website`。纠错入口走 `lib/utils.ts` 的 `getIssueUrl()`。
+- **`/api/submit` 三态降级**：有 `GITHUB_TOKEN` + repo → 建 Issue；只有 repo → 返回预填 Issue 链接；都没有 → 返回可复制的 markdown 草稿。含 honeypot 字段 `website`。纠错入口 `components/correction-dialog.tsx` 是站内弹层，走同款三态降级的 `/api/submit` 姊妹路由 `/api/correction`（标题 `[补充/纠错]`、label `内容纠错`），默认直接建 Issue，不跳 GitHub。
 - **SEO 分散在页面里**：每页自己的 `generateMetadata` + canonical，meme 页发 `DefinedTerm` JSON-LD、首页发 `WebSite` + SearchAction，`sitemap.ts` / `robots.ts` 从内容生成。加新路由记得补这几样。
 
 ## 命令
