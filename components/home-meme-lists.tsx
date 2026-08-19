@@ -6,22 +6,24 @@ import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import type { MemeEntry } from "@/lib/types";
 
-const PAGE_SIZE = 6;
+/* 单栏每页 6 条；双栏在宽屏是 4 行 × 2 列，故每页 8 条 */
+const PAGE_SIZE = { 1: 6, 2: 8 } as const;
 
-type HomeMemeListProps = { title: string; description: string; memes: MemeEntry[]; showFirstSeen?: boolean; headingId?: string; };
+type HomeMemeListProps = { title: string; description: string; memes: MemeEntry[]; showFirstSeen?: boolean; headingId?: string; columns?: 1 | 2; };
 
-export function HomeMemeList({ title, description, memes, showFirstSeen = false, headingId }: HomeMemeListProps) {
+export function HomeMemeList({ title, description, memes, showFirstSeen = false, headingId, columns = 1 }: HomeMemeListProps) {
   const [page, setPage] = useState(1);
-  const totalPages = Math.max(1, Math.ceil(memes.length / PAGE_SIZE));
+  const pageSize = PAGE_SIZE[columns];
+  const totalPages = Math.max(1, Math.ceil(memes.length / pageSize));
   const currentPage = Math.min(page, totalPages);
-  const start = (currentPage - 1) * PAGE_SIZE;
-  const visible = memes.slice(start, start + PAGE_SIZE);
-  const fillers = Array.from({ length: PAGE_SIZE - visible.length }, (_, index) => index);
+  const start = (currentPage - 1) * pageSize;
+  const visible = memes.slice(start, start + pageSize);
+  const fillers = Array.from({ length: pageSize - visible.length }, (_, index) => index);
 
   return (
     <section className="home-list-section" aria-label={title}>
       <div className="home-list-heading"><div><h2 id={headingId}>{title}</h2><p>{description}</p></div><span>{memes.length} 条</span></div>
-      <ol className="home-list">
+      <ol className={columns === 2 ? "home-list home-list-split" : "home-list"}>
         {visible.map((meme, index) => (
           <li key={meme.slug}>
             <span className="list-index">{String(start + index + 1).padStart(2, "0")}</span>

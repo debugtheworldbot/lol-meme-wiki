@@ -96,7 +96,7 @@ export default function HomePage() {
 
         <main className="wiki-main home-main">
           <div className="section-label home-list-label"><span>02 / 归档动态</span><p>追踪站内最近补齐出处、更新语境的词条。</p></div>
-          <HomeMemeList title="最新收录" description="最近补齐出处、更新语境或刚刚被整理进档案室的词条。" memes={latest} />
+          <HomeMemeList columns={2} title="最新收录" description="最近补齐出处、更新语境或刚刚被整理进档案室的词条。" memes={latest} />
           <section className="home-catalogue" aria-labelledby="catalogue-title">
             <div className="section-label"><span>03 / 索引柜</span><p>从人、队伍与赛事三个入口，继续追踪一条梗的来处。</p></div>
             <h2 id="catalogue-title">继续翻阅</h2>
