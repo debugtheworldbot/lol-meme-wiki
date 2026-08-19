@@ -18,7 +18,7 @@ export function SiteHeader({ records }: { records: SearchRecord[] }) {
     <header className="site-header">
       <div className="page-shell header-inner">
         <Link href="/" className="brand" aria-label="研发.lol 英雄联盟梗百科 首页">
-          <span className="brand-mark" aria-hidden="true"><Image src="/lol-meme-wiki-mark.png" alt="" width={30} height={30} priority /></span>
+          <span className="brand-mark" aria-hidden="true"><Image src="/lol-meme-wiki-mark.png" alt="" width={36} height={36} priority /></span>
           <span className="brand-text">
             <span className="brand-title">研发.lol<span className="brand-beta">BETA</span></span>
             <span className="brand-sub">英雄联盟梗百科</span>

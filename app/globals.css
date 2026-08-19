@@ -241,8 +241,10 @@ button { color: inherit; }
 
 .site-footer { border-top: 1px solid #e6e6e6; background: #f7f7f7; color: #666; }
 .footer-grid { min-height: 140px; display: grid; grid-template-columns: 1fr auto 1fr; align-items: center; gap: 60px; }
-.footer-logo { margin: 0 0 10px; color: #111; font: 700 18px var(--sans); }
-.footer-logo span { color: #888; font: 9px var(--mono); vertical-align: top; }
+.footer-logo { display: flex; align-items: center; gap: 10px; margin: 0 0 10px; color: #111; }
+.footer-logo img { display: block; width: 36px; height: 36px; border-radius: 8px; object-fit: cover; }
+.footer-logo span { font: 700 18px var(--sans); }
+.footer-logo sup { color: #888; font: 9px var(--mono); vertical-align: top; }
 .footer-grid > div:first-child > p:last-child, .footer-note { color: #888; font-size: 12px; line-height: 1.7; }
 .footer-links { display: flex; gap: 24px; font-size: 13px; }
 .footer-links a { color: #1a7dc0; }
@@ -692,7 +694,7 @@ body { color: var(--ink-editorial); background: var(--paper-warm); }
 .site-header { border-bottom: 1px solid var(--rule); background: rgba(247,241,229,.93); backdrop-filter: blur(14px); }
 .header-inner { min-height: 66px; }
 .brand { color: var(--ink-editorial); font-weight: 800; letter-spacing: -.02em; }
-.brand-mark { width: 36px; height: 36px; border-radius: 0; background: var(--ink-editorial); box-shadow: 3px 3px 0 var(--vermilion); }
+.brand-mark { width: 36px; height: 36px; border-radius: 8px; background: transparent; box-shadow: none; }
 .brand-beta { border-color: rgba(199,66,50,.38); color: var(--vermilion); }
 .brand-sub { color: rgba(31,31,31,.58); font-weight: 600; }
 .main-nav { gap: 24px; }

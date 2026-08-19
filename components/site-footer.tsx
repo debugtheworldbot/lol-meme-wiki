@@ -1,11 +1,15 @@
 import Link from "next/link";
+import Image from "next/image";
 
 export function SiteFooter() {
   return (
     <footer className="site-footer">
       <div className="page-shell footer-grid">
         <div>
-          <p className="footer-logo">LOL 梗 Wiki<span>®</span></p>
+          <p className="footer-logo">
+            <Image src="/lol-meme-wiki-mark.png" alt="" width={36} height={36} />
+            <span>LOL 梗 Wiki<sup>®</sup></span>
+          </p>
           <p>记录社区用法，不替社区判断人物。</p>
         </div>
         <div className="footer-links">
