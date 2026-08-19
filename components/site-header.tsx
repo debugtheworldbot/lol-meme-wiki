@@ -17,10 +17,12 @@ export function SiteHeader({ records }: { records: SearchRecord[] }) {
   return (
     <header className="site-header">
       <div className="page-shell header-inner">
-        <Link href="/" className="brand" aria-label="LOL 梗 Wiki 首页">
+        <Link href="/" className="brand" aria-label="研发.lol 英雄联盟梗百科 首页">
           <span className="brand-mark" aria-hidden="true"><Image src="/lol-meme-wiki-mark.png" alt="" width={30} height={30} priority /></span>
-          <span>LOL 梗 Wiki</span>
-          <span className="brand-beta">BETA</span>
+          <span className="brand-text">
+            <span className="brand-title">研发.lol<span className="brand-beta">BETA</span></span>
+            <span className="brand-sub">英雄联盟梗百科</span>
+          </span>
         </Link>
         <nav className="main-nav" aria-label="主导航">
           {navItems.map(([label, href]) => (

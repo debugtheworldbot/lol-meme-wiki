@@ -1,8 +1,8 @@
-/* 赛后公报室：词条列表以时间标尺、卷宗编号和渐进展开替代普通“加载更多”按钮。 */
+/* 赛后公报室：词条列表以时间标尺、卷宗编号与定长翻页替代普通“加载更多”按钮。 */
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, ChevronDown } from "lucide-react";
+import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
 import type { MemeEntry } from "@/lib/types";
 
@@ -12,8 +12,11 @@ type PaginatedListProps = { title: string; description: string; memes: MemeEntry
 
 function PaginatedList({ title, description, memes, showFirstSeen = false }: PaginatedListProps) {
   const [page, setPage] = useState(1);
-  const visible = memes.slice(0, page * PAGE_SIZE);
-  const hasNextPage = visible.length < memes.length;
+  const totalPages = Math.max(1, Math.ceil(memes.length / PAGE_SIZE));
+  const currentPage = Math.min(page, totalPages);
+  const start = (currentPage - 1) * PAGE_SIZE;
+  const visible = memes.slice(start, start + PAGE_SIZE);
+  const fillers = Array.from({ length: PAGE_SIZE - visible.length }, (_, index) => index);
 
   return (
     <section className="home-list-section" aria-label={title}>
@@ -21,7 +24,7 @@ function PaginatedList({ title, description, memes, showFirstSeen = false }: Pag
       <ol className="home-list">
         {visible.map((meme, index) => (
           <li key={meme.slug}>
-            <span className="list-index">{String(index + 1).padStart(2, "0")}</span>
+            <span className="list-index">{String(start + index + 1).padStart(2, "0")}</span>
             <div className="home-list-copy">
               {showFirstSeen && meme.first_seen ? <time>初见 {meme.first_seen}</time> : null}
               {!showFirstSeen && meme.updated_at ? <time>归档 {meme.updated_at}</time> : null}
@@ -30,9 +33,14 @@ function PaginatedList({ title, description, memes, showFirstSeen = false }: Pag
             </div>
           </li>
         ))}
+        {fillers.map((filler) => <li key={`filler-${filler}`} className="home-list-filler" aria-hidden="true" />)}
       </ol>
       <div className="home-list-actions">
-        {hasNextPage ? <button type="button" className="home-load-more" onClick={() => setPage((current) => current + 1)}><ChevronDown size={15} /> 展开下一组词条 <small>+{Math.min(PAGE_SIZE, memes.length - visible.length)}</small></button> : <span className="home-list-complete">本卷宗已展开全部 {memes.length} 条</span>}
+        <div className="home-pager">
+          <button type="button" onClick={() => setPage(currentPage - 1)} disabled={currentPage <= 1} aria-label="上一页"><ChevronLeft size={15} /> 上一页</button>
+          <span className="home-pager-status">{String(currentPage).padStart(2, "0")} / {String(totalPages).padStart(2, "0")}</span>
+          <button type="button" onClick={() => setPage(currentPage + 1)} disabled={currentPage >= totalPages} aria-label="下一页">下一页 <ChevronRight size={15} /></button>
+        </div>
         <Link href="/memes">查看完整目录 <ArrowUpRight size={14} /></Link>
       </div>
     </section>
