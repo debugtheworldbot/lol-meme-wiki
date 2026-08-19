@@ -59,7 +59,7 @@ export function SubmissionForm() {
   return (
     <form className="submission-form" onSubmit={submit}>
       <div className="form-row two-columns">
-        <label><span>梗名称 <b>*</b></span><input name="name" required maxLength={80} placeholder="例如：科目四" /></label>
+        <label><span>梗名称 <b>*</b></span><input name="name" required maxLength={80} placeholder="例如：我 Chovy" /></label>
         <label><span>一句话解释 <b>*</b></span><input name="summary" required maxLength={180} placeholder="用一句话回答“这是什么梗？”" /></label>
       </div>
       <label><span>详细说明</span><textarea name="details" rows={6} placeholder="发生了什么？后来这个词又是怎么被使用的？" /></label>
@@ -68,9 +68,9 @@ export function SubmissionForm() {
         <label><span>来源类型</span><select name="sourceType" defaultValue="比赛"><option>比赛</option><option>视频</option><option>帖子</option><option>直播</option><option>其他</option></select></label>
       </div>
       <div className="form-row three-columns">
-        <label><span>相关人物</span><input name="players" placeholder="Clearlove, Uzi" /></label>
-        <label><span>相关战队</span><input name="teams" placeholder="EDG" /></label>
-        <label><span>相关赛事</span><input name="events" placeholder="Worlds 2016" /></label>
+        <label><span>相关人物</span><input name="players" placeholder="Chovy, Bin" /></label>
+        <label><span>相关战队</span><input name="teams" placeholder="BLG" /></label>
+        <label><span>相关赛事</span><input name="events" placeholder="Worlds 2025" /></label>
       </div>
       <label><span>补充说明</span><textarea name="notes" rows={3} placeholder="有争议的说法、待核实信息，或你希望编辑注意的语境。" /></label>
       <label className="form-honeypot" aria-hidden="true">请勿填写<input name="website" tabIndex={-1} autoComplete="off" /></label>
