@@ -708,9 +708,10 @@ body { color: var(--ink-editorial); background: var(--paper-warm); }
 
 .wiki-page { background: var(--paper-warm); color: var(--ink-editorial); }
 .wiki-shell { width: min(1180px, calc(100% - 48px)); padding: 0; }
-.home-hero { position: relative; overflow: hidden; border-bottom: 1px solid var(--rule); background: radial-gradient(circle at 83% 16%, rgba(199,66,50,.12), transparent 18rem), linear-gradient(120deg, #f7f1e5 0%, #f7f1e5 66%, #efe4d2 100%); }
-.home-hero::before { content: ""; position: absolute; inset: 0; opacity: .44; background-image: linear-gradient(rgba(30,43,50,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(30,43,50,.04) 1px, transparent 1px); background-size: 32px 32px; mask-image: linear-gradient(90deg, #000 0 58%, transparent 96%); }
-.home-hero::after { content: ""; position: absolute; right: 7%; top: 12%; width: 27vw; height: 27vw; max-width: 350px; max-height: 350px; border: 1px solid rgba(30,43,50,.12); border-radius: 50%; box-shadow: 0 0 0 28px rgba(30,43,50,.025), 0 0 0 86px rgba(30,43,50,.018); }
+.home-hero { position: relative; border-bottom: 1px solid var(--rule); background: radial-gradient(circle at 83% 16%, rgba(199,66,50,.12), transparent 18rem), linear-gradient(120deg, #f7f1e5 0%, #f7f1e5 66%, #efe4d2 100%); }
+.home-hero-bg { position: absolute; inset: 0; overflow: hidden; pointer-events: none; }
+.home-hero-bg::before { content: ""; position: absolute; inset: 0; opacity: .44; background-image: linear-gradient(rgba(30,43,50,.04) 1px, transparent 1px), linear-gradient(90deg, rgba(30,43,50,.04) 1px, transparent 1px); background-size: 32px 32px; mask-image: linear-gradient(90deg, #000 0 58%, transparent 96%); }
+.home-hero-bg::after { content: ""; position: absolute; right: 7%; top: 12%; width: 27vw; height: 27vw; max-width: 350px; max-height: 350px; border: 1px solid rgba(30,43,50,.12); border-radius: 50%; box-shadow: 0 0 0 28px rgba(30,43,50,.025), 0 0 0 86px rgba(30,43,50,.018); }
 .home-hero-grid { position: relative; z-index: 1; display: grid; grid-template-columns: minmax(0, 1.55fr) minmax(300px,.6fr); min-height: 430px; }
 .home-hero-copy { padding: 46px 64px 48px 0; }
 .home-kicker, .section-label > span { display: flex; align-items: center; gap: 8px; margin: 0; color: var(--vermilion); font: 700 11px/1 var(--mono); letter-spacing: .13em; }

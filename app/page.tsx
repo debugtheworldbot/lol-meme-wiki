@@ -44,6 +44,7 @@ export default function HomePage() {
     <div className="wiki-page wiki-home">
       <JsonLd data={jsonLd} />
       <section className="home-hero" aria-labelledby="home-title">
+        <div className="home-hero-bg" aria-hidden="true" />
         <div className="wiki-shell home-hero-grid">
           <div className="home-hero-copy">
             <p className="home-kicker"><CircleDot size={13} /> 赛后公报室 · 持续归档</p>
