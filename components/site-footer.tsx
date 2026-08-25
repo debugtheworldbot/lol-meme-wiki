@@ -14,6 +14,7 @@ export function SiteFooter() {
         </div>
         <div className="footer-links">
           <Link href="/memes">全部梗</Link><Link href="/players">选手</Link><Link href="/teams">战队</Link><Link href="/events">赛事</Link><Link href="/submit">投稿</Link>
+          <Link href="/about">关于</Link><Link href="/contact">联系</Link><Link href="/privacy">隐私政策</Link>
         </div>
         <p className="footer-note">非 Riot Games 官方产品，亦未获得 Riot Games 认可。所有相关商标归其各自所有者。</p>
       </div>

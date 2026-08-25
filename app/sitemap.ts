@@ -4,7 +4,7 @@ import { siteConfig } from "@/lib/site";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteConfig.url;
-  const staticRoutes = ["", "/memes", "/players", "/teams", "/events", "/submit"].map((path) => ({ url: `${base}${path}`, changeFrequency: "weekly" as const, priority: path === "" ? 1 : 0.7 }));
+  const staticRoutes = ["", "/memes", "/players", "/teams", "/events", "/submit", "/about", "/contact", "/privacy"].map((path) => ({ url: `${base}${path}`, changeFrequency: "weekly" as const, priority: path === "" ? 1 : 0.7 }));
   const memes = getMemes().map((entry) => ({ url: `${base}/meme/${entry.slug}`, lastModified: entry.updated_at, changeFrequency: "monthly" as const, priority: 0.9 }));
   const entities = ([
     ["player", getPlayers()], ["team", getTeams()], ["event", getEvents()],
