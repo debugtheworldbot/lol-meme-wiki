@@ -54,6 +54,8 @@ npm run build      # 改路由、metadata、内容集合、生产配置时才跑
 
 ### 找料与来源
 
+知乎搜梗并对照站内、收录 MDX：先读 `.agents/skills/collect-memes/SKILL.md`（Claude / Cursor / Grok 各扫一份 symlink；只读 AGENTS 的 agent 直接打开该文件）。
+
 **优先查中文社区一手素材**，按此顺序：Bilibili（原视频/切片/合集，`bilibili.com` / `b23.tv` 的可打开 BV 页）→ 百度贴吧 → 虎扑步行街/JRs → NGA → 知乎、小红书、微博等；再退到赛事官网（`lol.qq.com`）、萌娘百科、新闻稿。英文侧可用 Reddit / Leaguepedia 交叉验证。现有 `sources` 分布以 Bilibili 为主（126 条）。
 
 **来源必须标清楚**：每条 `sources` 写 `title`（能看出是什么内容，不要只写“链接”）、`url`（可直接打开）、`kind`（`video` / `match` / `post` / `article`，页面按此显示“视频/比赛/帖子/文章”）。梗的说法归社区，不要把二手转述当出处；同一说法有争议时列多条来源，并在 `source_note` 里说明分歧。

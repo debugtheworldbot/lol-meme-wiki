@@ -33,7 +33,7 @@ description: >
 对照站内：
 
 ```bash
-python3 .grok/skills/collect-memes/scripts/inventory.py
+python3 .agents/skills/collect-memes/scripts/inventory.py
 ```
 
 按 title、aliases、正文关键词匹配。已有近义条（如「圣枪大师」vs「玉小刚」）标成衍生，不重复开条。
@@ -49,7 +49,7 @@ python3 .grok/skills/collect-memes/scripts/inventory.py
 5. 校验：
 
 ```bash
-python3 .grok/skills/collect-memes/scripts/validate-memes.py
+python3 .agents/skills/collect-memes/scripts/validate-memes.py
 ```
 
 不过不要提交。过了就 `feat(content): …`，中文 subject，只 stage 这次文件。
