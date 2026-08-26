@@ -44,6 +44,14 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   const records = getSearchRecords();
   return (
     <html lang="zh-CN" suppressHydrationWarning>
+      <head>
+        {/* AdSense 站点验证 + 广告投放：必须是 head 里的原生 script，Google 爬虫不执行 next/script 的客户端注入。 */}
+        <script
+          async
+          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3460143338187515"
+          crossOrigin="anonymous"
+        />
+      </head>
       <body>
         <a className="skip-link" href="#main-content">跳到正文</a>
         <SiteHeader records={records} />
