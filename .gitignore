@@ -11,3 +11,4 @@ work
 .env*
 
 next-env.d.ts
+docs/seo-weekly.md
