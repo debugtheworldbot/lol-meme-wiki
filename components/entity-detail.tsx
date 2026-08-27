@@ -59,21 +59,21 @@ export function EntityDetail({ kind, slug }: { kind: Exclude<EntityKind, "meme">
                 <tr><th>类型</th><td>{meta.label}</td></tr>
                 {entry.display_name ? <tr><th>常用名</th><td>{entry.display_name}</td></tr> : null}
                 {entry.aliases?.length ? <tr><th>又称</th><td>{entry.aliases.join("、")}</td></tr> : null}
-                <tr><th>赛区</th><td>{entry.region ?? "—"}</td></tr>
-                <tr><th>活跃</th><td>{entry.active_years ?? "—"}</td></tr>
-                <tr>
-                  <th>相关梗</th>
-                  <td>
-                    {memes.length
-                      ? memes.map((meme, index) => (
-                          <Fragment key={meme.slug}>
-                            {index > 0 ? "、" : null}
-                            <Link href={`/meme/${meme.slug}`}>{meme.title}</Link>
-                          </Fragment>
-                        ))
-                      : "—"}
-                  </td>
-                </tr>
+                {entry.region ? <tr><th>赛区</th><td>{entry.region}</td></tr> : null}
+                {entry.active_years ? <tr><th>活跃</th><td>{entry.active_years}</td></tr> : null}
+                {memes.length ? (
+                  <tr>
+                    <th>相关梗</th>
+                    <td>
+                      {memes.map((meme, index) => (
+                        <Fragment key={meme.slug}>
+                          {index > 0 ? "、" : null}
+                          <Link href={`/meme/${meme.slug}`}>{meme.title}</Link>
+                        </Fragment>
+                      ))}
+                    </td>
+                  </tr>
+                ) : null}
               </tbody>
             </table>
           </aside>

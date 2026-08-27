@@ -115,9 +115,9 @@ export default async function MemeDetailPage({ params }: PageProps) {
               <tbody>
                 <tr><th>类型</th><td>梗</td></tr>
                 <tr><th>出处</th><td>{meme.first_seen ?? "社区流传"}</td></tr>
-                <tr><th>相关人物</th><td><WikiJoin slugs={meme.players} kind="player" /></td></tr>
-                <tr><th>相关战队</th><td><WikiJoin slugs={meme.teams} kind="team" /></td></tr>
-                <tr><th>相关赛事</th><td><WikiJoin slugs={meme.events} kind="event" /></td></tr>
+                {meme.players.length ? <tr><th>相关人物</th><td><WikiJoin slugs={meme.players} kind="player" /></td></tr> : null}
+                {meme.teams.length ? <tr><th>相关战队</th><td><WikiJoin slugs={meme.teams} kind="team" /></td></tr> : null}
+                {meme.events.length ? <tr><th>相关赛事</th><td><WikiJoin slugs={meme.events} kind="event" /></td></tr> : null}
                 <tr>
                   <th>TAG标签</th>
                   <td>
