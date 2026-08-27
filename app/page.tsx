@@ -8,6 +8,7 @@ import { getEvents, getMemes, getPlayers, getSearchRecords, getTeams } from "@/l
 import { siteConfig } from "@/lib/site";
 import { JsonLd } from "@/components/json-ld";
 import { HomeMemeList } from "@/components/home-meme-lists";
+import { getTopicForTag } from "@/lib/topics";
 
 export default function HomePage() {
   const memes = getMemes();
@@ -88,7 +89,10 @@ export default function HomePage() {
               <table><tbody>
                 <tr><th>类型</th><td>社区百科</td></tr>
                 <tr><th>词条</th><td><Link href="/memes">{memes.length} 条</Link></td></tr>
-                {typeCounts.map((item) => <tr key={item.tag}><th>{item.tag}</th><td><Link href={`/memes?tag=${encodeURIComponent(item.tag)}`}>{item.count} {item.suffix}</Link></td></tr>)}
+                {typeCounts.map((item) => {
+                  const topic = getTopicForTag(item.tag);
+                  return <tr key={item.tag}><th>{item.tag}</th><td><Link href={topic ? `/topics/${topic.slug}` : `/memes?tag=${encodeURIComponent(item.tag)}`}>{item.count} {item.suffix}</Link></td></tr>;
+                })}
                 <tr><th>选手</th><td><Link href="/players">{players.length} 人</Link></td></tr>
                 <tr><th>战队</th><td><Link href="/teams">{teams.length} 支</Link></td></tr>
                 <tr><th>赛事</th><td><Link href="/events">{events.length} 项</Link></td></tr>
@@ -112,7 +116,7 @@ export default function HomePage() {
         </main>
 
         <footer className="wiki-cats home-tag-footer">
-          {tags.length ? <p><span>主题索引</span>{tags.map((tag) => <Link key={tag} href={`/memes?tag=${encodeURIComponent(tag)}`}>{tag}</Link>)}</p> : null}
+          {tags.length ? <p><span>主题索引</span>{tags.map((tag) => { const topic = getTopicForTag(tag); return <Link key={tag} href={topic ? `/topics/${topic.slug}` : `/memes?tag=${encodeURIComponent(tag)}`}>{tag}</Link>; })}<Link href="/topics">全部专题</Link></p> : null}
           <p><span>没找到想查的？</span><Link href="/submit">提交一份新卷宗 <ArrowUpRight size={14} /></Link></p>
         </footer>
       </div>

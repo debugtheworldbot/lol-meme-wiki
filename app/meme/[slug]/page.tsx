@@ -10,6 +10,7 @@ import type { EntityKind, MemeEntry } from "@/lib/types";
 import { WikiLinkedText } from "@/components/wiki-linked-text";
 import { JsonLd } from "@/components/json-ld";
 import { CorrectionDialog } from "@/components/correction-dialog";
+import { getTopicForTag } from "@/lib/topics";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
@@ -190,12 +191,15 @@ export default async function MemeDetailPage({ params }: PageProps) {
           {meme.tags.length ? (
             <p>
               <span>分类：</span>
-              {meme.tags.map((tag, index) => (
-                <Fragment key={tag}>
-                  {index > 0 ? "、" : null}
-                  <Link href={`/memes?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
-                </Fragment>
-              ))}
+              {meme.tags.map((tag, index) => {
+                const topic = getTopicForTag(tag);
+                return (
+                  <Fragment key={tag}>
+                    {index > 0 ? "、" : null}
+                    <Link href={topic ? `/topics/${topic.slug}` : `/memes?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
+                  </Fragment>
+                );
+              })}
             </p>
           ) : null}
           {related.length ? (
