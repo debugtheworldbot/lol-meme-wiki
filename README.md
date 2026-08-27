@@ -47,3 +47,7 @@ npm run lint
 npm run typecheck
 npm run build
 ```
+
+## SEO 复盘
+
+每周按 [Search Console SEO 表](docs/seo-weekly.md) 记录查询、页面机会、改动与复查结果。
