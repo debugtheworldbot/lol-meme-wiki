@@ -1,5 +1,4 @@
 /* 赛后公报室：暖纸、深墨、朱砂索引；避免霓虹和统一圆角卡片，保持档案感。 */
-@import url("https://fonts.googleapis.com/css2?family=Noto+Sans+SC:wght@400;500;600;700;800&family=Noto+Serif+SC:wght@500;600;700;800;900&display=swap");
 @import "tailwindcss";
 
 :root {
@@ -16,8 +15,8 @@
   --signal: #ff6948;
   --cyan: #68e8d1;
   --page: 1240px;
-  --serif: "Noto Serif SC", "Source Han Serif SC", "Songti SC", serif;
-  --sans: "Noto Sans SC", "PingFang SC", sans-serif;
+  --serif: var(--font-noto-serif), "Source Han Serif SC", "Songti SC", serif;
+  --sans: var(--font-noto-sans), "PingFang SC", sans-serif;
   --mono: "SFMono-Regular", "Cascadia Code", "Roboto Mono", monospace;
 }
 
