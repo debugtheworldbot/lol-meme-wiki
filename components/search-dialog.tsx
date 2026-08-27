@@ -1,7 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
-import { createPortal } from "react-dom";
+import { createPortal, flushSync } from "react-dom";
 import { useRouter } from "next/navigation";
 import Fuse from "fuse.js";
 import { ArrowUpRight, Search, X } from "lucide-react";
@@ -18,6 +18,7 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
   const triggerRef = useRef<HTMLButtonElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const wasOpenRef = useRef(false);
+  const navigatingRef = useRef(false);
   const router = useRouter();
   const fuse = useMemo(
     () => new Fuse(records, {
@@ -62,10 +63,11 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
       const timer = window.setTimeout(() => inputRef.current?.focus(), 20);
       return () => { window.clearTimeout(timer); document.body.style.overflow = ""; };
     }
-    /* 从弹层内任意路径关闭后，焦点回到触发的搜索按钮 */
+    /* 从弹层内任意路径关闭后，焦点回到触发的搜索按钮；因跳转而关闭时焦点归新页面 */
     if (wasOpenRef.current) {
       wasOpenRef.current = false;
-      triggerRef.current?.focus();
+      if (navigatingRef.current) navigatingRef.current = false;
+      else triggerRef.current?.focus();
     }
   }, [open]);
 
@@ -94,8 +96,13 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
 
   function visit(record: SearchRecord) {
     track("Search Result Click", { query, type: record.type, result: record.title });
-    setOpen(false);
-    setQuery("");
+    navigatingRef.current = true;
+    /* 必须先同步提交关闭：router.push 的 transition 会让 AppRouter 在 render 里挂起，
+       同一批次里的普通更新会被一起压住，弹层就停在页面上直到新路由数据到达 */
+    flushSync(() => {
+      setOpen(false);
+      setQuery("");
+    });
     router.push(record.href);
   }
 
@@ -129,6 +136,8 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
                     event.preventDefault();
                     moveActive(-1);
                   } else if (event.key === "Enter" && results[activeIndexSafe]) {
+                    /* 拦掉默认行为，避免关闭后残余的 keypress 打到新获得焦点的元素上 */
+                    event.preventDefault();
                     visit(results[activeIndexSafe]);
                   }
                 }}
