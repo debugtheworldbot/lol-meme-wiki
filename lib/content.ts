@@ -62,6 +62,7 @@ export function getSearchRecords(): SearchRecord[] {
     href: `/meme/${meme.slug}`,
     type: "meme",
     aliases: meme.aliases ?? [],
+    heat: meme.heat,
     keywords: [
       ...meme.players,
       ...meme.teams,

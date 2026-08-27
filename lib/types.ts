@@ -48,4 +48,5 @@ export interface SearchRecord {
   type: EntityKind;
   aliases: string[];
   keywords: string[];
+  heat?: number;
 }

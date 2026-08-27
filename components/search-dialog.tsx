@@ -31,7 +31,10 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
 
   const results = query.trim()
     ? fuse.search(query.trim(), { limit: 8 }).map((result) => result.item)
-    : records.filter((record) => record.type === "meme").slice(0, 6);
+    : records
+        .filter((record) => record.type === "meme")
+        .sort((a, b) => (b.heat ?? 0) - (a.heat ?? 0))
+        .slice(0, 6);
 
   useEffect(() => {
     function onKeyDown(event: KeyboardEvent) {
