@@ -30,7 +30,7 @@ export default function HomePage() {
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "WebSite",
-    name: "LOL 梗 Wiki",
+    name: "研发.lol",
     url: siteConfig.url,
     description: "英雄联盟与电竞社区梗文化档案",
     potentialAction: {

@@ -19,7 +19,7 @@ function markdown(title: string, pathname: string, content: string, source: stri
     source || "未提供",
     "",
     "---",
-    "由 LOL 梗 Wiki 纠错入口生成。",
+    "由 研发.lol 纠错入口生成。",
   ].join("\n");
 }
 

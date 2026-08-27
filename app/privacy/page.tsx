@@ -5,7 +5,7 @@ import { JsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
   title: "隐私政策",
-  description: "LOL 梗 Wiki 如何收集、使用与保护你的信息，以及第三方广告与统计的 Cookie 说明。",
+  description: "研发.lol 如何收集、使用与保护你的信息，以及第三方广告与统计的 Cookie 说明。",
   alternates: { canonical: "/privacy" },
 };
 
@@ -27,7 +27,7 @@ export default function PrivacyPage() {
 
         <div className="wiki-prose">
           <p>
-            本站 LOL 梗 Wiki（以下称“本站”）是一个记录英雄联盟及电竞社区文化的公益词条站。我们尽量少收集个人信息。本政策说明我们会接触到哪些数据、如何使用，以及第三方服务的相关处理。
+            本站 研发.lol（以下称“本站”）是一个记录英雄联盟及电竞社区文化的公益词条站。我们尽量少收集个人信息。本政策说明我们会接触到哪些数据、如何使用，以及第三方服务的相关处理。
           </p>
 
           <h2 className="wiki-h">我们收集的信息</h2>

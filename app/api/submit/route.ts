@@ -31,7 +31,7 @@ function markdown(payload: Submission) {
     value.notes || "无",
     "",
     "---",
-    "由 LOL 梗 Wiki 投稿表单生成。",
+    "由 研发.lol 投稿表单生成。",
   ].join("\n");
 }
 

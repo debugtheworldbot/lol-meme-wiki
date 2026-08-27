@@ -6,7 +6,7 @@ import { JsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
   title: "联系方式",
-  description: "如何投稿、纠错，或就内容、版权、隐私问题联系 LOL 梗 Wiki。",
+  description: "如何投稿、纠错，或就内容、版权、隐私问题联系 研发.lol。",
   alternates: { canonical: "/contact" },
 };
 

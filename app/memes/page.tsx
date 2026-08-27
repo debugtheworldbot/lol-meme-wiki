@@ -9,7 +9,7 @@ import { JsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
   title: "全部 LOL 梗",
-  description: "浏览 LOL 梗 Wiki 收录的英雄联盟与电竞社区梗，按名称、别名与类型快速筛选。",
+  description: "浏览 研发.lol 收录的英雄联盟与电竞社区梗，按名称、别名与类型快速筛选。",
   alternates: { canonical: "/memes" },
 };
 

@@ -1,4 +1,4 @@
-# LOL 梗 Wiki
+# 研发.lol
 
 一个以 MDX 内容为核心、由社区协作维护的英雄联盟梗文化 Wiki MVP。
 

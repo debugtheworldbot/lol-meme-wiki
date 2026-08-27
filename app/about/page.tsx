@@ -5,7 +5,7 @@ import { JsonLd } from "@/components/json-ld";
 
 export const metadata: Metadata = {
   title: "关于本站",
-  description: "LOL 梗 Wiki 是什么、收录原则、内容免责与参与方式。",
+  description: "研发.lol 是什么、收录原则、内容免责与参与方式。",
   alternates: { canonical: "/about" },
 };
 
@@ -27,7 +27,7 @@ export default function AboutPage() {
 
         <div className="wiki-prose">
           <p>
-            LOL 梗 Wiki 是一个记录《英雄联盟》及电竞社区文化的中文词条站。我们把散落在比赛、直播、贴吧、虎扑、B 站里那些“莫名其妙但大家都懂”的梗，尽量考证清楚出处、时间线和用法，收成可检索的条目。
+            研发.lol 是一个记录《英雄联盟》及电竞社区文化的中文词条站。我们把散落在比赛、直播、贴吧、虎扑、B 站里那些“莫名其妙但大家都懂”的梗，尽量考证清楚出处、时间线和用法，收成可检索的条目。
           </p>
 
           <h2 className="wiki-h">我们做什么</h2>

@@ -8,7 +8,7 @@ export function SiteFooter() {
         <div>
           <p className="footer-logo">
             <Image src="/lol-meme-wiki-mark.png" alt="" width={36} height={36} />
-            <span>LOL 梗 Wiki<sup>®</sup></span>
+            <span>研发.lol</span>
           </p>
           <p>记录社区用法，不替社区判断人物。</p>
         </div>
