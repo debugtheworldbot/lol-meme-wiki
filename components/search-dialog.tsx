@@ -1,6 +1,7 @@
 "use client";
 
 import { useEffect, useMemo, useRef, useState } from "react";
+import { createPortal } from "react-dom";
 import { useRouter } from "next/navigation";
 import Fuse from "fuse.js";
 import { ArrowUpRight, Search, X } from "lucide-react";
@@ -105,7 +106,8 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
         <span>搜索</span>
         <kbd>⌘ K</kbd>
       </button>
-      {open ? (
+      {open ? createPortal(
+        /* portal 到 body：site-header 的 backdrop-filter 会把 fixed 后代的包含块改成 header 自身，遮罩就只剩 header 那条 */
         <div className="search-overlay" role="presentation" onMouseDown={(event) => {
           if (event.target === event.currentTarget) setOpen(false);
         }}>
@@ -164,7 +166,8 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
             </div>
             <div className="search-hint"><kbd>↑</kbd><kbd>↓</kbd> 选择 <span>·</span> <kbd>Enter</kbd> 打开 <span>·</span> <kbd>Esc</kbd> 关闭</div>
           </section>
-        </div>
+        </div>,
+        document.body,
       ) : null}
     </>
   );
