@@ -79,6 +79,7 @@ export const getMemeListItems = cache((): MemeListItem[] =>
     aliases: meme.aliases ?? [],
     tags: meme.tags,
     heat: meme.heat,
+    first_seen: meme.first_seen,
     updated_at: meme.updated_at,
     keywords: getMemeKeywords(meme),
   })),

@@ -42,9 +42,15 @@ export interface MemeListItem {
   aliases: string[];
   tags: string[];
   heat?: number;
+  first_seen?: string;
   updated_at?: string;
   keywords: string[];
 }
+
+export type HomeMemeListItem = Pick<
+  MemeListItem,
+  "title" | "slug" | "summary" | "first_seen" | "updated_at"
+>;
 
 export interface EntityEntry extends BaseEntry {
   display_name?: string;

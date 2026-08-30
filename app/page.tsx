@@ -4,23 +4,35 @@ import { Fragment } from "react";
 import { ArrowUpRight, BookOpenText, CircleDot, Layers3 } from "lucide-react";
 import { InlineSearch } from "@/components/inline-search";
 import { RandomMemeButton } from "@/components/random-meme-button";
-import { getEvents, getMemes, getPlayers, getSearchRecords, getTeams } from "@/lib/content";
+import { getEvents, getMemeListItems, getPlayers, getSearchRecords, getTeams } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
 import { JsonLd } from "@/components/json-ld";
 import { HomeMemeList } from "@/components/home-meme-lists";
 import { getTopicForTag } from "@/lib/topics";
+import type { HomeMemeListItem, MemeListItem } from "@/lib/types";
+
+function toHomeMemeListItem(meme: MemeListItem): HomeMemeListItem {
+  return {
+    title: meme.title,
+    slug: meme.slug,
+    summary: meme.summary,
+    first_seen: meme.first_seen,
+    updated_at: meme.updated_at,
+  };
+}
 
 export default function HomePage() {
-  const memes = getMemes();
+  const memes = getMemeListItems();
   const records = getSearchRecords();
   const players = getPlayers();
   const teams = getTeams();
   const events = getEvents();
   const popular = [...memes].sort((a, b) => (b.heat ?? 0) - (a.heat ?? 0));
+  const homeMemeListItems = memes.map(toHomeMemeListItem);
   /* 初见只认 YYYY / YYYY-MM 这类可比较写法；“更早”等未定时间沉到时间线末尾，不占头部。 */
   const datedFirstSeen = (value?: string) => (/^\d{4}/.test(value ?? "") ? (value as string) : "");
-  const chronological = [...memes].sort((a, b) => datedFirstSeen(b.first_seen).localeCompare(datedFirstSeen(a.first_seen)));
-  const latest = [...memes].sort((a, b) => (b.updated_at ?? "").localeCompare(a.updated_at ?? ""));
+  const chronological = [...homeMemeListItems].sort((a, b) => datedFirstSeen(b.first_seen).localeCompare(datedFirstSeen(a.first_seen)));
+  const latest = [...homeMemeListItems].sort((a, b) => (b.updated_at ?? "").localeCompare(a.updated_at ?? ""));
   const tags = [...new Set(memes.flatMap((meme) => meme.tags))].slice(0, 12);
   const typeCounts = [
     { tag: "游戏梗", suffix: "条" },

@@ -4,12 +4,12 @@
 import Link from "next/link";
 import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
 import { useState } from "react";
-import type { MemeEntry } from "@/lib/types";
+import type { HomeMemeListItem } from "@/lib/types";
 
 /* 单栏每页 6 条；双栏在宽屏是 4 行 × 2 列，故每页 8 条 */
 const PAGE_SIZE = { 1: 6, 2: 8 } as const;
 
-type HomeMemeListProps = { title: string; description: string; memes: MemeEntry[]; showFirstSeen?: boolean; headingId?: string; columns?: 1 | 2; };
+type HomeMemeListProps = { title: string; description: string; memes: HomeMemeListItem[]; showFirstSeen?: boolean; headingId?: string; columns?: 1 | 2; };
 
 export function HomeMemeList({ title, description, memes, showFirstSeen = false, headingId, columns = 1 }: HomeMemeListProps) {
   const [page, setPage] = useState(1);
