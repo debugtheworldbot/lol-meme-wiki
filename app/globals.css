@@ -308,6 +308,64 @@ button { color: inherit; }
 .wiki-related li { display: grid; gap: 2px; padding: 0 0 12px; }
 .wiki-related span { color: #666; font-size: 13px; line-height: 1.65; }
 
+.meme-continue {
+  margin: 22px 0 28px;
+  border-block: 1px solid var(--rule);
+  padding: 14px 0;
+}
+.meme-continue-head {
+  display: flex;
+  align-items: baseline;
+  justify-content: space-between;
+  gap: 20px;
+  margin-bottom: 8px;
+}
+.meme-continue-head h2 {
+  margin: 0;
+  color: var(--ink-editorial);
+  font: 800 18px var(--serif);
+  letter-spacing: -.03em;
+}
+.meme-continue-head p {
+  margin: 0;
+  color: var(--ink-muted);
+  font-size: 12px;
+}
+.meme-continue ol {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  margin: 0;
+  padding: 0;
+  list-style: none;
+}
+.meme-continue li { min-width: 0; border-top: 1px solid var(--rule-soft); }
+.meme-continue li:nth-child(odd) { border-right: 1px solid var(--rule-soft); }
+.meme-continue a {
+  display: grid;
+  grid-template-columns: 28px minmax(0, 1fr) auto;
+  align-items: start;
+  gap: 9px;
+  min-height: 74px;
+  padding: 11px 13px 11px 0;
+  color: var(--ink-editorial);
+}
+.meme-continue li:nth-child(even) a { padding-left: 13px; }
+.meme-continue a:hover { background: rgba(255,255,255,.42); text-decoration: none; }
+.meme-continue-index { padding-top: 2px; color: var(--vermilion); font: 700 10px var(--mono); }
+.meme-continue-copy { display: grid; min-width: 0; gap: 3px; }
+.meme-continue-copy strong { overflow: hidden; font: 800 15px var(--serif); white-space: nowrap; text-overflow: ellipsis; }
+.meme-continue-copy small {
+  display: -webkit-box;
+  overflow: hidden;
+  color: var(--ink-muted);
+  font-size: 12px;
+  line-height: 1.55;
+  -webkit-box-orient: vertical;
+  -webkit-line-clamp: 2;
+}
+.meme-continue-arrow { color: var(--vermilion); font-size: 13px; transition: transform .18s ease; }
+.meme-continue a:hover .meme-continue-arrow { transform: translate(2px, -2px); }
+
 .wiki-cats {
   margin-top: 28px;
   border: 1px solid #e6e6e6;
@@ -657,6 +715,13 @@ body { color: var(--ink-editorial); background: var(--paper-warm); }
 .wiki-page a.button-secondary { color: var(--ink-editorial); }
 .site-footer { border-top-color: var(--rule); background: #efe5d5; color: #68716b; }.footer-logo { color: var(--ink-editorial); }.footer-links a { color: var(--ink-editorial); border-bottom: 1px solid transparent; }.footer-links a:hover { color: var(--vermilion); border-color: var(--vermilion); }
 @media (max-width:680px) { .wiki-page:not(.wiki-home) .wiki-shell { padding-block: 34px 52px; }.wiki-head h1 { font-size:34px; }.wiki-h,.wiki-prose h2 { font-size:23px; }.home-tag-footer p:last-child { justify-self:start; } }
+
+@media (max-width:680px) {
+  .meme-continue-head { align-items: flex-start; flex-direction: column; gap: 3px; }
+  .meme-continue ol { grid-template-columns: 1fr; }
+  .meme-continue li:nth-child(odd) { border-right: 0; }
+  .meme-continue li:nth-child(even) a { padding-left: 0; }
+}
 
 /* ─── 纠错弹层：站内直接提交，不跳转 GitHub ─────────────────────────────── */
 .wiki-tool-button { border: 0; background: transparent; padding: 0 0 2px; font: inherit; line-height: 1.2; color: #1a7dc0; cursor: pointer; border-bottom: 1px solid currentColor; }

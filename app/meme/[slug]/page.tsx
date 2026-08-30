@@ -10,6 +10,7 @@ import type { EntityKind, MemeEntry } from "@/lib/types";
 import { WikiLinkedText } from "@/components/wiki-linked-text";
 import { JsonLd } from "@/components/json-ld";
 import { CorrectionDialog } from "@/components/correction-dialog";
+import { MemeContinueReading } from "@/components/meme-continue-reading";
 import { getTopicForTag } from "@/lib/topics";
 
 type PageProps = { params: Promise<{ slug: string }> };
@@ -145,6 +146,14 @@ export default async function MemeDetailPage({ params }: PageProps) {
                 <WikiLinkedText text={meme.summary} terms={terms} />
               </p>
             </section>
+            <MemeContinueReading
+              currentSlug={meme.slug}
+              items={related.slice(0, 4).map((entry) => ({
+                slug: entry.slug,
+                title: entry.title,
+                summary: entry.summary,
+              }))}
+            />
             <div className="wiki-prose">
               <MDXRemote source={meme.body} />
             </div>
