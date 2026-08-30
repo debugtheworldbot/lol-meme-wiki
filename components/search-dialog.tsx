@@ -93,7 +93,7 @@ export function SearchDialog() {
 
   function trapTab(event: React.KeyboardEvent<HTMLElement>) {
     if (event.key !== "Tab") return;
-    const focusable = Array.from(event.currentTarget.querySelectorAll<HTMLElement>("button, input"));
+    const focusable = Array.from(event.currentTarget.querySelectorAll<HTMLElement>("button, input, a[href]"));
     if (!focusable.length) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
