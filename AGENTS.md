@@ -40,6 +40,14 @@ npm run build      # 改路由、metadata、内容集合、生产配置时才跑
 
 改可见 UI 后要在浏览器里真正走完路径，不要只看截图。
 
+### Vercel 线上数据
+
+- **Web Analytics 优先用 CLI 的公开 API**：访客数、PV、热门页面、来源、国家、设备和自定义事件用 `vercel api /v1/query/web-analytics/...`；它返回结构化 JSON，适合重复查询、时间对比和自动报告。项目和团队 ID 从 `.vercel/repo.json` 读，不要手改该文件。
+- 总量用 `visits/count`；按页面等维度拆分用 `visits/aggregate`，并显式传 `since` / `until` 与 `by=requestPath`。例：`vercel api "/v1/query/web-analytics/visits/aggregate?teamId=<team>&projectId=<project>&since=<ISO>&until=<ISO>&by=requestPath"`。
+- Speed Insights、请求量、函数调用、错误率和延迟用 `vercel metrics`；部署、构建日志和运行错误可用 Vercel 插件。当前插件不是 Web Analytics 客户端，不要靠访问公开网站页面推断后台流量。
+- Dashboard 仅用于公开 API 暂未覆盖的维度或临时可视化核对（如跳出率、主机名筛选）。CLI/API 与 Dashboard 在相同聚合口径下应一致；报数时必须附带查询时间窗口、环境、分组和过滤条件。
+- 鉴权优先使用已登录的 Vercel CLI；不要在命令、日志、回复或仓库中输出 Access Token。
+
 ## 写内容
 
 新词条对齐现有 MDX 字段，参考 `content/memes/wo-chovy.mdx`（字段最全）。
