@@ -1,19 +1,26 @@
 "use client";
 
-import { FormEvent, useState } from "react";
+import { FormEvent, useEffect, useRef, useState } from "react";
 import { Check, Clipboard, ExternalLink, LoaderCircle } from "lucide-react";
 import { track } from "@/lib/analytics";
 
 type SubmitResult = { mode: "created" | "link" | "preview"; issueUrl?: string; markdown?: string };
 
 export function SubmissionForm() {
+  const nameRef = useRef<HTMLInputElement>(null);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
   const [result, setResult] = useState<SubmitResult | null>(null);
   const [copied, setCopied] = useState(false);
 
+  useEffect(() => {
+    const requestedName = new URLSearchParams(window.location.search).get("name");
+    if (requestedName && nameRef.current) nameRef.current.value = requestedName.slice(0, 80);
+  }, []);
+
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    track("Meme Submission Start");
     setLoading(true);
     setError("");
     setResult(null);
@@ -28,9 +35,10 @@ export function SubmissionForm() {
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "提交失败，请稍后重试。");
       setResult(data);
-      track("Meme Submission", { mode: data.mode });
+      track("Meme Submission Success", { mode: data.mode });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "提交失败，请稍后重试。");
+      track("Meme Submission Failure");
     } finally {
       setLoading(false);
     }
@@ -59,7 +67,7 @@ export function SubmissionForm() {
   return (
     <form className="submission-form" onSubmit={submit}>
       <div className="form-row two-columns">
-        <label><span>梗名称 <b>*</b></span><input name="name" required maxLength={80} placeholder="例如：我 Chovy" /></label>
+        <label><span>梗名称 <b>*</b></span><input ref={nameRef} name="name" required maxLength={80} placeholder="例如：我 Chovy" /></label>
         <label><span>一句话解释 <b>*</b></span><input name="summary" required maxLength={180} placeholder="用一句话回答“这是什么梗？”" /></label>
       </div>
       <label><span>详细说明</span><textarea name="details" rows={6} placeholder="发生了什么？后来这个词又是怎么被使用的？" /></label>

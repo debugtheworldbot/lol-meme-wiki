@@ -2,6 +2,7 @@
 
 import { useEffect, useMemo, useRef, useState } from "react";
 import { createPortal, flushSync } from "react-dom";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
 import Fuse from "fuse.js";
 import { ArrowUpRight, Search, X } from "lucide-react";
@@ -108,7 +109,10 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
 
   return (
     <>
-      <button ref={triggerRef} className="search-trigger" onClick={() => setOpen(true)} aria-label="打开全局搜索">
+      <button ref={triggerRef} className="search-trigger" onClick={() => {
+        track("Search Open", { surface: "header" });
+        setOpen(true);
+      }} aria-label="打开全局搜索">
         <Search size={16} />
         <span>搜索</span>
         <kbd>⌘ K</kbd>
@@ -169,7 +173,25 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
               )) : (
                 <div className="empty-search">
                   <strong>档案里还没有这个词。</strong>
-                  <span>换个叫法试试，或者提交一个新梗。</span>
+                  <span>换个叫法试试，或者把它提交给编辑。</span>
+                  {query.trim() ? (
+                    <Link
+                      href={`/submit?name=${encodeURIComponent(query.trim())}`}
+                      onClick={() => {
+                        track("Search No Result Action", {
+                          query: query.trim(),
+                          surface: "global",
+                        });
+                        navigatingRef.current = true;
+                        flushSync(() => {
+                          setOpen(false);
+                          setQuery("");
+                        });
+                      }}
+                    >
+                      提交“{query.trim()}” ↗
+                    </Link>
+                  ) : null}
                 </div>
               )}
             </div>

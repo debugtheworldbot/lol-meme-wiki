@@ -15,7 +15,7 @@ export default function PrivacyPage() {
       <div className="wiki-shell">
         <header className="wiki-head">
           <h1>隐私政策</h1>
-          <p className="wiki-meta">最后更新：2026-08-25</p>
+          <p className="wiki-meta">最后更新：2026-08-30</p>
         </header>
         <JsonLd data={buildBreadcrumbJsonLd([{ name: "首页", path: "/" }, { name: "隐私政策", path: "/privacy" }])} />
         <nav className="wiki-crumb" aria-label="面包屑">
@@ -32,7 +32,7 @@ export default function PrivacyPage() {
 
           <h2 className="wiki-h">我们收集的信息</h2>
           <ul>
-            <li><strong>浏览数据：</strong>访问页面时，服务器与统计工具会记录常规技术信息，如页面地址、来源、大致地区、设备与浏览器类型。这些用于了解内容受欢迎程度、排查故障。</li>
+            <li><strong>浏览与交互数据：</strong>访问页面时，服务器与统计工具会记录常规技术信息，如页面地址、来源、大致地区、设备与浏览器类型；也会记录搜索、筛选、随机浏览、投稿与纠错等功能是否被使用。搜索词用于发现未收录内容，请不要在搜索框输入个人信息。</li>
             <li><strong>你主动提交的信息：</strong>当你使用“投稿”或“纠错”功能时，你填写的内容会通过接口进入本站的公开 GitHub Issues 供审核。请不要在其中填写你不愿公开的个人信息。</li>
           </ul>
           <p>本站没有账号系统，不要求注册，也不主动收集姓名、邮箱等身份信息（除非你在投稿内容里自行填写）。</p>
@@ -50,7 +50,7 @@ export default function PrivacyPage() {
 
           <h2 className="wiki-h">访问统计</h2>
           <p>
-            本站使用注重隐私的网站分析工具统计聚合访问量，不用于识别具体个人。它仅生成汇总性的流量数据，帮助我们改进内容与体验。
+            本站使用注重隐私的网站分析工具统计聚合访问量和不与账号绑定的功能事件，不用于识别具体个人。这些数据帮助我们改进内容与体验。
           </p>
 
           <h2 className="wiki-h">第三方链接</h2>
