@@ -20,7 +20,7 @@ components/                                UI
 
 - **`lib/content.ts` 是唯一内容层**，`import "server-only"`，同步读文件后用 `cache()` 去重。不要另起数据获取方式，不要在客户端组件里读 `content/`。
 - **slug 就是外键。** meme 的 `players` / `teams` / `events` / `related` 存的是对方 slug，不是展示名。`getMemesForEntity()` 反向聚合出实体页的梗列表——所以关联是双向的，只需在 meme 一侧写。slug 写错不会报错，只会在 infobox 里裸显示 slug（`getEntityTitle` 回退），且实体页少一条聚合。
-- **搜索索引在服务端生成。** `getSearchRecords()` 把四个集合拍平成 `SearchRecord[]`，含 aliases 和从关联实体展开的 keywords；`layout.tsx` 注入后由 Fuse.js 在客户端（`search-dialog` / `inline-search` / `meme-explorer`）检索。想让某词能搜到，加进 `aliases` 或 `tags`，不要改搜索组件。
+- **搜索索引在服务端生成、客户端按需加载。** `getSearchRecords()` 把四个集合拍平成 `SearchRecord[]`，含 aliases 和从关联实体展开的 keywords；`/api/search-index` 静态缓存它，`search-dialog` / `inline-search` 首次交互后通过 `lib/client-search-index.ts` 共享加载并用 Fuse.js 检索。`meme-explorer` 使用 `getMemeListItems()` 的轻量目录数据独立检索。想让某词能搜到，加进 `aliases` 或 `tags`，不要改搜索组件。
 - **加 MDX 文件即上线**：静态路由、目录页、聚合页、搜索索引、`sitemap.ts` 全部自动跟随，无需注册。
 - **样式是 `app/globals.css` 里一套语义类名**（`wiki-page` / `wiki-shell` / `wiki-infobox` / `wiki-prose`…，~670 行 + CSS 变量）。Tailwind v4 只是 `@import` 进来，组件里**不写 utility class**；`lib/utils.ts` 的 `cn()` 目前无人使用。新 UI 沿用语义类名，不要开始堆 utility。
 - **`/api/submit` 三态降级**：有 `GITHUB_TOKEN` + repo → 建 Issue；只有 repo → 返回预填 Issue 链接；都没有 → 返回可复制的 markdown 草稿。含 honeypot 字段 `website`。纠错入口 `components/correction-dialog.tsx` 是站内弹层，走同款三态降级的 `/api/submit` 姊妹路由 `/api/correction`（标题 `[补充/纠错]`、label `内容纠错`），默认直接建 Issue，不跳 GitHub。
