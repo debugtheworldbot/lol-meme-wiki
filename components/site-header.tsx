@@ -4,7 +4,6 @@ import { GitFork } from "lucide-react";
 import Image from "next/image";
 import { SearchDialog } from "@/components/search-dialog";
 import { siteConfig } from "@/lib/site";
-import type { SearchRecord } from "@/lib/types";
 
 const navItems = [
   ["梗目录", "/memes"],
@@ -13,7 +12,7 @@ const navItems = [
   ["赛事", "/events"],
 ] as const;
 
-export function SiteHeader({ records }: { records: SearchRecord[] }) {
+export function SiteHeader() {
   return (
     <header className="site-header">
       <div className="page-shell header-inner">
@@ -30,7 +29,7 @@ export function SiteHeader({ records }: { records: SearchRecord[] }) {
           ))}
         </nav>
         <div className="header-actions">
-          <SearchDialog records={records} />
+          <SearchDialog />
           <Link className="submit-mini" href="/submit">提交新梗 <span>↗</span></Link>
           <a
             className="icon-link"

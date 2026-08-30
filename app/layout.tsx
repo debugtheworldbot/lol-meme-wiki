@@ -4,7 +4,6 @@ import type { Metadata, Viewport } from "next";
 import { AnalyticsScript } from "@/components/analytics-script";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
-import { getSearchRecords } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
 
@@ -41,9 +40,8 @@ export const viewport: Viewport = {
 };
 
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
-  const records = getSearchRecords();
   return (
-    <html lang="zh-CN" suppressHydrationWarning>
+    <html lang="zh-CN" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
         {/* AdSense 站点验证 + 广告投放：必须是 head 里的原生 script，Google 爬虫不执行 next/script 的客户端注入。 */}
         <script
@@ -54,7 +52,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
       </head>
       <body>
         <a className="skip-link" href="#main-content">跳到正文</a>
-        <SiteHeader records={records} />
+        <SiteHeader />
         <main id="main-content">{children}</main>
         <SiteFooter />
         <AnalyticsScript />

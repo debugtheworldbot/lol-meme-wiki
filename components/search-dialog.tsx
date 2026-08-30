@@ -1,43 +1,70 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal, flushSync } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Fuse from "fuse.js";
+import type Fuse from "fuse.js";
 import { ArrowUpRight, Search, X } from "lucide-react";
 import { track } from "@/lib/analytics";
 import type { SearchRecord } from "@/lib/types";
 
 const labels = { meme: "梗", player: "选手", team: "战队", event: "赛事" } as const;
 
-export function SearchDialog({ records }: { records: SearchRecord[] }) {
+const fuseOptions = {
+  keys: [
+    { name: "title", weight: 0.45 },
+    { name: "aliases", weight: 0.28 },
+    { name: "keywords", weight: 0.17 },
+    { name: "subtitle", weight: 0.1 },
+  ],
+  threshold: 0.36,
+  ignoreLocation: true,
+  minMatchCharLength: 1,
+};
+
+export function SearchDialog() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [records, setRecords] = useState<SearchRecord[]>([]);
+  const [fuse, setFuse] = useState<Fuse<SearchRecord> | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const wasOpenRef = useRef(false);
   const navigatingRef = useRef(false);
+  const loadPromiseRef = useRef<Promise<void> | null>(null);
   const router = useRouter();
-  const fuse = useMemo(
-    () => new Fuse(records, {
-      keys: [
-        { name: "title", weight: 0.45 },
-        { name: "aliases", weight: 0.28 },
-        { name: "keywords", weight: 0.17 },
-        { name: "subtitle", weight: 0.1 },
-      ],
-      threshold: 0.36,
-      ignoreLocation: true,
-      minMatchCharLength: 1,
-    }),
-    [records],
-  );
+
+  const loadSearchIndex = useCallback(() => {
+    if (fuse || loadPromiseRef.current) return loadPromiseRef.current;
+
+    setLoading(true);
+    setLoadError(false);
+    const request = Promise.all([
+      import("fuse.js"),
+      fetch("/api/search-index"),
+    ]).then(async ([{ default: FuseConstructor }, response]) => {
+      if (!response.ok) throw new Error("搜索索引加载失败");
+      const data = await response.json() as SearchRecord[];
+      if (!Array.isArray(data)) throw new Error("搜索索引格式错误");
+      setFuse(new FuseConstructor(data, fuseOptions));
+      setRecords(data);
+    }).catch(() => {
+      setLoadError(true);
+    }).finally(() => {
+      setLoading(false);
+      loadPromiseRef.current = null;
+    });
+    loadPromiseRef.current = request;
+    return request;
+  }, [fuse]);
 
   const results = query.trim()
-    ? fuse.search(query.trim(), { limit: 8 }).map((result) => result.item)
+    ? (fuse?.search(query.trim(), { limit: 8 }).map((result) => result.item) ?? [])
     : records
         .filter((record) => record.type === "meme")
         .sort((a, b) => (b.heat ?? 0) - (a.heat ?? 0))
@@ -49,13 +76,19 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
     function onKeyDown(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        setOpen((value) => !value);
+        if (open) {
+          setOpen(false);
+        } else {
+          track("Search Open", { surface: "shortcut" });
+          setOpen(true);
+          void loadSearchIndex();
+        }
       }
       if (event.key === "Escape") setOpen(false);
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [loadSearchIndex, open]);
 
   useEffect(() => {
     if (open) {
@@ -109,10 +142,18 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
 
   return (
     <>
-      <button ref={triggerRef} className="search-trigger" onClick={() => {
-        track("Search Open", { surface: "header" });
-        setOpen(true);
-      }} aria-label="打开全局搜索">
+      <button
+        ref={triggerRef}
+        className="search-trigger"
+        onFocus={() => { void loadSearchIndex(); }}
+        onMouseEnter={() => { void loadSearchIndex(); }}
+        onClick={() => {
+          track("Search Open", { surface: "header" });
+          setOpen(true);
+          void loadSearchIndex();
+        }}
+        aria-label="打开全局搜索"
+      >
         <Search size={16} />
         <span>搜索</span>
         <kbd>⌘ K</kbd>
@@ -153,10 +194,17 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
             </div>
             <div className="search-caption">
               <span>{query ? `“${query}” 的搜索结果` : "热门词条"}</span>
-              <span>{results.length} 项</span>
+              <span>{loading ? "载入中" : loadError ? "暂不可用" : `${results.length} 项`}</span>
             </div>
             <div className="search-results" id="search-result-list" ref={resultsRef}>
-              {results.length ? results.map((record, index) => (
+              {loading ? (
+                <div className="search-index-state" role="status">正在载入搜索档案……</div>
+              ) : loadError ? (
+                <div className="search-index-state" role="alert">
+                  <span>搜索档案暂时没有载入。</span>
+                  <button type="button" onClick={() => { void loadSearchIndex(); }}>重试</button>
+                </div>
+              ) : results.length ? results.map((record, index) => (
                 <button
                   key={`${record.type}-${record.href}`}
                   data-active={index === activeIndexSafe ? "true" : undefined}

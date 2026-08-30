@@ -76,6 +76,9 @@ button { color: inherit; }
 .search-results { padding: 4px 8px 10px; }
 .search-results > button { width: 100%; display: grid; grid-template-columns: 44px 1fr auto; align-items: center; gap: 14px; border: 0; border-top: 1px solid #eee; background: transparent; padding: 12px 10px; text-align: left; cursor: pointer; color: #222; }
 .search-results > button:hover, .search-results > button[data-active="true"] { background: #f6f6f6; }
+.search-index-state { display: grid; place-items: center; gap: 10px; min-height: 152px; color: #666; font-size: 13px; }
+.search-index-state button { border: 1px solid #ddd; background: #fff; padding: 7px 12px; color: #c0392b; cursor: pointer; }
+.search-index-state button:hover { border-color: #c0392b; }
 .result-type { display: grid; place-items: center; width: 36px; height: 28px; border: 1px solid #ddd; color: #666; font-size: 12px; }
 .type-meme { border-color: #f0c0bc; color: #c0392b; }
 .type-player { border-color: #ddd; color: #1a7dc0; }
