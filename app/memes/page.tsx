@@ -1,11 +1,11 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { Suspense } from "react";
 import { MemeExplorer } from "@/components/meme-explorer";
 import { RandomMemeButton } from "@/components/random-meme-button";
-import { getMemes } from "@/lib/content";
+import { getMemeListItems } from "@/lib/content";
 import { buildBreadcrumbJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/json-ld";
+import { topicDefinitions } from "@/lib/topics";
 
 export const metadata: Metadata = {
   title: "全部 LOL 梗",
@@ -14,7 +14,8 @@ export const metadata: Metadata = {
 };
 
 export default function MemesPage() {
-  const memes = getMemes();
+  const memes = getMemeListItems();
+  const canonicalTags = topicDefinitions.map((topic) => topic.tag);
   return (
     <article className="wiki-page">
       <div className="wiki-shell">
@@ -32,9 +33,7 @@ export default function MemesPage() {
             <li aria-current="page">梗目录</li>
           </ol>
         </nav>
-        <Suspense fallback={null}>
-          <MemeExplorer memes={memes} />
-        </Suspense>
+        <MemeExplorer memes={memes} canonicalTags={canonicalTags} />
       </div>
     </article>
   );

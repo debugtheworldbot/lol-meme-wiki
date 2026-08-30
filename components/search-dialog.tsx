@@ -1,43 +1,49 @@
 "use client";
 
-import { useEffect, useMemo, useRef, useState } from "react";
+import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal, flushSync } from "react-dom";
+import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Fuse from "fuse.js";
 import { ArrowUpRight, Search, X } from "lucide-react";
 import { track } from "@/lib/analytics";
+import { loadClientSearchIndex, type ClientSearchIndex } from "@/lib/client-search-index";
 import type { SearchRecord } from "@/lib/types";
 
 const labels = { meme: "梗", player: "选手", team: "战队", event: "赛事" } as const;
 
-export function SearchDialog({ records }: { records: SearchRecord[] }) {
+export function SearchDialog() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
+  const [index, setIndex] = useState<ClientSearchIndex | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
   const triggerRef = useRef<HTMLButtonElement>(null);
   const resultsRef = useRef<HTMLDivElement>(null);
   const wasOpenRef = useRef(false);
   const navigatingRef = useRef(false);
   const router = useRouter();
-  const fuse = useMemo(
-    () => new Fuse(records, {
-      keys: [
-        { name: "title", weight: 0.45 },
-        { name: "aliases", weight: 0.28 },
-        { name: "keywords", weight: 0.17 },
-        { name: "subtitle", weight: 0.1 },
-      ],
-      threshold: 0.36,
-      ignoreLocation: true,
-      minMatchCharLength: 1,
-    }),
-    [records],
-  );
+
+  const ensureSearchIndex = useCallback(async () => {
+    if (index) return index;
+    setLoading(true);
+    setLoadError(false);
+    try {
+      const loadedIndex = await loadClientSearchIndex();
+      setIndex(loadedIndex);
+      return loadedIndex;
+    } catch {
+      setLoadError(true);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, [index]);
 
   const results = query.trim()
-    ? fuse.search(query.trim(), { limit: 8 }).map((result) => result.item)
-    : records
+    ? (index?.fuse.search(query.trim(), { limit: 8 }).map((result) => result.item) ?? [])
+    : (index?.records ?? [])
         .filter((record) => record.type === "meme")
         .sort((a, b) => (b.heat ?? 0) - (a.heat ?? 0))
         .slice(0, 6);
@@ -48,13 +54,19 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
     function onKeyDown(event: KeyboardEvent) {
       if ((event.metaKey || event.ctrlKey) && event.key.toLowerCase() === "k") {
         event.preventDefault();
-        setOpen((value) => !value);
+        if (open) {
+          setOpen(false);
+        } else {
+          track("Search Open", { surface: "shortcut" });
+          setOpen(true);
+          void ensureSearchIndex();
+        }
       }
       if (event.key === "Escape") setOpen(false);
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, []);
+  }, [ensureSearchIndex, open]);
 
   useEffect(() => {
     if (open) {
@@ -81,7 +93,7 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
 
   function trapTab(event: React.KeyboardEvent<HTMLElement>) {
     if (event.key !== "Tab") return;
-    const focusable = Array.from(event.currentTarget.querySelectorAll<HTMLElement>("button, input"));
+    const focusable = Array.from(event.currentTarget.querySelectorAll<HTMLElement>("button, input, a[href]"));
     if (!focusable.length) return;
     const first = focusable[0];
     const last = focusable[focusable.length - 1];
@@ -108,7 +120,18 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
 
   return (
     <>
-      <button ref={triggerRef} className="search-trigger" onClick={() => setOpen(true)} aria-label="打开全局搜索">
+      <button
+        ref={triggerRef}
+        className="search-trigger"
+        onFocus={() => { void ensureSearchIndex(); }}
+        onMouseEnter={() => { void ensureSearchIndex(); }}
+        onClick={() => {
+          track("Search Open", { surface: "header" });
+          setOpen(true);
+          void ensureSearchIndex();
+        }}
+        aria-label="打开全局搜索"
+      >
         <Search size={16} />
         <span>搜索</span>
         <kbd>⌘ K</kbd>
@@ -149,10 +172,17 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
             </div>
             <div className="search-caption">
               <span>{query ? `“${query}” 的搜索结果` : "热门词条"}</span>
-              <span>{results.length} 项</span>
+              <span>{loading ? "载入中" : loadError ? "暂不可用" : `${results.length} 项`}</span>
             </div>
             <div className="search-results" id="search-result-list" ref={resultsRef}>
-              {results.length ? results.map((record, index) => (
+              {loading ? (
+                <div className="search-index-state" role="status">正在载入搜索档案……</div>
+              ) : loadError ? (
+                <div className="search-index-state" role="alert">
+                  <span>搜索档案暂时没有载入。</span>
+                  <button type="button" onClick={() => { void ensureSearchIndex(); }}>重试</button>
+                </div>
+              ) : results.length ? results.map((record, index) => (
                 <button
                   key={`${record.type}-${record.href}`}
                   data-active={index === activeIndexSafe ? "true" : undefined}
@@ -169,7 +199,25 @@ export function SearchDialog({ records }: { records: SearchRecord[] }) {
               )) : (
                 <div className="empty-search">
                   <strong>档案里还没有这个词。</strong>
-                  <span>换个叫法试试，或者提交一个新梗。</span>
+                  <span>换个叫法试试，或者把它提交给编辑。</span>
+                  {query.trim() ? (
+                    <Link
+                      href={`/submit?name=${encodeURIComponent(query.trim())}`}
+                      onClick={() => {
+                        track("Search No Result Action", {
+                          query: query.trim(),
+                          surface: "global",
+                        });
+                        navigatingRef.current = true;
+                        flushSync(() => {
+                          setOpen(false);
+                          setQuery("");
+                        });
+                      }}
+                    >
+                      提交“{query.trim()}” ↗
+                    </Link>
+                  ) : null}
                 </div>
               )}
             </div>

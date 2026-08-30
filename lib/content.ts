@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { cache } from "react";
 import matter from "gray-matter";
-import type { EntityEntry, EntityKind, MemeEntry, SearchRecord } from "@/lib/types";
+import type { EntityEntry, EntityKind, MemeEntry, MemeListItem, SearchRecord } from "@/lib/types";
 
 const contentRoot = path.join(process.cwd(), "content");
 
@@ -49,29 +49,51 @@ export function getRelatedMemes(meme: MemeEntry) {
     .filter((entry): entry is MemeEntry => Boolean(entry));
 }
 
-export function getSearchRecords(): SearchRecord[] {
-  const relationKeywords = new Map(
+const getRelationKeywords = cache(() =>
+  new Map(
     [...getPlayers(), ...getTeams(), ...getEvents()].map((entry) => [
       entry.slug,
       [entry.title, entry.display_name ?? "", ...(entry.aliases ?? [])],
     ]),
-  );
-  const memeRecords: SearchRecord[] = getMemes().map((meme) => ({
+  ),
+);
+
+function getMemeKeywords(meme: MemeEntry) {
+  const relationKeywords = getRelationKeywords();
+  return [
+    ...meme.players,
+    ...meme.teams,
+    ...meme.events,
+    ...meme.tags,
+    ...[...meme.players, ...meme.teams, ...meme.events].flatMap(
+      (slug) => relationKeywords.get(slug) ?? [],
+    ),
+  ];
+}
+
+export const getMemeListItems = cache((): MemeListItem[] =>
+  getMemes().map((meme) => ({
+    title: meme.title,
+    slug: meme.slug,
+    summary: meme.summary,
+    aliases: meme.aliases ?? [],
+    tags: meme.tags,
+    heat: meme.heat,
+    first_seen: meme.first_seen,
+    updated_at: meme.updated_at,
+    keywords: getMemeKeywords(meme),
+  })),
+);
+
+export const getSearchRecords = cache((): SearchRecord[] => {
+  const memeRecords: SearchRecord[] = getMemeListItems().map((meme) => ({
     title: meme.title,
     subtitle: meme.summary,
     href: `/meme/${meme.slug}`,
     type: "meme",
-    aliases: meme.aliases ?? [],
+    aliases: meme.aliases,
     heat: meme.heat,
-    keywords: [
-      ...meme.players,
-      ...meme.teams,
-      ...meme.events,
-      ...meme.tags,
-      ...[...meme.players, ...meme.teams, ...meme.events].flatMap(
-        (slug) => relationKeywords.get(slug) ?? [],
-      ),
-    ],
+    keywords: meme.keywords,
   }));
 
   const entityRecords = (
@@ -92,7 +114,7 @@ export function getSearchRecords(): SearchRecord[] {
   );
 
   return [...memeRecords, ...entityRecords];
-}
+});
 
 export function getEntityTitle(kind: Exclude<EntityKind, "meme">, slug: string) {
   return getEntity(kind, slug)?.title ?? slug;

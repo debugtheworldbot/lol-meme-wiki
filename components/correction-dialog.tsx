@@ -35,6 +35,7 @@ export function CorrectionDialog({ title, pathname }: { title: string; pathname:
 
   async function submit(event: FormEvent<HTMLFormElement>) {
     event.preventDefault();
+    track("Correction Submission Start", { page: pathname });
     setLoading(true);
     setError("");
     const formData = new FormData(event.currentTarget);
@@ -48,9 +49,10 @@ export function CorrectionDialog({ title, pathname }: { title: string; pathname:
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "提交失败，请稍后重试。");
       setResult(data);
-      track("Correction Submission", { mode: data.mode, page: pathname });
+      track("Correction Submission Success", { mode: data.mode, page: pathname });
     } catch (caught) {
       setError(caught instanceof Error ? caught.message : "提交失败，请稍后重试。");
+      track("Correction Submission Failure", { page: pathname });
     } finally {
       setLoading(false);
     }
@@ -58,7 +60,10 @@ export function CorrectionDialog({ title, pathname }: { title: string; pathname:
 
   return (
     <>
-      <button type="button" className="wiki-tool-button" onClick={() => setOpen(true)}>纠错</button>
+      <button type="button" className="wiki-tool-button" onClick={() => {
+        track("Correction Open", { page: pathname });
+        setOpen(true);
+      }}>纠错</button>
       {open ? (
         <div className="correction-overlay" role="presentation" onMouseDown={(event) => {
           if (event.target === event.currentTarget) close();
