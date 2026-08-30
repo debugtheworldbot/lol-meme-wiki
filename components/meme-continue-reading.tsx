@@ -33,7 +33,7 @@ export function MemeContinueReading({
                 from: currentSlug,
                 to: item.slug,
                 position: index + 1,
-                placement: "after_summary",
+                placement: "after_article",
               })}
             >
               <span className="meme-continue-index" aria-hidden="true">

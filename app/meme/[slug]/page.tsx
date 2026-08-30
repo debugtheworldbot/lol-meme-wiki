@@ -146,6 +146,9 @@ export default async function MemeDetailPage({ params }: PageProps) {
                 <WikiLinkedText text={meme.summary} terms={terms} />
               </p>
             </section>
+            <div className="wiki-prose">
+              <MDXRemote source={meme.body} />
+            </div>
             <MemeContinueReading
               currentSlug={meme.slug}
               items={related.slice(0, 4).map((entry) => ({
@@ -154,9 +157,6 @@ export default async function MemeDetailPage({ params }: PageProps) {
                 summary: entry.summary,
               }))}
             />
-            <div className="wiki-prose">
-              <MDXRemote source={meme.body} />
-            </div>
 
             {meme.timeline?.length ? (
               <section>
