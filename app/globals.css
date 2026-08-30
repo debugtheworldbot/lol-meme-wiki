@@ -108,6 +108,7 @@ button { color: inherit; }
 .inline-results small { border: 1px solid var(--line); padding: 3px 6px; color: #718079; font: 11px var(--mono); }
 .inline-results p { padding: 14px 16px; color: var(--muted); }
 .inline-results p a { color: var(--acid); font-weight: 700; }
+.inline-results .inline-search-retry { display: inline; width: auto; border: 0; background: transparent; padding: 0; color: var(--acid); font-weight: 700; }
 .random-button {
   display: grid;
   grid-template-columns: auto 1fr auto;
@@ -421,6 +422,7 @@ button { color: inherit; }
   color: #888;
 }
 .wiki-home .inline-results p { color: #666; }
+.wiki-home .inline-results .inline-search-retry { color: #c0392b; }
 .wiki-home .random-button {
   width: auto;
   min-width: 132px;

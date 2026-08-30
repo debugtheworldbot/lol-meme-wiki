@@ -4,7 +4,7 @@ import { Fragment } from "react";
 import { ArrowUpRight, BookOpenText, CircleDot, Layers3 } from "lucide-react";
 import { InlineSearch } from "@/components/inline-search";
 import { RandomMemeButton } from "@/components/random-meme-button";
-import { getEvents, getMemeListItems, getPlayers, getSearchRecords, getTeams } from "@/lib/content";
+import { getEvents, getMemeListItems, getPlayers, getTeams } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
 import { JsonLd } from "@/components/json-ld";
 import { HomeMemeList } from "@/components/home-meme-lists";
@@ -23,7 +23,6 @@ function toHomeMemeListItem(meme: MemeListItem): HomeMemeListItem {
 
 export default function HomePage() {
   const memes = getMemeListItems();
-  const records = getSearchRecords();
   const players = getPlayers();
   const teams = getTeams();
   const events = getEvents();
@@ -65,7 +64,7 @@ export default function HomePage() {
             <h1 id="home-title">把赛后的<br /><em>复读句</em>找回来。</h1>
             <p className="home-hero-description">从名场面到弹幕暗号，记录英雄联盟社区里那些<strong>大家都懂</strong>的瞬间，也把它们的出处和语境保留下来。</p>
             <div className="home-search home-hero-search">
-              <InlineSearch records={records} />
+              <InlineSearch />
               <RandomMemeButton compact slugs={memes.map((meme) => meme.slug)} />
             </div>
             {popular.length ? (

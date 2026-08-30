@@ -1,32 +1,55 @@
 "use client";
 
-import { FormEvent, useMemo, useState } from "react";
+import { FormEvent, useCallback, useState } from "react";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import Fuse from "fuse.js";
 import { ArrowRight, Search } from "lucide-react";
 import { track } from "@/lib/analytics";
+import { loadClientSearchIndex, type ClientSearchIndex } from "@/lib/client-search-index";
 import type { SearchRecord } from "@/lib/types";
 
-export function InlineSearch({ records }: { records: SearchRecord[] }) {
+export function InlineSearch() {
   const [query, setQuery] = useState("");
   const [focused, setFocused] = useState(false);
+  const [index, setIndex] = useState<ClientSearchIndex | null>(null);
+  const [loading, setLoading] = useState(false);
+  const [loadError, setLoadError] = useState(false);
   const router = useRouter();
-  const fuse = useMemo(() => new Fuse(records, {
-    keys: ["title", "aliases", "keywords", "subtitle"],
-    threshold: 0.35,
-    ignoreLocation: true,
-  }), [records]);
-  const results = query.trim() ? fuse.search(query.trim(), { limit: 5 }).map((item) => item.item) : [];
 
-  function submit(event: FormEvent) {
+  const ensureSearchIndex = useCallback(async () => {
+    if (index) return index;
+    setLoading(true);
+    setLoadError(false);
+    try {
+      const loadedIndex = await loadClientSearchIndex();
+      setIndex(loadedIndex);
+      return loadedIndex;
+    } catch {
+      setLoadError(true);
+      return null;
+    } finally {
+      setLoading(false);
+    }
+  }, [index]);
+
+  const results = query.trim()
+    ? (index?.fuse.search(query.trim(), { limit: 5 }).map((item) => item.item) ?? [])
+    : [];
+
+  async function submit(event: FormEvent) {
     event.preventDefault();
-    if (!results[0]) {
-      if (query.trim()) track("Homepage Search No Results", { query: query.trim() });
+    const trimmedQuery = query.trim();
+    if (!trimmedQuery) return;
+
+    const loadedIndex = index ?? await ensureSearchIndex();
+    if (!loadedIndex) return;
+    const firstResult = loadedIndex.fuse.search(trimmedQuery, { limit: 1 })[0]?.item;
+    if (!firstResult) {
+      track("Homepage Search No Results", { query: trimmedQuery });
       return;
     }
-    track("Homepage Search", { query, result: results[0].title });
-    router.push(results[0].href);
+    track("Homepage Search", { query: trimmedQuery, result: firstResult.title });
+    router.push(firstResult.href);
   }
 
   function visit(record: SearchRecord) {
@@ -44,8 +67,14 @@ export function InlineSearch({ records }: { records: SearchRecord[] }) {
         <Search size={22} aria-hidden="true" />
         <input
           value={query}
-          onChange={(event) => setQuery(event.target.value)}
-          onFocus={() => setFocused(true)}
+          onChange={(event) => {
+            setQuery(event.target.value);
+            if (!index) void ensureSearchIndex();
+          }}
+          onFocus={() => {
+            setFocused(true);
+            void ensureSearchIndex();
+          }}
           onBlur={() => window.setTimeout(() => setFocused(false), 140)}
           placeholder="搜索「YYDS」「大魔王」「世一上」……"
           aria-label="搜索 LOL 梗"
@@ -54,7 +83,22 @@ export function InlineSearch({ records }: { records: SearchRecord[] }) {
       </form>
       {focused && query ? (
         <div className="inline-results">
-          {results.length ? results.map((record) => (
+          {loading || (!index && !loadError) ? (
+            <p role="status">正在载入搜索档案……</p>
+          ) : loadError ? (
+            <p role="alert">
+              搜索档案暂时不可用，
+              <button
+                className="inline-search-retry"
+                type="button"
+                onMouseDown={(event) => event.preventDefault()}
+                onClick={() => { void ensureSearchIndex(); }}
+              >
+                重试
+              </button>
+              。
+            </p>
+          ) : results.length ? results.map((record) => (
             <button key={record.href} onMouseDown={() => visit(record)}>
               <strong>{record.title}</strong>
               <span>{record.subtitle}</span>

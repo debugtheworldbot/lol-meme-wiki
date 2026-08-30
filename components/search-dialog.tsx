@@ -4,31 +4,18 @@ import { useCallback, useEffect, useRef, useState } from "react";
 import { createPortal, flushSync } from "react-dom";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
-import type Fuse from "fuse.js";
 import { ArrowUpRight, Search, X } from "lucide-react";
 import { track } from "@/lib/analytics";
+import { loadClientSearchIndex, type ClientSearchIndex } from "@/lib/client-search-index";
 import type { SearchRecord } from "@/lib/types";
 
 const labels = { meme: "梗", player: "选手", team: "战队", event: "赛事" } as const;
-
-const fuseOptions = {
-  keys: [
-    { name: "title", weight: 0.45 },
-    { name: "aliases", weight: 0.28 },
-    { name: "keywords", weight: 0.17 },
-    { name: "subtitle", weight: 0.1 },
-  ],
-  threshold: 0.36,
-  ignoreLocation: true,
-  minMatchCharLength: 1,
-};
 
 export function SearchDialog() {
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(0);
-  const [records, setRecords] = useState<SearchRecord[]>([]);
-  const [fuse, setFuse] = useState<Fuse<SearchRecord> | null>(null);
+  const [index, setIndex] = useState<ClientSearchIndex | null>(null);
   const [loading, setLoading] = useState(false);
   const [loadError, setLoadError] = useState(false);
   const inputRef = useRef<HTMLInputElement>(null);
@@ -36,36 +23,27 @@ export function SearchDialog() {
   const resultsRef = useRef<HTMLDivElement>(null);
   const wasOpenRef = useRef(false);
   const navigatingRef = useRef(false);
-  const loadPromiseRef = useRef<Promise<void> | null>(null);
   const router = useRouter();
 
-  const loadSearchIndex = useCallback(() => {
-    if (fuse || loadPromiseRef.current) return loadPromiseRef.current;
-
+  const ensureSearchIndex = useCallback(async () => {
+    if (index) return index;
     setLoading(true);
     setLoadError(false);
-    const request = Promise.all([
-      import("fuse.js"),
-      fetch("/api/search-index"),
-    ]).then(async ([{ default: FuseConstructor }, response]) => {
-      if (!response.ok) throw new Error("搜索索引加载失败");
-      const data = await response.json() as SearchRecord[];
-      if (!Array.isArray(data)) throw new Error("搜索索引格式错误");
-      setFuse(new FuseConstructor(data, fuseOptions));
-      setRecords(data);
-    }).catch(() => {
+    try {
+      const loadedIndex = await loadClientSearchIndex();
+      setIndex(loadedIndex);
+      return loadedIndex;
+    } catch {
       setLoadError(true);
-    }).finally(() => {
+      return null;
+    } finally {
       setLoading(false);
-      loadPromiseRef.current = null;
-    });
-    loadPromiseRef.current = request;
-    return request;
-  }, [fuse]);
+    }
+  }, [index]);
 
   const results = query.trim()
-    ? (fuse?.search(query.trim(), { limit: 8 }).map((result) => result.item) ?? [])
-    : records
+    ? (index?.fuse.search(query.trim(), { limit: 8 }).map((result) => result.item) ?? [])
+    : (index?.records ?? [])
         .filter((record) => record.type === "meme")
         .sort((a, b) => (b.heat ?? 0) - (a.heat ?? 0))
         .slice(0, 6);
@@ -81,14 +59,14 @@ export function SearchDialog() {
         } else {
           track("Search Open", { surface: "shortcut" });
           setOpen(true);
-          void loadSearchIndex();
+          void ensureSearchIndex();
         }
       }
       if (event.key === "Escape") setOpen(false);
     }
     window.addEventListener("keydown", onKeyDown);
     return () => window.removeEventListener("keydown", onKeyDown);
-  }, [loadSearchIndex, open]);
+  }, [ensureSearchIndex, open]);
 
   useEffect(() => {
     if (open) {
@@ -145,12 +123,12 @@ export function SearchDialog() {
       <button
         ref={triggerRef}
         className="search-trigger"
-        onFocus={() => { void loadSearchIndex(); }}
-        onMouseEnter={() => { void loadSearchIndex(); }}
+        onFocus={() => { void ensureSearchIndex(); }}
+        onMouseEnter={() => { void ensureSearchIndex(); }}
         onClick={() => {
           track("Search Open", { surface: "header" });
           setOpen(true);
-          void loadSearchIndex();
+          void ensureSearchIndex();
         }}
         aria-label="打开全局搜索"
       >
@@ -202,7 +180,7 @@ export function SearchDialog() {
               ) : loadError ? (
                 <div className="search-index-state" role="alert">
                   <span>搜索档案暂时没有载入。</span>
-                  <button type="button" onClick={() => { void loadSearchIndex(); }}>重试</button>
+                  <button type="button" onClick={() => { void ensureSearchIndex(); }}>重试</button>
                 </div>
               ) : results.length ? results.map((record, index) => (
                 <button
