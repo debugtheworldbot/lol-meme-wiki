@@ -1,30 +1,12 @@
 /* 赛后公报室：全站以暖象牙、深墨与赛点朱砂维持统一阅读氛围。 */
 import { Analytics } from "@vercel/analytics/next";
 import type { Metadata, Viewport } from "next";
-import { Noto_Sans_SC, Noto_Serif_SC } from "next/font/google";
 import { AnalyticsScript } from "@/components/analytics-script";
 import { SiteFooter } from "@/components/site-footer";
 import { SiteHeader } from "@/components/site-header";
 import { getSearchRecords } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
 import "./globals.css";
-
-/* 字体自托管（next/font 构建期下载，运行时不依赖 Google CDN）；preload 关闭：
-   中文切片上百个文件，逐个 preload 反而污染 head，交给 CSS 的 unicode-range 按需加载。 */
-const notoSans = Noto_Sans_SC({
-  weight: ["400", "500", "600", "700", "800"],
-  subsets: ["latin"],
-  variable: "--font-noto-sans",
-  display: "swap",
-  preload: false,
-});
-const notoSerif = Noto_Serif_SC({
-  weight: ["500", "600", "700", "800", "900"],
-  subsets: ["latin"],
-  variable: "--font-noto-serif",
-  display: "swap",
-  preload: false,
-});
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
@@ -61,7 +43,7 @@ export const viewport: Viewport = {
 export default function RootLayout({ children }: Readonly<{ children: React.ReactNode }>) {
   const records = getSearchRecords();
   return (
-    <html lang="zh-CN" suppressHydrationWarning className={`${notoSans.variable} ${notoSerif.variable}`}>
+    <html lang="zh-CN" suppressHydrationWarning>
       <head>
         {/* AdSense 站点验证 + 广告投放：必须是 head 里的原生 script，Google 爬虫不执行 next/script 的客户端注入。 */}
         <script

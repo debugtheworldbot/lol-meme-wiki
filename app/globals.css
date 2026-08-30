@@ -15,8 +15,8 @@
   --signal: #ff6948;
   --cyan: #68e8d1;
   --page: 1240px;
-  --serif: var(--font-noto-serif), "Source Han Serif SC", "Songti SC", serif;
-  --sans: var(--font-noto-sans), "PingFang SC", sans-serif;
+  --serif: "Songti SC", "STSong", "Noto Serif CJK SC", "Source Han Serif SC", "SimSun", serif;
+  --sans: -apple-system, BlinkMacSystemFont, "Segoe UI", "PingFang SC", "Hiragino Sans GB", "Microsoft YaHei", "Noto Sans CJK SC", sans-serif;
   --mono: "SFMono-Regular", "Cascadia Code", "Roboto Mono", monospace;
 }
 
