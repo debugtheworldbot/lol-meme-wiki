@@ -10,6 +10,8 @@ import { getMemesForTopic, getTopic, topicDefinitions } from "@/lib/topics";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
+export const dynamicParams = false;
+
 export function generateStaticParams() {
   return topicDefinitions.map((topic) => ({ slug: topic.slug }));
 }

@@ -14,6 +14,8 @@ import { getTopicForTag } from "@/lib/topics";
 
 type PageProps = { params: Promise<{ slug: string }> };
 
+export const dynamicParams = false;
+
 const sourceKindLabel = {
   video: "视频",
   match: "比赛",
