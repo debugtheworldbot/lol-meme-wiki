@@ -1,51 +1,80 @@
 "use client";
 
-import { useMemo, useState } from "react";
+import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Fuse from "fuse.js";
 import { ArrowUpRight, Search } from "lucide-react";
-import { usePathname, useRouter, useSearchParams } from "next/navigation";
-import type { MemeEntry } from "@/lib/types";
+import { useRouter } from "next/navigation";
+import { track } from "@/lib/analytics";
+import type { MemeListItem } from "@/lib/types";
 
-export function MemeExplorer({ memes }: { memes: MemeEntry[] }) {
-  const searchParams = useSearchParams();
+const DEFAULT_TAG = "全部";
+const QUERY_MAX = 80;
+
+type Sort = "hot" | "latest";
+
+export function MemeExplorer({ memes, canonicalTags }: { memes: MemeListItem[]; canonicalTags: string[] }) {
   const router = useRouter();
-  const pathname = usePathname();
-  const allTags = useMemo(() => Array.from(new Set(memes.flatMap((meme) => meme.tags))), [memes]);
-  const requestedTag = searchParams.get("tag") ?? "全部";
-  const tag = allTags.includes(requestedTag) ? requestedTag : "全部";
-  const sort = searchParams.get("sort") === "latest" ? "latest" : "hot";
+  const allTags = useMemo(() => new Set(memes.flatMap((meme) => meme.tags)), [memes]);
+  const [query, setQuery] = useState("");
+  const [tag, setTag] = useState(DEFAULT_TAG);
+  const [sort, setSort] = useState<Sort>("hot");
+
+  useEffect(() => {
+    function syncFromLocation() {
+      const params = new URLSearchParams(window.location.search);
+      const requestedTag = params.get("tag");
+      setQuery((params.get("q") ?? "").slice(0, QUERY_MAX));
+      setTag(requestedTag && allTags.has(requestedTag) ? requestedTag : DEFAULT_TAG);
+      setSort(params.get("sort") === "latest" ? "latest" : "hot");
+    }
+
+    syncFromLocation();
+    window.addEventListener("popstate", syncFromLocation);
+    return () => window.removeEventListener("popstate", syncFromLocation);
+  }, [allTags]);
+
   /* 内容层的 localeCompare 让数字标题（02331 这类）沉在头部，这里按 heat / updated_at 重排 */
   const ordered = useMemo(() => {
     const byHeat = [...memes].sort((a, b) => (b.heat ?? 0) - (a.heat ?? 0));
     return sort === "latest" ? [...memes].sort((a, b) => (b.updated_at ?? "").localeCompare(a.updated_at ?? "")) : byHeat;
   }, [memes, sort]);
   const tags = useMemo(() => {
-    const chips = ["全部", ...allTags.slice(0, 12)];
-    if (tag !== "全部" && !chips.includes(tag)) {
+    const chips = [DEFAULT_TAG, ...new Set(canonicalTags)];
+    if (tag !== DEFAULT_TAG && !chips.includes(tag)) {
       chips.splice(1, 0, tag);
     }
     return chips;
-  }, [allTags, tag]);
-  const [query, setQuery] = useState(() => (searchParams.get("q") ?? "").slice(0, 80));
-  const fuse = useMemo(() => new Fuse(memes, { keys: ["title", "aliases", "summary", "tags"], threshold: 0.35 }), [memes]);
+  }, [canonicalTags, tag]);
+  const fuse = useMemo(() => new Fuse(memes, { keys: ["title", "aliases", "summary", "tags", "keywords"], threshold: 0.35 }), [memes]);
   const searched = query ? fuse.search(query).map((result) => result.item) : ordered;
-  const visible = tag === "全部" ? searched : searched.filter((meme) => meme.tags.includes(tag));
+  const visible = tag === DEFAULT_TAG ? searched : searched.filter((meme) => meme.tags.includes(tag));
 
-  function selectTag(next: string) {
-    const params = new URLSearchParams(searchParams.toString());
-    if (next === "全部") params.delete("tag");
-    else params.set("tag", next);
+  function replaceSearchParams(update: (params: URLSearchParams) => void) {
+    const params = new URLSearchParams(window.location.search);
+    if (query) params.set("q", query);
+    else params.delete("q");
+    update(params);
     const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+    router.replace(`${window.location.pathname}${qs ? `?${qs}` : ""}`, { scroll: false });
   }
 
-  function selectSort(next: "hot" | "latest") {
-    const params = new URLSearchParams(searchParams.toString());
-    if (next === "hot") params.delete("sort");
-    else params.set("sort", next);
-    const qs = params.toString();
-    router.replace(qs ? `${pathname}?${qs}` : pathname, { scroll: false });
+  function selectTag(next: string) {
+    setTag(next);
+    track("Directory Tag Filter", { tag: next });
+    replaceSearchParams((params) => {
+      if (next === DEFAULT_TAG) params.delete("tag");
+      else params.set("tag", next);
+    });
+  }
+
+  function selectSort(next: Sort) {
+    setSort(next);
+    track("Directory Sort", { sort: next });
+    replaceSearchParams((params) => {
+      if (next === "hot") params.delete("sort");
+      else params.set("sort", next);
+    });
   }
 
   return (
@@ -53,7 +82,7 @@ export function MemeExplorer({ memes }: { memes: MemeEntry[] }) {
       <div className="directory-tools">
         <label>
           <Search size={16} />
-          <input value={query} onChange={(event) => setQuery(event.target.value)} placeholder="筛选词条、别名或标签……" />
+          <input value={query} onChange={(event) => setQuery(event.target.value)} maxLength={QUERY_MAX} placeholder="筛选词条、别名或标签……" />
         </label>
         <div className="sort-switch" role="group" aria-label="排序方式">
           <button type="button" aria-pressed={sort === "hot"} className={sort === "hot" ? "active" : ""} onClick={() => selectSort("hot")}>最热</button>

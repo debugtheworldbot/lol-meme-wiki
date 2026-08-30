@@ -35,6 +35,17 @@ export interface MemeEntry extends BaseEntry {
   heat?: number;
 }
 
+export interface MemeListItem {
+  title: string;
+  slug: string;
+  summary: string;
+  aliases: string[];
+  tags: string[];
+  heat?: number;
+  updated_at?: string;
+  keywords: string[];
+}
+
 export interface EntityEntry extends BaseEntry {
   display_name?: string;
   region?: string;
