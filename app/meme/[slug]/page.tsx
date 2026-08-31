@@ -11,6 +11,7 @@ import { WikiLinkedText } from "@/components/wiki-linked-text";
 import { JsonLd } from "@/components/json-ld";
 import { CorrectionDialog } from "@/components/correction-dialog";
 import { MemeContinueReading } from "@/components/meme-continue-reading";
+import { MemeInfobox } from "@/components/meme-infobox";
 import { getTopicForTag } from "@/lib/topics";
 
 type PageProps = { params: Promise<{ slug: string }> };
@@ -77,6 +78,15 @@ export default async function MemeDetailPage({ params }: PageProps) {
   if (!meme) notFound();
   const related = getRelatedMemes(meme);
   const terms = collectWikiTerms(meme);
+  const quickFacts = [
+    meme.players[0] ? { kind: "player" as const, slug: meme.players[0] } : null,
+    meme.teams[0] ? { kind: "team" as const, slug: meme.teams[0] } : null,
+    meme.events[0] ? { kind: "event" as const, slug: meme.events[0] } : null,
+  ].filter((fact): fact is { kind: Exclude<EntityKind, "meme">; slug: string } => Boolean(fact));
+  const infoboxItemCount = 3
+    + Number(meme.players.length > 0)
+    + Number(meme.teams.length > 0)
+    + Number(meme.events.length > 0);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "DefinedTerm",
@@ -112,9 +122,23 @@ export default async function MemeDetailPage({ params }: PageProps) {
           </div>
         </nav>
 
-        <div className="wiki-layout">
-          <aside className="wiki-infobox">
-            <div className="wiki-infobox-title">{meme.title}</div>
+        <div className="wiki-layout meme-layout">
+          <section className="meme-intro">
+            <h2 className="wiki-h">背景介绍</h2>
+            <p className="wiki-lead">
+              <WikiLinkedText text={meme.summary} terms={terms} />
+            </p>
+          </section>
+
+          <MemeInfobox
+            title={meme.title}
+            itemCount={infoboxItemCount}
+            quickLinks={quickFacts.map((fact) => (
+              <span key={`${fact.kind}-${fact.slug}`}>
+                <WikiJoin slugs={[fact.slug]} kind={fact.kind} />
+              </span>
+            ))}
+          >
             <table>
               <tbody>
                 <tr><th>类型</th><td>梗</td></tr>
@@ -137,15 +161,9 @@ export default async function MemeDetailPage({ params }: PageProps) {
                 </tr>
               </tbody>
             </table>
-          </aside>
+          </MemeInfobox>
 
           <div className="wiki-main">
-            <section>
-              <h2 className="wiki-h">背景介绍</h2>
-              <p className="wiki-lead">
-                <WikiLinkedText text={meme.summary} terms={terms} />
-              </p>
-            </section>
             <div className="wiki-prose">
               <MDXRemote source={meme.body} />
             </div>

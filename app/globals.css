@@ -219,6 +219,24 @@ button { color: inherit; }
 
 .wiki-layout { display: flow-root; }
 .wiki-main { min-width: 0; }
+.meme-layout {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 268px;
+  grid-template-areas:
+    "intro infobox"
+    "body infobox";
+  column-gap: 28px;
+  align-items: start;
+}
+.meme-intro { grid-area: intro; min-width: 0; }
+.meme-layout > .meme-infobox {
+  grid-area: infobox;
+  float: none;
+  width: auto;
+  margin: 0;
+}
+.meme-layout > .wiki-main { grid-area: body; }
+.meme-infobox-mobile-head { display: none; }
 .wiki-lead, .wiki-prose, .wiki-note, .wiki-empty, .wiki-refs, .wiki-timeline, .wiki-related {
   color: #222;
   font-size: 15px;
@@ -571,6 +589,8 @@ button { color: inherit; }
   .footer-grid { grid-template-columns: 1fr auto; }
   .footer-note { grid-column: 1 / -1; justify-self: start; max-width: none; text-align: left; }
   .wiki-infobox { width: 240px; margin-left: 18px; }
+  .meme-layout { grid-template-columns: minmax(0, 1fr) 240px; column-gap: 18px; }
+  .meme-layout > .meme-infobox { width: auto; margin: 0; }
   .home-cats { grid-template-columns: minmax(0, 1fr); }
   .submit-layout { grid-template-columns: 1fr; }
   .submission-guide { position: static; }
@@ -598,6 +618,57 @@ button { color: inherit; }
   .wiki-head h1 { font-size: 26px; }
   .wiki-crumb { align-items: flex-start; }
   .wiki-infobox { float: none; width: auto; margin: 0 0 18px; }
+  .meme-layout {
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-areas:
+      "intro"
+      "infobox"
+      "body";
+    column-gap: 0;
+  }
+  .meme-layout > .meme-infobox {
+    width: auto;
+    margin: 2px 0 28px;
+    box-shadow: 3px 3px 0 rgba(30,43,50,.06);
+  }
+  .meme-layout > .meme-infobox > .wiki-infobox-title { display: none; }
+  .meme-infobox-mobile-head {
+    display: grid;
+    grid-template-columns: auto minmax(0, 1fr);
+    align-items: center;
+    min-height: 68px;
+    padding: 10px 12px;
+  }
+  .meme-infobox-toggle {
+    display: inline-flex;
+    align-items: center;
+    min-height: 44px;
+    gap: 5px;
+    border: 0;
+    background: transparent;
+    padding: 0;
+    color: var(--ink-editorial);
+    cursor: pointer;
+  }
+  .meme-infobox-toggle strong { font: 800 15px var(--serif); }
+  .meme-infobox-toggle span { color: var(--ink-muted); font-size: 12px; }
+  .meme-infobox-toggle svg { color: var(--vermilion); }
+  .meme-infobox-toggle svg:last-child { transition: transform .18s ease; }
+  .meme-infobox[data-open="true"] .meme-infobox-toggle svg:last-child { transform: rotate(180deg); }
+  .meme-infobox-quicklinks {
+    display: flex;
+    justify-content: flex-end;
+    min-width: 0;
+    overflow: hidden;
+    color: var(--vermilion);
+    font-size: 12px;
+    font-weight: 700;
+    white-space: nowrap;
+  }
+  .meme-infobox-quicklinks span { min-width: 0; overflow: hidden; text-overflow: ellipsis; }
+  .meme-infobox-quicklinks span:not(:last-child)::after { content: " · "; color: var(--ink-muted); }
+  .meme-infobox-body { display: none; border-top: 1px solid var(--rule); }
+  .meme-infobox[data-open="true"] .meme-infobox-body { display: block; }
   .wiki-home .home-search { flex-direction: column; }
   .wiki-home .random-button { width: 100%; }
   .home-top { grid-template-columns: minmax(0, 1fr); }
