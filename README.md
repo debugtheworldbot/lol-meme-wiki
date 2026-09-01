@@ -20,7 +20,7 @@ npm run dev
 - 梗来源、演变时间线、相关梗和纠错入口
 - GitHub Issues 投稿 API，并在未配置令牌时生成可复制草稿
 - 自动 metadata、canonical、OpenGraph、JSON-LD、sitemap 和 robots
-- 可选 Plausible 埋点
+- Vercel Analytics 与 Umami 双埋点
 
 ## 生产环境配置
 
@@ -32,7 +32,6 @@ npm run dev
 | `NEXT_PUBLIC_GITHUB_REPO` | 公共仓库名，例如 `org/repo`，用于纠错与无令牌投稿 |
 | `GITHUB_REPO` | 服务端投稿目标仓库，可与上项相同 |
 | `GITHUB_TOKEN` | 创建 Issue 的 GitHub fine-grained token |
-| `NEXT_PUBLIC_PLAUSIBLE_DOMAIN` | 可选，启用 Plausible Analytics |
 
 ## 内容结构
 

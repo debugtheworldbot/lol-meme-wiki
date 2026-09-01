@@ -71,7 +71,7 @@ npm run build      # 改路由、metadata、内容集合、生产配置时才跑
 ## 约定
 
 - TypeScript 严格；沿用现有组件和 `lib/content.ts` 的读取方式，勿另起内容层。
-- 令牌和站点配置全走环境变量（`NEXT_PUBLIC_SITE_URL` / `NEXT_PUBLIC_GITHUB_REPO` / `GITHUB_REPO` / `GITHUB_TOKEN` / `NEXT_PUBLIC_PLAUSIBLE_DOMAIN`，见 `README.md`）。不要把 token 或 `.env*` 写进仓库。
+- 令牌和站点配置全走环境变量（`NEXT_PUBLIC_SITE_URL` / `NEXT_PUBLIC_GITHUB_REPO` / `GITHUB_REPO` / `GITHUB_TOKEN`，见 `README.md`）。不要把 token 或 `.env*` 写进仓库。
 - 不要手改 `.next/` `.open-next/` `.wrangler/` `.vercel/` `node_modules/` `work/`（`.open-next`、`.wrangler` 是遗留构建产物，当前部署走 Vercel）。
 - 生产依赖先问再加。脚本名以 `package.json` 为准。
 
