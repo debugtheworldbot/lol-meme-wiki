@@ -12,6 +12,7 @@ import { JsonLd } from "@/components/json-ld";
 import { CorrectionDialog } from "@/components/correction-dialog";
 import { MemeContinueReading } from "@/components/meme-continue-reading";
 import { MemeInfobox } from "@/components/meme-infobox";
+import { TrackedSourceLink } from "@/components/tracked-source-link";
 import { getTopicForTag } from "@/lib/topics";
 
 type PageProps = { params: Promise<{ slug: string }> };
@@ -197,11 +198,15 @@ export default async function MemeDetailPage({ params }: PageProps) {
               <h2 className="wiki-h">参考</h2>
               {meme.sources.length ? (
                 <ol className="wiki-refs">
-                  {meme.sources.map((source) => (
+                  {meme.sources.map((source, index) => (
                     <li key={source.title}>
                       {source.kind ? `${sourceKindLabel[source.kind] ?? source.kind}：` : null}
                       {source.url ? (
-                        <a href={source.url} target="_blank" rel="noreferrer">{source.title}</a>
+                        <TrackedSourceLink
+                          memeSlug={meme.slug}
+                          position={index + 1}
+                          source={{ ...source, url: source.url }}
+                        />
                       ) : (
                         source.title
                       )}

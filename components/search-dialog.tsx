@@ -34,6 +34,7 @@ export function SearchDialog() {
       setIndex(loadedIndex);
       return loadedIndex;
     } catch {
+      track("Search Index Load Failure", { surface: "global" });
       setLoadError(true);
       return null;
     } finally {
@@ -106,8 +107,14 @@ export function SearchDialog() {
     }
   }
 
-  function visit(record: SearchRecord) {
-    track("Search Result Click", { query, type: record.type, result: record.title });
+  function visit(record: SearchRecord, position: number) {
+    track("Search Result Click", {
+      query: query.trim(),
+      type: record.type,
+      result: record.title,
+      position,
+      mode: query.trim() ? "query" : "popular",
+    });
     navigatingRef.current = true;
     /* 必须先同步提交关闭：router.push 的 transition 会让 AppRouter 在 render 里挂起，
        同一批次里的普通更新会被一起压住，弹层就停在页面上直到新路由数据到达 */
@@ -161,7 +168,7 @@ export function SearchDialog() {
                   } else if (event.key === "Enter" && results[activeIndexSafe]) {
                     /* 拦掉默认行为，避免关闭后残余的 keypress 打到新获得焦点的元素上 */
                     event.preventDefault();
-                    visit(results[activeIndexSafe]);
+                    visit(results[activeIndexSafe], activeIndexSafe + 1);
                   }
                 }}
                 placeholder="试试 YYDS、大魔王、世一上……"
@@ -187,7 +194,7 @@ export function SearchDialog() {
                   key={`${record.type}-${record.href}`}
                   data-active={index === activeIndexSafe ? "true" : undefined}
                   onMouseEnter={() => setActiveIndex(index)}
-                  onClick={() => visit(record)}
+                  onClick={() => visit(record, index + 1)}
                 >
                   <span className={`result-type type-${record.type}`}>{labels[record.type]}</span>
                   <span className="result-copy">

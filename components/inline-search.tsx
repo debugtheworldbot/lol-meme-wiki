@@ -25,6 +25,7 @@ export function InlineSearch() {
       setIndex(loadedIndex);
       return loadedIndex;
     } catch {
+      track("Search Index Load Failure", { surface: "homepage" });
       setLoadError(true);
       return null;
     } finally {
@@ -48,15 +49,20 @@ export function InlineSearch() {
       track("Homepage Search No Results", { query: trimmedQuery });
       return;
     }
-    track("Homepage Search", { query: trimmedQuery, result: firstResult.title });
+    track("Homepage Search", {
+      query: trimmedQuery,
+      result: firstResult.title,
+      type: firstResult.type,
+    });
     router.push(firstResult.href);
   }
 
-  function visit(record: SearchRecord) {
+  function visit(record: SearchRecord, position: number) {
     track("Homepage Search Result Click", {
       query: query.trim(),
       result: record.title,
       type: record.type,
+      position,
     });
     router.push(record.href);
   }
@@ -98,8 +104,8 @@ export function InlineSearch() {
               </button>
               。
             </p>
-          ) : results.length ? results.map((record) => (
-            <button key={record.href} onMouseDown={() => visit(record)}>
+          ) : results.length ? results.map((record, index) => (
+            <button key={record.href} onMouseDown={() => visit(record, index + 1)}>
               <strong>{record.title}</strong>
               <span>{record.subtitle}</span>
               <small>{record.type === "meme" ? "梗" : record.type === "player" ? "选手" : record.type === "team" ? "战队" : "赛事"}</small>
