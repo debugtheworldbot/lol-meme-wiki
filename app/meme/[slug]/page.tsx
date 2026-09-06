@@ -108,7 +108,7 @@ export default async function MemeDetailPage({ params }: PageProps) {
           <p className="wiki-meta">
             {meme.aliases?.length ? <span>又称：{meme.aliases.join(" / ")}</span> : null}
             {meme.updated_at ? <span>更新日期：{meme.updated_at}</span> : null}
-            {meme.first_seen ? <span>首次出现：{meme.first_seen}</span> : null}
+            {meme.first_seen ? <span>时间线索：{meme.first_seen}</span> : null}
           </p>
         </header>
 
@@ -143,7 +143,7 @@ export default async function MemeDetailPage({ params }: PageProps) {
             <table>
               <tbody>
                 <tr><th>类型</th><td>梗</td></tr>
-                <tr><th>出处</th><td>{meme.first_seen ?? "社区流传"}</td></tr>
+                <tr><th>时间线索</th><td>{meme.first_seen ?? "尚待考证"}</td></tr>
                 {meme.players.length ? <tr><th>相关人物</th><td><WikiJoin slugs={meme.players} kind="player" /></td></tr> : null}
                 {meme.teams.length ? <tr><th>相关战队</th><td><WikiJoin slugs={meme.teams} kind="team" /></td></tr> : null}
                 {meme.events.length ? <tr><th>相关赛事</th><td><WikiJoin slugs={meme.events} kind="event" /></td></tr> : null}

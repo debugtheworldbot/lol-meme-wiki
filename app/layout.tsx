@@ -43,12 +43,8 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="zh-CN" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
-        {/* AdSense 站点验证 + 广告投放：必须是 head 里的原生 script，Google 爬虫不执行 next/script 的客户端注入。 */}
-        <script
-          async
-          src="https://pagead2.googlesyndication.com/pagead/js/adsbygoogle.js?client=ca-pub-3460143338187515"
-          crossOrigin="anonymous"
-        />
+        {/* 整改期间仅保留站点验证；通过审核并确定内容页投放范围后再接入广告。 */}
+        <meta name="google-adsense-account" content="ca-pub-3460143338187515" />
       </head>
       <body>
         <a className="skip-link" href="#main-content">跳到正文</a>

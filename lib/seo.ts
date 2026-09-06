@@ -61,6 +61,7 @@ export function buildEntityMetadata(kind: EntityKindWithoutMeme, entry: EntityEn
   return {
     title,
     description,
+    robots: { index: entry.indexable === true, follow: true },
     // 只给主名和全名做疑问词组合；单字别名（“彬”）组合出来全是噪音。
     keywords: toKeywords([
       ...names,

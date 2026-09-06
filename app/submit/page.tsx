@@ -8,6 +8,7 @@ export const metadata: Metadata = {
   title: "提交新梗",
   description: "向 研发.lol 提交新词条、原始出处或内容补充。",
   alternates: { canonical: "/submit" },
+  robots: { index: false, follow: true },
 };
 
 export default function SubmitPage() {

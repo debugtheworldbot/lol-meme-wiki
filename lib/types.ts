@@ -53,6 +53,8 @@ export type HomeMemeListItem = Pick<
 >;
 
 export interface EntityEntry extends BaseEntry {
+  // 当前实体页以导航为主；补充独立内容并人工复核后才显式开放索引。
+  indexable?: boolean;
   display_name?: string;
   region?: string;
   active_years?: string;
