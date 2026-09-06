@@ -22,6 +22,8 @@ export interface BaseEntry {
 }
 
 export interface MemeEntry extends BaseEntry {
+  // 未核实的稿件保留在仓库，不生成公开页面或进入搜索、聚合与站点地图。
+  draft?: boolean;
   first_seen?: string;
   players: string[];
   teams: string[];

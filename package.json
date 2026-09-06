@@ -4,10 +4,11 @@
   "private": true,
   "scripts": {
     "dev": "next dev",
-    "build": "next build",
+    "build": "npm run check:content && next build",
     "start": "next start",
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
+    "check:content": "node scripts/check-content.mjs",
     "push:indexnow": "node scripts/indexnow-push.mjs"
   },
   "dependencies": {

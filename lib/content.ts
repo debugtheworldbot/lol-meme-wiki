@@ -23,7 +23,7 @@ function readCollection<T extends { slug: string; title: string; summary: string
     .sort((a, b) => a.title.localeCompare(b.title, "zh-CN"));
 }
 
-export const getMemes = cache(() => readCollection<MemeEntry>("memes"));
+export const getMemes = cache(() => readCollection<MemeEntry>("memes").filter((entry) => entry.draft !== true));
 export const getPlayers = cache(() => readCollection<EntityEntry>("players"));
 export const getTeams = cache(() => readCollection<EntityEntry>("teams"));
 export const getEvents = cache(() => readCollection<EntityEntry>("events"));
