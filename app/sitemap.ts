@@ -1,12 +1,12 @@
 import type { MetadataRoute } from "next";
-import { getEvents, getMemes, getPlayers, getTeams } from "@/lib/content";
+import { getEvents, getMemes, getPlayers, getTeams, getTopicGuide } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
 import { topicDefinitions } from "@/lib/topics";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteConfig.url;
   const staticRoutes = ["", "/memes", "/topics", "/players", "/teams", "/events", "/about", "/contact", "/privacy"].map((path) => ({ url: `${base}${path}`, changeFrequency: "weekly" as const, priority: path === "" ? 1 : 0.7 }));
-  const topics = topicDefinitions.map((topic) => ({ url: `${base}/topics/${topic.slug}`, changeFrequency: "weekly" as const, priority: 0.8 }));
+  const topics = topicDefinitions.map((topic) => ({ url: `${base}/topics/${topic.slug}`, lastModified: getTopicGuide(topic.slug)?.updated_at, changeFrequency: "weekly" as const, priority: 0.8 }));
   const memes = getMemes().map((entry) => ({ url: `${base}/meme/${entry.slug}`, lastModified: entry.updated_at, changeFrequency: "monthly" as const, priority: 0.9 }));
   const entities = ([
     ["player", getPlayers()], ["team", getTeams()], ["event", getEvents()],

@@ -4,7 +4,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { cache } from "react";
 import matter from "gray-matter";
-import type { EntityEntry, EntityKind, MemeEntry, MemeListItem, SearchRecord } from "@/lib/types";
+import type { BaseEntry, EntityEntry, EntityKind, MemeEntry, MemeListItem, SearchRecord } from "@/lib/types";
 
 const contentRoot = path.join(process.cwd(), "content");
 
@@ -27,6 +27,8 @@ export const getMemes = cache(() => readCollection<MemeEntry>("memes").filter((e
 export const getPlayers = cache(() => readCollection<EntityEntry>("players"));
 export const getTeams = cache(() => readCollection<EntityEntry>("teams"));
 export const getEvents = cache(() => readCollection<EntityEntry>("events"));
+export const getTopicGuides = cache(() => readCollection<BaseEntry>("guides"));
+export const getTopicGuide = cache((slug: string) => getTopicGuides().find((entry) => entry.slug === slug));
 
 export const getMeme = cache((slug: string) => getMemes().find((entry) => entry.slug === slug));
 

@@ -5,7 +5,7 @@ import matter from "gray-matter";
 // 检查可机械验证的来源与关联错误；不把字数或链接数量当作内容质量评分。
 const root = path.join(process.cwd(), "content");
 const collections = Object.fromEntries(
-  ["memes", "players", "teams", "events"].map((kind) => [
+  ["memes", "players", "teams", "events", "guides"].map((kind) => [
     kind,
     fs.readdirSync(path.join(root, kind)).filter((file) => file.endsWith(".mdx")).map((file) => {
       const { data, content } = matter(fs.readFileSync(path.join(root, kind, file), "utf8"));
@@ -22,6 +22,13 @@ for (const [kind, entries] of Object.entries(collections)) {
     if (entry.slug !== entry.file.slice(0, -4)) fail("slug 与文件名不一致");
     for (const key of ["title", "summary"]) {
       if (typeof entry[key] !== "string" || !entry[key].trim()) fail(key + " 不能为空");
+    }
+    if (kind === "guides") {
+      if (!entry.body.trim()) fail("专题导读正文不能为空");
+      for (const match of entry.body.matchAll(/\]\(\/meme\/([^\s)#?]+)/g)) {
+        if (!published.has(match[1])) fail("导读链接指向未公开词条: " + match[1]);
+      }
+      continue;
     }
     if (kind !== "memes") continue;
     if (entry.draft !== undefined && typeof entry.draft !== "boolean") fail("draft 必须是布尔值");
