@@ -265,6 +265,14 @@ button { color: inherit; }
 }
 .wiki-main > section:first-child > .wiki-h:first-child { margin-top: 0; }
 .wiki-prose { max-width: none; }
+.article-end-marker { display: block; width: 1px; height: 1px; }
+.wiki-prose h2[id] { scroll-margin-top: 100px; }
+.meme-reading-nav { margin: 0 0 26px; padding: 14px 16px; border: 1px solid var(--rule-soft); background: rgba(199,66,50,.035); }
+.wiki-prose .meme-reading-nav p { margin: 0; }
+.wiki-prose .meme-reading-nav ul { display: flex; flex-wrap: wrap; gap: 2px 16px; padding: 0; margin: 6px 0 10px; list-style: none; }
+.wiki-prose .meme-reading-nav li { margin: 0; }
+.meme-reading-nav a { display: inline-block; padding: 10px 0; overflow-wrap: anywhere; }
+.wiki-prose .meme-reading-nav .meme-reading-next { padding-top: 10px; border-top: 1px solid var(--rule-soft); }
 .wiki-prose > *:first-child { margin-top: 0; }
 .wiki-prose h3 { margin: 22px 0 10px; color: #111; font: 700 16px var(--sans); }
 .wiki-prose p { margin: 0 0 14px; }

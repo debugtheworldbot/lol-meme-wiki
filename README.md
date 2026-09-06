@@ -41,6 +41,20 @@ npm run dev
 
 专题导读放在 `content/guides/<专题 slug>.mdx`，使用 `title`、`slug`、`summary`、`updated_at` 与标准 Markdown 正文。通过唯一内容层读取，显示在已有专题目录之前；正文中的证据链接应紧邻对应说法。导读不单独生成重复页面，需与 `lib/topics.ts` 中已有专题 slug 对应。
 
+人物专题在 `lib/topics.ts` 设置 `player` 外键后，按词条的 `players` 聚合，不要求额外补标签。长词条可在 MDX 中使用 `meme-reading-nav` 原生导航与有 `id` 的二级标题；锚点应随内容保留，避免已有链接失效。
+
+### 阅读行为统计
+
+`MemeArticle` 保留服务端 MDX 正文，仅为正文内链接和末尾标记增加客户端统计；事件经 `lib/analytics.ts` 独立发送给 Vercel 与 Umami，一个服务异常不阻断另一个或页面操作。
+
+- `Article Section Click`：页内目录点击，属性 `meme` / `section`。
+- `Topic Guide Click`：正文中的专题入口，属性 `from` / `to` / `placement`。
+- `Related Meme Click`：正文链接 `placement=article`，末尾推荐 `placement=after_article`。
+- `Source Click`：正文来源 `placement=inline`，参考列表 `placement=references`，其余属性沿用已有格式。
+- `Article End Visible`：每次挂载词条时最多一次；仅表示正文末尾进入视野，不能解释为读完、有效阅读时长或降低跳出率。
+
+Umami 脚本仅在生产构建加载，并通过 `data-domains` 限定站点配置的域名，排除本地及其他预览主机。忽略 URL hash，避免目录锚点拆分页面统计。验收时不要向生产统计发送伪造事件；上线后在 Umami 按正式域名、发布日期和页面过滤，核对真实事件及后续阅读变化。
+
 ### 待考证与索引
 
 - 尚不能确认核心释义的梗设置 `draft: true`，在 `source_note` 中记录待补证据或撤回原因。文件保留在仓库，但内容层统一将它排除：不生成详情页，不进入目录、搜索、随机推荐、关联展示或 sitemap。

@@ -31,6 +31,7 @@ export function TrackedSourceLink({
         kind: source.kind ?? "unknown",
         domain: getSourceDomain(source.url),
         position,
+        placement: "references",
       })}
     >
       {source.title}

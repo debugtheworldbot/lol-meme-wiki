@@ -11,6 +11,7 @@ import { WikiLinkedText } from "@/components/wiki-linked-text";
 import { JsonLd } from "@/components/json-ld";
 import { CorrectionDialog } from "@/components/correction-dialog";
 import { MemeContinueReading } from "@/components/meme-continue-reading";
+import { MemeArticle } from "@/components/meme-article";
 import { MemeInfobox } from "@/components/meme-infobox";
 import { TrackedSourceLink } from "@/components/tracked-source-link";
 import { getTopicForTag } from "@/lib/topics";
@@ -165,9 +166,9 @@ export default async function MemeDetailPage({ params }: PageProps) {
           </MemeInfobox>
 
           <div className="wiki-main">
-            <div className="wiki-prose">
+            <MemeArticle key={meme.slug} slug={meme.slug} sources={meme.sources}>
               <MDXRemote source={meme.body} />
-            </div>
+            </MemeArticle>
             <MemeContinueReading
               currentSlug={meme.slug}
               items={related.slice(0, 4).map((entry) => ({
