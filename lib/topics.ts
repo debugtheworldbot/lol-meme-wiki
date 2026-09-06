@@ -6,9 +6,18 @@ export interface TopicDefinition {
   title: string;
   description: string;
   introduction: string;
+  player?: string;
 }
 
 export const topicDefinitions: TopicDefinition[] = [
+  {
+    slug: "bin-geng",
+    tag: "Bin",
+    player: "bin",
+    title: "Bin 梗导读：世一上、电竞李鸿章与 48bin 的区别",
+    description: "区分 Bin 的选手自称、赛后比喻与数字黑称，沿具体语境查看原帖、比赛记录和相关词条。",
+    introduction: "同样在说 Bin，不同称呼可能是在引用选手原话、改写赛果，也可能在攻击家属。从三种表达的区别入手，再继续查阅同一选手的其他词条。",
+  },
   {
     slug: "xuanshou-geng",
     tag: "选手梗",
@@ -90,7 +99,7 @@ export function getTopicForTag(tag: string) {
 }
 
 export function getMemesForTopic(memes: MemeEntry[], topic: TopicDefinition) {
-  const matching = memes.filter((meme) => meme.tags.includes(topic.tag));
+  const matching = memes.filter((meme) => topic.player ? meme.players.includes(topic.player) : meme.tags.includes(topic.tag));
   if (topic.tag === "2026") {
     return matching.sort((a, b) => (b.first_seen ?? "").localeCompare(a.first_seen ?? ""));
   }
