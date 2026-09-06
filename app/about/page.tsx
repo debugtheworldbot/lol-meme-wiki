@@ -2,10 +2,11 @@ import type { Metadata } from "next";
 import Link from "next/link";
 import { buildBreadcrumbJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/json-ld";
+import { siteConfig } from "@/lib/site";
 
 export const metadata: Metadata = {
   title: "关于本站",
-  description: "研发.lol 是什么、收录原则、内容免责与参与方式。",
+  description: "研发.lol 的收录范围、来源核对方式、编辑修订记录与纠错渠道。",
   alternates: { canonical: "/about" },
 };
 
@@ -33,9 +34,38 @@ export default function AboutPage() {
           <h2 className="wiki-h">我们做什么</h2>
           <ul>
             <li>按<Link href="/memes">梗</Link>、<Link href="/players">选手</Link>、<Link href="/teams">战队</Link>、<Link href="/events">赛事</Link>四条线组织词条，相互关联。</li>
-            <li>每条梗尽量标注原始来源（视频 / 比赛 / 帖子 / 文章），方便溯源，而不是二手转述。</li>
+            <li>每条公开梗附具体来源（视频 / 比赛 / 帖子 / 文章），并区分原始材料与后来的回顾。</li>
             <li>区分“事实”与“社区调侃”，考证不确定处会显式说明分歧。</li>
           </ul>
+
+          <h2 className="wiki-h">怎样核对一个梗</h2>
+          <ol>
+            <li><strong>先确认是什么。</strong> 找到实际使用这句话或名称的材料，再解释它指向的比赛、人物与语境。赛事背景本身不能证明一个梗确实流传过。</li>
+            <li><strong>将来源对应到说法。</strong> 比赛数据优先对照赛事记录，原话优先找视频或原帖。后来的讲解只作为回顾材料；搜索结果页和网站首页不作为具体出处。</li>
+            <li><strong>日期只写到证据支持的精度。</strong> 区分事件发生、视频上传和后续传播的时间。“时间线索”不一定是首次出现日期；找不到首发时明确写未确认。</li>
+            <li><strong>补充读者需要的解释。</strong> 说明数字如何拆分、相近叫法有什么差别，以及在哪些场景使用。社区评价与可核对事实分开写。</li>
+          </ol>
+          <p>
+            内容整理和文字修订会使用 AI 辅助。AI 生成的描述不作为证据，来源链接也不等于全文已经得到证明；无法确认的细节会在编辑注中说明。若连核心释义都缺乏依据，词条会暂时撤下，补齐材料后再发布。
+          </p>
+
+          <h2 className="wiki-h">修订记录与责任</h2>
+          <p>
+            站点维护者负责整理投稿与修订内容。可在
+            <a href={`https://github.com/${siteConfig.githubRepo}`}>公开项目仓库</a>
+            查看维护账号、文件历史和已记录的问题；词条上的更新日期表示内容修订时间，不表示梗首次出现，也不表示所有外链当天都能播放。
+          </p>
+          <p>2026 年 9 月的来源复核包括以下更正：</p>
+          <ul>
+            <li><Link href="/meme/02331">02331</Link>：拆开首局击杀数与另一局经济差，不把不同对局的数字拼成同一份统计。</li>
+            <li><Link href="/meme/1557">1557</Link>：注明社区简称与部分赛后记录的计时差异。</li>
+            <li><Link href="/meme/yixiao-xiaodao-s9">一笑笑到 S9</Link>：用 2018 年底的公开记录修正旧版起源时间。</li>
+          </ul>
+          <p>
+            发现错误时，可从词条页的“补充 / 纠错”入口提供具体段落及证据，也可通过
+            <Link href="/contact">联系页面</Link>反馈。投稿与纠错不会直接成为正文；涉及个人信息时，请先阅读
+            <Link href="/privacy">隐私政策</Link>，避免将私人信息写入公开问题记录。
+          </p>
 
           <h2 className="wiki-h">收录原则</h2>
           <p>
@@ -44,7 +74,7 @@ export default function AboutPage() {
 
           <h2 className="wiki-h">免责声明</h2>
           <p>
-            本站为非营利性社区项目，<strong>并非 Riot Games 官方产品，亦未获得 Riot Games 认可</strong>。《英雄联盟》及相关名称、标识的商标与版权归 Riot Games 及各自权利人所有。本站内容仅供参考与文化记录之用。
+            本站是独立社区项目，<strong>并非 Riot Games 官方产品，亦未获得 Riot Games 认可</strong>。《英雄联盟》及相关名称、标识的商标与版权归 Riot Games 及各自权利人所有。本站内容仅供参考与文化记录之用。
           </p>
 
           <h2 className="wiki-h">参与共建</h2>
