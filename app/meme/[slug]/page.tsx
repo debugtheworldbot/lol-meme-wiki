@@ -4,7 +4,7 @@ import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getEntity, getEntityTitle, getMeme, getMemes, getRelatedMemes } from "@/lib/content";
-import { buildBreadcrumbJsonLd, buildMemeMetadata } from "@/lib/seo";
+import { buildBreadcrumbJsonLd, buildMemeMetadata, getContentLastModified } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 import type { EntityKind, MemeEntry } from "@/lib/types";
 import { WikiLinkedText } from "@/components/wiki-linked-text";
@@ -89,14 +89,22 @@ export default async function MemeDetailPage({ params }: PageProps) {
     + Number(meme.players.length > 0)
     + Number(meme.teams.length > 0)
     + Number(meme.events.length > 0);
+  const url = `${siteConfig.url}/meme/${meme.slug}`;
+  const lastModified = getContentLastModified([meme]);
   const jsonLd = {
     "@context": "https://schema.org",
     "@type": "DefinedTerm",
     name: meme.title,
+    alternateName: meme.aliases?.length ? meme.aliases : undefined,
     description: meme.summary,
-    url: `${siteConfig.url}/meme/${meme.slug}`,
+    url,
     inDefinedTermSet: { "@type": "DefinedTermSet", name: siteConfig.name, url: siteConfig.url },
-    dateModified: meme.updated_at,
+    mainEntityOfPage: {
+      "@type": "WebPage",
+      url,
+      datePublished: meme.collected_at,
+      dateModified: lastModified,
+    },
   };
 
   return (
@@ -108,7 +116,7 @@ export default async function MemeDetailPage({ params }: PageProps) {
           <h1>{meme.title}</h1>
           <p className="wiki-meta">
             {meme.aliases?.length ? <span>又称：{meme.aliases.join(" / ")}</span> : null}
-            {meme.updated_at ? <span>更新日期：{meme.updated_at}</span> : null}
+            {lastModified ? <span>更新日期：{lastModified}</span> : null}
             {meme.first_seen ? <span>时间线索：{meme.first_seen}</span> : null}
           </p>
         </header>

@@ -29,6 +29,15 @@ function toKeywords(values: string[]) {
   return unique(values).slice(0, KEYWORDS_MAX);
 }
 
+// 内容日期统一为 YYYY-MM-DD；草稿可能先编辑后公开，修改日期不能早于首次收录。
+export function getContentLastModified(entries: { updated_at?: string; collected_at?: string }[]) {
+  return entries
+    .flatMap((entry) => [entry.updated_at, entry.collected_at])
+    .filter((date): date is string => Boolean(date))
+    .sort()
+    .at(-1);
+}
+
 export function buildMemeMetadata(meme: MemeEntry): Metadata {
   const title = meme.seo_title?.trim() || `${meme.title}是什么梗？出处和含义`;
   const description = clamp(meme.summary);
@@ -47,7 +56,7 @@ export function buildMemeMetadata(meme: MemeEntry): Metadata {
       ...BASE_KEYWORDS,
     ]),
     alternates: { canonical: url },
-    openGraph: { type: "article", title, description, url, modifiedTime: meme.updated_at },
+    openGraph: { type: "article", title, description, url, publishedTime: meme.collected_at, modifiedTime: getContentLastModified([meme]) },
   };
 }
 

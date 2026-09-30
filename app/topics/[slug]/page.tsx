@@ -5,7 +5,7 @@ import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { JsonLd } from "@/components/json-ld";
 import { getMemes, getTopicGuide } from "@/lib/content";
-import { buildBreadcrumbJsonLd } from "@/lib/seo";
+import { buildBreadcrumbJsonLd, getContentLastModified } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 import { getMemesForTopic, getTopic, topicDefinitions } from "@/lib/topics";
 
@@ -45,7 +45,7 @@ export default async function TopicPage({ params }: PageProps) {
     "@type": "CollectionPage",
     name: title,
     description: guide?.summary ?? topic.description,
-    dateModified: guide?.updated_at,
+    dateModified: getContentLastModified([{ updated_at: guide?.updated_at }, ...memes]),
     url: `${siteConfig.url}${path}`,
     mainEntity: {
       "@type": "ItemList",
