@@ -57,6 +57,14 @@ npm run dev
 
 Umami 脚本仅在生产构建加载，并通过 `data-domains` 限定站点配置的域名，排除本地及其他预览主机。忽略 URL hash，避免目录锚点拆分页面统计。验收时不要向生产统计发送伪造事件；上线后在 Umami 按正式域名、发布日期和页面过滤，核对真实事件及后续阅读变化。
 
+### AI 搜索与引荐复盘
+
+- 复用现有来源统计，分别观察 `chatgpt.com`、`perplexity.ai`、`claude.ai`、`gemini.google.com`、`copilot.microsoft.com`，也记录实际出现的其他 AI 来源。使用完整 28 天，保存时区、起止时间、生产环境及主机过滤条件；后续对比保持同一口径。
+- Vercel Web Analytics 用 `visits/aggregate` 按 `referrerHostname`、`requestPath` 查询。核对响应中的实际时间边界；来源页面不自动等于会话首次入口，各页面访客数也不能直接相加当去重访客数。API 不可用时可在 Umami 按来源筛选后查看入口页、后续页面和已有阅读事件。
+- 把 AI 引荐访客、PV、引用出现次数、爬虫请求分开记录。缺少 referrer 的访问无法可靠归因；没有可识别来源不等于没有 AI 访问。日志或报表权限不足时记为“未验证”，不要记作零。
+- 内容优先依据 Search Console 的实际曝光与现有 AI 来源页面补强：直接释义、紧邻事实的原始来源、传播日期与首创边界。保留已有完整词条，不为制造新鲜度只改日期。`first_seen` 是梗的时间线索，页面发布时间使用 `collected_at`；修改日期取收录与编辑日期中的较晚值，专题日期随导读及关联公开词条更新。
+- `robots.txt` 已允许公开页面抓取。机器人管理规则与真实抓取结果分别核对；搜索抓取和训练抓取是独立用途，开放训练不是搜索曝光前提。参考 [OpenAI 爬虫说明](https://developers.openai.com/api/docs/bots)、[Vercel Web Analytics API](https://vercel.com/docs/analytics/web-analytics-api)。
+
 ### 待考证与索引
 
 - 尚不能确认核心释义的梗设置 `draft: true`，在 `source_note` 中记录待补证据或撤回原因。文件保留在仓库，但内容层统一将它排除：不生成详情页，不进入目录、搜索、随机推荐、关联展示或 sitemap。
