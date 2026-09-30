@@ -29,7 +29,7 @@ export function HomeMemeList({ title, description, memes, showFirstSeen = false,
             <span className="list-index">{String(start + index + 1).padStart(2, "0")}</span>
             <div className="home-list-copy">
               {showFirstSeen && meme.first_seen ? <time>初见 {meme.first_seen}</time> : null}
-              {!showFirstSeen && meme.updated_at ? <time>归档 {meme.updated_at}</time> : null}
+              {!showFirstSeen && meme.collected_at ? <time dateTime={meme.collected_at}>收录 {meme.collected_at}</time> : null}
               <Link href={`/meme/${meme.slug}`}>{meme.title}<ArrowUpRight size={14} /></Link>
               <span>{meme.summary}</span>
             </div>

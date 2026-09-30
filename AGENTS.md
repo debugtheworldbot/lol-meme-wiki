@@ -53,6 +53,7 @@ npm run build      # 改路由、metadata、内容集合、生产配置时才跑
 新词条对齐现有 MDX 字段，参考 `content/memes/wo-chovy.mdx`（字段最全）。
 
 - 必填：`title` / `slug` / `summary` / `players` / `teams` / `events` / `related` / `tags` / `sources`；可选 `aliases` / `first_seen` / `timeline` / `source_note` / `updated_at` / `featured` / `heat`。
+- 公开梗词条还必须填写 `collected_at: "YYYY-MM-DD"`（首次收录日期，日期带引号），供首页“最新收录”排序；历史日期按 Git 首次加入记录补齐。改旧文只更新 `updated_at`，不要改 `collected_at`；草稿首次公开时填写。`seo_title` 可选，用于定制搜索标题，不改页面标题或 slug。
 - 关联的实体 slug 必须已存在于 `content/players|teams|events/`，否则先补实体文件。不要写死展示名当外键。
 - 正文从 `##` 起（`#` 留给页面标题），惯用小节：`## 一句话看懂`、`## 为什么是 X`、`## 现在怎么用`。`MDXRemote` 没配自定义组件映射，写标准 markdown 即可。
 - `tags` 是自由词表（现 75 个），沿用高频词：`游戏梗` `选手梗` `赛事梗` `英雄台词` `回旋镖` `数字梗` `技能梗` `谐音梗` `贴吧梗` `虎扑梗` `出圈梗` `黑称`，加年份 `2026` / 赛季 `S15`。首页会统计 `游戏梗` / `赛事梗` / `英雄台词` 三类计数，`/memes?tag=` 靠它筛选。

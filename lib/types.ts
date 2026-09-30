@@ -26,6 +26,7 @@ export interface MemeEntry extends BaseEntry {
   // 未核实的稿件保留在仓库，不生成公开页面或进入搜索、聚合与站点地图。
   draft?: boolean;
   first_seen?: string;
+  collected_at?: string;
   players: string[];
   teams: string[];
   events: string[];
@@ -46,13 +47,14 @@ export interface MemeListItem {
   tags: string[];
   heat?: number;
   first_seen?: string;
+  collected_at?: string;
   updated_at?: string;
   keywords: string[];
 }
 
 export type HomeMemeListItem = Pick<
   MemeListItem,
-  "title" | "slug" | "summary" | "first_seen" | "updated_at"
+  "title" | "slug" | "summary" | "first_seen" | "collected_at"
 >;
 
 export interface EntityEntry extends BaseEntry {

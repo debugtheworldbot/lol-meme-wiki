@@ -23,6 +23,7 @@ for (const [kind, entries] of Object.entries(collections)) {
     for (const key of ["title", "summary"]) {
       if (typeof entry[key] !== "string" || !entry[key].trim()) fail(key + " 不能为空");
     }
+    if (entry.seo_title !== undefined && (typeof entry.seo_title !== "string" || !entry.seo_title.trim())) fail("seo_title 必须是非空字符串");
     if (kind === "guides") {
       if (!entry.body.trim()) fail("专题导读正文不能为空");
       for (const match of entry.body.matchAll(/\]\(\/meme\/([^\s)#?]+)/g)) {
@@ -39,6 +40,11 @@ for (const [kind, entries] of Object.entries(collections)) {
     if (entry.draft === true) {
       if (!entry.source_note?.trim()) fail("待考证稿件必须说明撤回或未发布原因");
       continue;
+    }
+    const collectedAt = entry.collected_at;
+    if (typeof collectedAt !== "string" || !/^\d{4}-\d{2}-\d{2}$/.test(collectedAt)
+      || Number.isNaN(Date.parse(collectedAt)) || new Date(collectedAt).toISOString().slice(0, 10) !== collectedAt) {
+      fail('collected_at 必须是带引号的有效日期，例如 "2026-09-30"');
     }
     if (!entry.body.trim()) fail("正文不能为空");
     if (!Array.isArray(entry.sources) || !entry.sources.length) fail("公开词条必须有具体来源");

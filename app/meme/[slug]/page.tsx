@@ -152,12 +152,15 @@ export default async function MemeDetailPage({ params }: PageProps) {
                   <th>TAG标签</th>
                   <td>
                     {meme.tags.length
-                      ? meme.tags.map((tag, index) => (
-                          <Fragment key={tag}>
-                            {index > 0 ? "、" : null}
-                            <Link className="wiki-tag" href={`/memes?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
-                          </Fragment>
-                        ))
+                      ? meme.tags.map((tag, index) => {
+                          const topic = getTopicForTag(tag);
+                          return (
+                            <Fragment key={tag}>
+                              {index > 0 ? "、" : null}
+                              <Link className="wiki-tag" href={topic ? `/topics/${topic.slug}` : `/memes?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
+                            </Fragment>
+                          );
+                        })
                       : "—"}
                   </td>
                 </tr>

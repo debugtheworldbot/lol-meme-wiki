@@ -17,7 +17,7 @@ function toHomeMemeListItem(meme: MemeListItem): HomeMemeListItem {
     slug: meme.slug,
     summary: meme.summary,
     first_seen: meme.first_seen,
-    updated_at: meme.updated_at,
+    collected_at: meme.collected_at,
   };
 }
 
@@ -31,7 +31,7 @@ export default function HomePage() {
   /* 初见只认 YYYY / YYYY-MM 这类可比较写法；“更早”等未定时间沉到时间线末尾，不占头部。 */
   const datedFirstSeen = (value?: string) => (/^\d{4}/.test(value ?? "") ? (value as string) : "");
   const chronological = [...homeMemeListItems].sort((a, b) => datedFirstSeen(b.first_seen).localeCompare(datedFirstSeen(a.first_seen)));
-  const latest = [...homeMemeListItems].sort((a, b) => (b.updated_at ?? "").localeCompare(a.updated_at ?? ""));
+  const latest = [...homeMemeListItems].sort((a, b) => (b.collected_at ?? "").localeCompare(a.collected_at ?? "") || a.title.localeCompare(b.title, "zh-CN"));
   const tags = [...new Set(memes.flatMap((meme) => meme.tags))].slice(0, 12);
   const typeCounts = [
     { tag: "游戏梗", suffix: "条" },
@@ -113,8 +113,8 @@ export default function HomePage() {
         </section>
 
         <main className="wiki-main home-main">
-          <div className="section-label home-list-label"><span>02 / 归档动态</span><p>追踪站内最近补齐出处、更新语境的词条。</p></div>
-          <HomeMemeList columns={2} title="最新收录" description="最近补齐出处、更新语境或刚刚被整理进档案室的词条。" memes={latest} />
+          <div className="section-label home-list-label"><span>02 / 收录动态</span><p>按加入本站的日期，查看新收录的词条。</p></div>
+          <HomeMemeList columns={2} title="最新收录" description="最近加入本站的梗，包含新梗和补录的老梗。" memes={latest} />
           <section className="home-catalogue" aria-labelledby="catalogue-title">
             <div className="section-label"><span>03 / 索引柜</span><p>从人、队伍与赛事三个入口，继续追踪一条梗的来处。</p></div>
             <h2 id="catalogue-title">继续翻阅</h2>
