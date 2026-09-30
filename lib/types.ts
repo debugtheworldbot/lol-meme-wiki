@@ -14,6 +14,7 @@ export interface TimelineItem {
 
 export interface BaseEntry {
   title: string;
+  seo_title?: string;
   slug: string;
   summary: string;
   aliases?: string[];

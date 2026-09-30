@@ -30,7 +30,7 @@ function toKeywords(values: string[]) {
 }
 
 export function buildMemeMetadata(meme: MemeEntry): Metadata {
-  const title = `${meme.title}是什么梗？出处和含义`;
+  const title = meme.seo_title?.trim() || `${meme.title}是什么梗？出处和含义`;
   const description = clamp(meme.summary);
   const url = `/meme/${meme.slug}`;
   return {
@@ -54,7 +54,7 @@ export function buildMemeMetadata(meme: MemeEntry): Metadata {
 export function buildEntityMetadata(kind: EntityKindWithoutMeme, entry: EntityEntry): Metadata {
   const copy = entityCopy[kind];
   const names = unique([entry.title, entry.display_name ?? "", ...(entry.aliases ?? [])]);
-  const title = `${entry.title}${copy.titleSuffix}`;
+  const title = entry.seo_title?.trim() || `${entry.title}${copy.titleSuffix}`;
   const count = getMemesForEntity(kind, entry.slug).length;
   const description = clamp(count ? `${entry.summary}本页收录 ${count} 条相关梗及其出处。` : entry.summary);
   const url = `/${kind}/${entry.slug}`;
