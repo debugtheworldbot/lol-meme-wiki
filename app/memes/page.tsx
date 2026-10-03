@@ -16,7 +16,8 @@ export const metadata: Metadata = {
 
 export default function MemesPage() {
   const memes = getMemeListItems();
-  const canonicalTags = topicDefinitions.map((topic) => topic.tag);
+  // 选手专题按 players 聚合，只在专题导航中展示，不作为 tag 筛选。
+  const canonicalTags = topicDefinitions.filter((topic) => !topic.player).map((topic) => topic.tag);
   return (
     <article className="wiki-page">
       <div className="wiki-shell">
