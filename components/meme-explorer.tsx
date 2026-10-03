@@ -1,6 +1,6 @@
 "use client";
 
-import { useEffect, useMemo, useState } from "react";
+import { useEffect, useMemo, useRef, useState } from "react";
 import Link from "next/link";
 import Fuse from "fuse.js";
 import { Search } from "lucide-react";
@@ -15,6 +15,7 @@ type Sort = "hot" | "latest";
 
 export function MemeExplorer({ memes, canonicalTags }: { memes: MemeListItem[]; canonicalTags: string[] }) {
   const router = useRouter();
+  const inputRef = useRef<HTMLInputElement>(null);
   const allTags = useMemo(() => new Set(memes.flatMap((meme) => meme.tags)), [memes]);
   const [query, setQuery] = useState("");
   const [tag, setTag] = useState(DEFAULT_TAG);
@@ -85,6 +86,7 @@ export function MemeExplorer({ memes, canonicalTags }: { memes: MemeListItem[]; 
       params.delete("q");
       params.delete("tag");
     });
+    inputRef.current?.focus();
   }
 
   return (
@@ -92,7 +94,7 @@ export function MemeExplorer({ memes, canonicalTags }: { memes: MemeListItem[]; 
       <div className="directory-tools">
         <label>
           <Search size={18} aria-hidden="true" />
-          <input type="search" aria-label="筛选词条、别名或标签" value={query} onChange={(event) => setQuery(event.target.value)} maxLength={QUERY_MAX} placeholder="输入梗名、别名或关键词" />
+          <input ref={inputRef} type="search" aria-label="筛选词条、别名或标签" value={query} onChange={(event) => setQuery(event.target.value)} maxLength={QUERY_MAX} placeholder="输入梗名、别名或关键词" />
         </label>
         <div className="sort-switch" role="group" aria-label="排序方式">
           <button type="button" disabled={Boolean(query)} aria-pressed={sort === "hot"} className={sort === "hot" ? "active" : ""} onClick={() => selectSort("hot")}>常见优先</button>
