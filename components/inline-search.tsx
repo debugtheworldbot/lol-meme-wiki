@@ -66,14 +66,25 @@ export function InlineSearch() {
   const activeResult = showPanel ? visibleResults[activeIndex] : undefined;
 
   useEffect(() => {
-    function closeOutside(event: PointerEvent) {
+    function close() {
+      setOpen(false);
+      setActiveIndex(-1);
+    }
+    function closeOutside(event: Event) {
       if (event.target instanceof Node && !containerRef.current?.contains(event.target)) {
-        setOpen(false);
-        setActiveIndex(-1);
+        close();
       }
     }
+    // Safari can blur the input before clicking an internal link without moving
+    // focus to that link. Close only after focus actually arrives outside.
     document.addEventListener("pointerdown", closeOutside);
-    return () => document.removeEventListener("pointerdown", closeOutside);
+    document.addEventListener("focusin", closeOutside);
+    window.addEventListener("blur", close);
+    return () => {
+      document.removeEventListener("pointerdown", closeOutside);
+      document.removeEventListener("focusin", closeOutside);
+      window.removeEventListener("blur", close);
+    };
   }, []);
 
   useEffect(() => {
@@ -136,12 +147,6 @@ export function InlineSearch() {
     <div
       ref={containerRef}
       className={`home-search-wrap ${styles.wrapper}`}
-      onBlur={(event) => {
-        if (!event.currentTarget.contains(event.relatedTarget)) {
-          setOpen(false);
-          setActiveIndex(-1);
-        }
-      }}
       onKeyDown={(event) => {
         if (event.key !== "Escape" || composingRef.current || event.nativeEvent.isComposing) return;
         if (showPanel) event.stopPropagation();
