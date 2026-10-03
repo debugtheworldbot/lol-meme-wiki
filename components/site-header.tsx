@@ -1,14 +1,7 @@
 import Link from "next/link";
 import Image from "next/image";
 import { SearchDialog } from "@/components/search-dialog";
-
-const navItems = [
-  ["梗目录", "/memes"],
-  ["专题", "/topics"],
-  ["选手", "/players"],
-  ["战队", "/teams"],
-  ["赛事", "/events"],
-] as const;
+import { SiteNav } from "@/components/site-nav";
 
 export function SiteHeader() {
   return (
@@ -21,11 +14,7 @@ export function SiteHeader() {
             <span className="brand-sub">英雄联盟梗百科</span>
           </span>
         </Link>
-        <nav className="main-nav" aria-label="主导航">
-          {navItems.map(([label, href]) => (
-            <Link key={href} href={href}>{label}</Link>
-          ))}
-        </nav>
+        <SiteNav />
         <div className="header-actions">
           <SearchDialog />
           <Link className="submit-mini" href="/submit">提交新梗</Link>
