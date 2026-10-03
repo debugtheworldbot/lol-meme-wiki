@@ -8,17 +8,17 @@ export const OG_CONTENT_TYPE = "image/png";
 
 type EntityKindWithoutMeme = Exclude<EntityKind, "meme">;
 
-const palette = { ink: "#07110f", paper: "#eee9d9", muted: "#9da9a1", acid: "#d8ff43" };
+const palette = { ink: "#202122", paper: "#fcfaf6", muted: "#54595d", accent: "#a43829", border: "#d8d4cc" };
 
 const entityOg = {
-  player: { kicker: "PLAYER ARCHIVE", list: getPlayers },
-  team: { kicker: "TEAM ARCHIVE", list: getTeams },
-  event: { kicker: "EVENT ARCHIVE", list: getEvents },
+  player: { kicker: "选手与他们的梗", list: getPlayers },
+  team: { kicker: "战队与名场面", list: getTeams },
+  event: { kicker: "赛事与名场面", list: getEvents },
 } as const satisfies Record<EntityKindWithoutMeme, { kicker: string; list: () => { slug: string }[] }>;
 
 function siteHost() {
   try {
-    return new URL(siteConfig.url).host.toUpperCase();
+    return new URL(siteConfig.url).host;
   } catch {
     return siteConfig.name;
   }
@@ -62,14 +62,13 @@ function OgCard({
         display: "flex",
         flexDirection: "column",
         justifyContent: "space-between",
-        background: palette.ink,
-        color: palette.paper,
+        background: palette.paper,
+        color: palette.ink,
         padding: "64px",
-        border: `18px solid ${palette.acid}`,
-        fontFamily: "serif",
+        fontFamily: "sans-serif",
       }}
     >
-      <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "monospace", fontSize: 24, color: palette.acid }}>
+      <div style={{ display: "flex", justifyContent: "space-between", paddingBottom: 24, borderBottom: `1px solid ${palette.border}`, fontSize: 24, color: palette.accent }}>
         <span>{kicker}</span>
         <span>{siteHost()}</span>
       </div>
@@ -79,9 +78,9 @@ function OgCard({
           <div style={{ display: "flex", marginTop: 28, fontSize: 34, lineHeight: 1.4, color: palette.muted }}>{subtitle}</div>
         ) : null}
       </div>
-      <div style={{ display: "flex", justifyContent: "space-between", fontFamily: "monospace", fontSize: 24, color: palette.paper }}>
-        <span>{footLeft ?? ""}</span>
-        <span style={{ color: palette.muted }}>{footRight ?? ""}</span>
+      <div style={{ display: "flex", justifyContent: "space-between", gap: 32, paddingTop: 24, borderTop: `1px solid ${palette.border}`, fontSize: 22, lineHeight: 1.4, color: palette.muted }}>
+        <span style={{ maxWidth: "55%" }}>{footLeft ?? ""}</span>
+        <span style={{ maxWidth: "42%", textAlign: "right" }}>{footRight ?? ""}</span>
       </div>
     </div>
   );
@@ -91,9 +90,9 @@ export function renderSiteOgImage() {
   return new ImageResponse(
     (
       <OgCard
-        kicker="COMMUNITY ARCHIVE"
+        kicker="英雄联盟梗百科"
         title={siteConfig.name}
-        subtitle="记录那些莫名其妙，但大家都懂的东西。"
+        subtitle="英雄联盟的梗，查个明白。查含义，也找出处。"
         footLeft="#4396 #红温 #1557 #忍界大战"
         footRight={`收录 ${getMemes().length} 条梗`}
       />
@@ -113,11 +112,11 @@ export async function renderMemeOgImage(params: Promise<{ slug: string }>) {
   return new ImageResponse(
     (
       <OgCard
-        kicker="MEME ARCHIVE"
+        kicker="英雄联盟梗百科"
         title={meme.title}
         subtitle={leadSentence(meme.summary)}
         footLeft={meme.tags.slice(0, 3).map((tag) => `#${tag}`).join(" ")}
-        footRight={meme.first_seen ? `首次出现 ${meme.first_seen}` : "出处待考"}
+        footRight={meme.first_seen ? `时间线索：${meme.first_seen}` : "时间线索尚待考证"}
       />
     ),
     OG_SIZE,
