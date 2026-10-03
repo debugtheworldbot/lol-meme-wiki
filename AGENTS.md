@@ -4,6 +4,13 @@
 
 **最高优先级：每改完一个功能／一块可独立验收的改动，立刻 `git commit`，不问、不等、不攒。** 细则见「完成即提交」。
 
+## 设计与 UI 改动
+
+- **改页面、组件、样式、交互或分享图前，先读 [DESIGN.md](DESIGN.md)，再按项目 [wiki-design skill](.agents/skills/wiki-design/SKILL.md) 执行。** 新页面、局部优化、响应式修复和设计审查都适用；纯内容、后端或部署任务不必加载。
+- `DESIGN.md` 是全站设计规范的唯一维护位置：暖白与朱红、系统无衬线字体、自然高度的阅读列表、明确的出处和可恢复的交互状态。复用已有语义类名、令牌与组件，不为单页另起主题。
+- 不支持 skill 自动发现的 agent，直接打开上述 `SKILL.md`。技能正文只维护在 `.agents/skills/wiki-design/`，其他客户端使用 symlink。
+- 本次用户明确改变设计方向时优先执行其要求，并同步更新受影响的规范；规范本身不增加额外确认步骤。
+
 ## 架构
 
 Next.js 16 App Router + React 19 + MDX 的中文英雄联盟梗 Wiki。**内容即数据库**：`content/` 下的 MDX 文件是唯一数据源，没有数据库、没有 CMS、没有构建脚本。
@@ -22,7 +29,7 @@ components/                                UI
 - **slug 就是外键。** meme 的 `players` / `teams` / `events` / `related` 存的是对方 slug，不是展示名。`getMemesForEntity()` 反向聚合出实体页的梗列表——所以关联是双向的，只需在 meme 一侧写。slug 写错不会报错，只会在 infobox 里裸显示 slug（`getEntityTitle` 回退），且实体页少一条聚合。
 - **搜索索引在服务端生成、客户端按需加载。** `getSearchRecords()` 把四个集合拍平成 `SearchRecord[]`，含 aliases 和从关联实体展开的 keywords；`/api/search-index` 静态缓存它，`search-dialog` / `inline-search` 首次交互后通过 `lib/client-search-index.ts` 共享加载并用 Fuse.js 检索。`meme-explorer` 使用 `getMemeListItems()` 的轻量目录数据独立检索。想让某词能搜到，加进 `aliases` 或 `tags`，不要改搜索组件。
 - **加 MDX 文件即上线**：静态路由、目录页、聚合页、搜索索引、`sitemap.ts` 全部自动跟随，无需注册。
-- **样式是 `app/globals.css` 里一套语义类名**（`wiki-page` / `wiki-shell` / `wiki-infobox` / `wiki-prose`…，~670 行 + CSS 变量）。Tailwind v4 只是 `@import` 进来，组件里**不写 utility class**；`lib/utils.ts` 的 `cn()` 目前无人使用。新 UI 沿用语义类名，不要开始堆 utility。
+- **样式使用语义类名**（`wiki-page` / `wiki-shell` / `wiki-infobox` / `wiki-prose`…）。全站令牌与共享样式在 `app/globals.css`，行内搜索在 `components/inline-search.module.css`；具体约定见 `DESIGN.md`。Tailwind v4 只是 `@import` 进来，组件里**不写 utility class**。
 - **`/api/submit` 三态降级**：有 `GITHUB_TOKEN` + repo → 建 Issue；只有 repo → 返回预填 Issue 链接；都没有 → 返回可复制的 markdown 草稿。含 honeypot 字段 `website`。纠错入口 `components/correction-dialog.tsx` 是站内弹层，走同款三态降级的 `/api/submit` 姊妹路由 `/api/correction`（标题 `[补充/纠错]`、label `内容纠错`），默认直接建 Issue，不跳 GitHub。
 - **SEO 分散在页面里**：每页自己的 `generateMetadata` + canonical，meme 页发 `DefinedTerm` JSON-LD、首页发 `WebSite` + SearchAction，`sitemap.ts` / `robots.ts` 从内容生成。加新路由记得补这几样。
 
