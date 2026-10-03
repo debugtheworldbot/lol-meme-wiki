@@ -13,50 +13,32 @@ export const metadata: Metadata = {
 
 export default function SubmitPage() {
   return (
-    <article className="wiki-page">
+    <article className="wiki-page submit-page">
       <div className="wiki-shell">
+        <JsonLd data={buildBreadcrumbJsonLd([{ name: "首页", path: "/" }, { name: "提交新梗", path: "/submit" }])} />
+        <nav className="wiki-crumb" aria-label="面包屑">
+          <ol><li><Link href="/">首页</Link></li><li aria-current="page">提交新梗</li></ol>
+        </nav>
         <header className="wiki-head">
           <h1>提交新梗</h1>
-          <p className="wiki-meta">投稿进入 GitHub Issues，核对来源后才会写入词条</p>
+          <p className="wiki-meta">发现了还没收录的梗？写下你知道的故事和出处，维护者核实后会整理成词条。</p>
         </header>
-        <JsonLd data={buildBreadcrumbJsonLd([{ name: "首页", path: "/" }, { name: "提交", path: "/submit" }])} />
-        <nav className="wiki-crumb" aria-label="面包屑">
-          <ol>
-            <li><Link href="/">首页</Link></li>
-            <li aria-current="page">提交</li>
-          </ol>
-        </nav>
-
         <div className="submit-layout">
-          <section className="submission-guide">
-            <h2 className="wiki-h">怎么写</h2>
+          <section aria-label="新梗投稿表单"><SubmissionForm /></section>
+          <aside className="submission-guide" aria-labelledby="submission-guide-title">
+            <h2 id="submission-guide-title">不用写成完整文章</h2>
+            <p>先把你知道的写下来。清楚的解释和可核实的出处，比篇幅更有帮助。</p>
             <ol>
-              <li>
-                <strong>它是什么意思？</strong>
-                <p>先用一句话让没看过的人也能明白。</p>
-              </li>
-              <li>
-                <strong>它从哪里来？</strong>
-                <p>原始比赛、视频或帖子，比二手截图更有价值。</p>
-              </li>
-              <li>
-                <strong>后来怎么用了？</strong>
-                <p>记录社区语境，区分事实和调侃。</p>
-              </li>
+              <li><strong>说清是什么意思</strong><p>让没看过比赛、没追过直播的人也能看懂。</p></li>
+              <li><strong>尽量找到直接出处</strong><p>原始视频、比赛录像或社区帖子，都能帮助核实来龙去脉。</p></li>
+              <li><strong>区分事实和调侃</strong><p>有争议的细节可以标注“不确定”，交给大家继续考证。</p></li>
             </ol>
             <div className="moderation-note">
-              <strong>审核原则</strong>
-              <p>不编造来源；不以编辑者口吻进行人身攻击；争议事件优先采用可靠证据。</p>
+              <h3>想修改已有词条？</h3>
+              <p>请打开对应词条，使用“补充 / 纠错”。这样维护者能直接找到需要修改的位置。</p>
+              <Link href="/memes">查找已有词条</Link>
             </div>
-            <p className="github-flow">
-              <span>表单</span>→<span>GitHub Issue</span>→<span>审核收录</span>
-            </p>
-          </section>
-
-          <section>
-            <h2 className="wiki-h">投稿表单</h2>
-            <SubmissionForm />
-          </section>
+          </aside>
         </div>
       </div>
     </article>
