@@ -29,6 +29,7 @@ export function InlineSearch() {
   const [loadError, setLoadError] = useState(false);
   const containerRef = useRef<HTMLDivElement>(null);
   const inputRef = useRef<HTMLInputElement>(null);
+  const expansionFocusRef = useRef<number | null>(null);
   const pendingIndexRef = useRef<Promise<ClientSearchIndex | null> | null>(null);
   const composingRef = useRef(false);
   const id = useId();
@@ -80,6 +81,12 @@ export function InlineSearch() {
       document.getElementById(`${listId}-${activeIndex}`)?.scrollIntoView({ block: "nearest" });
     }
   }, [activeIndex, listId, showPanel]);
+
+  useEffect(() => {
+    if (expansionFocusRef.current === null) return;
+    document.getElementById(`${listId}-${expansionFocusRef.current}`)?.focus();
+    expansionFocusRef.current = null;
+  }, [expanded, listId, visibleCount]);
 
   async function submit(event: FormEvent) {
     event.preventDefault();
@@ -150,6 +157,7 @@ export function InlineSearch() {
           className={styles.input}
           value={query}
           onChange={(event) => {
+            expansionFocusRef.current = null;
             setQuery(event.target.value);
             setOpen(true);
             setExpanded(false);
@@ -224,6 +232,7 @@ export function InlineSearch() {
                   className={styles.more}
                   type="button"
                   onClick={() => {
+                    expansionFocusRef.current = visibleResults.length;
                     setExpanded(true);
                     setActiveIndex(-1);
                     setVisibleCount(expanded ? visibleCount + PAGE_SIZE : PAGE_SIZE);
