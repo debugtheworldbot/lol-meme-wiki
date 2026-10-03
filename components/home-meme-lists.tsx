@@ -1,49 +1,73 @@
-/* 赛后公报室：词条列表以时间标尺、卷宗编号与定长翻页替代普通“加载更多”按钮。 */
 "use client";
 
 import Link from "next/link";
-import { ArrowUpRight, ChevronLeft, ChevronRight } from "lucide-react";
-import { useState } from "react";
+import { useRef, useState } from "react";
 import type { HomeMemeListItem } from "@/lib/types";
 
-/* 单栏每页 6 条；双栏在宽屏是 4 行 × 2 列，故每页 8 条 */
-const PAGE_SIZE = { 1: 6, 2: 8 } as const;
+const modes = [
+  { id: "latest", title: "最新收录", description: "最近加入本站的词条，新梗老梗都有。" },
+  { id: "chronological", title: "按出现时间", description: "按已记录的出现时间倒序排列，首发不明的词条请到目录查阅。" },
+] as const;
 
-type HomeMemeListProps = { title: string; description: string; memes: HomeMemeListItem[]; showFirstSeen?: boolean; headingId?: string; columns?: 1 | 2; };
+type Mode = typeof modes[number]["id"];
 
-export function HomeMemeList({ title, description, memes, showFirstSeen = false, headingId, columns = 1 }: HomeMemeListProps) {
-  const [page, setPage] = useState(1);
-  const pageSize = PAGE_SIZE[columns];
-  const totalPages = Math.max(1, Math.ceil(memes.length / pageSize));
-  const currentPage = Math.min(page, totalPages);
-  const start = (currentPage - 1) * pageSize;
-  const visible = memes.slice(start, start + pageSize);
-  const fillers = Array.from({ length: pageSize - visible.length }, (_, index) => index);
+export function HomeMemeList({ latest, chronological }: { latest: HomeMemeListItem[]; chronological: HomeMemeListItem[] }) {
+  const [mode, setMode] = useState<Mode>("latest");
+  const tabRefs = useRef<(HTMLButtonElement | null)[]>([]);
+  const selected = modes.find((item) => item.id === mode)!;
+  const memes = mode === "latest" ? latest : chronological;
 
   return (
-    <section className="home-list-section" aria-label={title}>
-      <div className="home-list-heading"><div><h2 id={headingId}>{title}</h2><p>{description}</p></div><span>{memes.length} 条</span></div>
-      <ol className={columns === 2 ? "home-list home-list-split" : "home-list"}>
-        {visible.map((meme, index) => (
-          <li key={meme.slug}>
-            <span className="list-index">{String(start + index + 1).padStart(2, "0")}</span>
-            <div className="home-list-copy">
-              {showFirstSeen && meme.first_seen ? <time>初见 {meme.first_seen}</time> : null}
-              {!showFirstSeen && meme.collected_at ? <time dateTime={meme.collected_at}>收录 {meme.collected_at}</time> : null}
-              <Link href={`/meme/${meme.slug}`}>{meme.title}<ArrowUpRight size={14} /></Link>
-              <span>{meme.summary}</span>
-            </div>
-          </li>
-        ))}
-        {fillers.map((filler) => <li key={`filler-${filler}`} className="home-list-filler" aria-hidden="true" />)}
-      </ol>
-      <div className="home-list-actions">
-        <div className="home-pager">
-          <button type="button" onClick={() => setPage(currentPage - 1)} disabled={currentPage <= 1} aria-label="上一页"><ChevronLeft size={15} /> 上一页</button>
-          <span className="home-pager-status">{String(currentPage).padStart(2, "0")} / {String(totalPages).padStart(2, "0")}</span>
-          <button type="button" onClick={() => setPage(currentPage + 1)} disabled={currentPage >= totalPages} aria-label="下一页">下一页 <ChevronRight size={15} /></button>
+    <section className="homepage-feed" aria-label="浏览梗词条">
+      <div className="homepage-feed-heading">
+        <div className="homepage-tabs" role="tablist" aria-label="词条排序">
+          {modes.map((item, index) => (
+            <button
+              key={item.id}
+              ref={(element) => { tabRefs.current[index] = element; }}
+              id={`home-tab-${item.id}`}
+              type="button"
+              role="tab"
+              aria-selected={mode === item.id}
+              aria-controls="home-feed-panel"
+              tabIndex={mode === item.id ? 0 : -1}
+              onClick={() => setMode(item.id)}
+              onKeyDown={(event) => {
+                let next: number;
+                if (event.key === "ArrowRight" || event.key === "ArrowLeft") next = (index + 1) % modes.length;
+                else if (event.key === "Home") next = 0;
+                else if (event.key === "End") next = modes.length - 1;
+                else return;
+                event.preventDefault();
+                setMode(modes[next].id);
+                tabRefs.current[next]?.focus();
+              }}
+            >{item.title}</button>
+          ))}
         </div>
-        <Link href="/memes">查看完整目录 <ArrowUpRight size={14} /></Link>
+        <Link href="/memes">全部梗</Link>
+      </div>
+      <div id="home-feed-panel" role="tabpanel" aria-labelledby={`home-tab-${mode}`} tabIndex={0}>
+        <p className="homepage-feed-description">{selected.description}</p>
+        {memes.length ? (
+          <ul className="homepage-entries">
+            {memes.map((meme) => {
+              const date = mode === "latest" ? meme.collected_at : meme.first_seen;
+              return (
+                <li key={meme.slug}>
+                  <article>
+                    <div className="homepage-entry-heading">
+                      <h2><Link href={`/meme/${meme.slug}`}>{meme.title}</Link></h2>
+                      {date ? <time dateTime={/^\d{4}(?:-\d{2}){0,2}$/.test(date) ? date : undefined}>{mode === "latest" ? "收录" : "出现"} {date}</time> : null}
+                    </div>
+                    <p>{meme.summary}</p>
+                  </article>
+                </li>
+              );
+            })}
+          </ul>
+        ) : <p className="homepage-feed-empty">这里暂时没有词条，可以先去<Link href="/memes">梗目录</Link>看看。</p>}
+        <Link className="homepage-browse" href="/memes">去梗目录继续看</Link>
       </div>
     </section>
   );

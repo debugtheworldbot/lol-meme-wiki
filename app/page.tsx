@@ -1,17 +1,22 @@
-/* 赛后公报室：首页以不对称档案首屏、朱砂索引与高密度可读信息为核心。 */
 import Link from "next/link";
-import { Fragment } from "react";
-import { ArrowUpRight, BookOpenText, CircleDot, Layers3 } from "lucide-react";
+import { ExternalLink } from "lucide-react";
 import { InlineSearch } from "@/components/inline-search";
 import { RandomMemeButton } from "@/components/random-meme-button";
-import { getEvents, getMemeListItems, getPlayers, getTeams } from "@/lib/content";
-import { siteConfig } from "@/lib/site";
-import { JsonLd } from "@/components/json-ld";
 import { HomeMemeList } from "@/components/home-meme-lists";
-import { getTopicForTag } from "@/lib/topics";
+import { JsonLd } from "@/components/json-ld";
+import { getMeme, getMemeListItems, getPlayers } from "@/lib/content";
+import { getTopic } from "@/lib/topics";
+import { siteConfig } from "@/lib/site";
 import type { HomeMemeListItem, MemeListItem } from "@/lib/types";
 
-function toHomeMemeListItem(meme: MemeListItem): HomeMemeListItem {
+const topicLinks = [
+  { slug: "xuanshou-geng", label: "选手外号", description: "一个称呼背后的比赛与故事" },
+  { slug: "saishi-geng", label: "赛事名场面", description: "从那场比赛，看到今天的弹幕" },
+  { slug: "yingxiong-taici", label: "英雄台词", description: "原句、空耳，还有玩家的改写" },
+  { slug: "shuzi-geng", label: "数字梗", description: "把一串数字放回它的语境" },
+] as const;
+
+function toHomeItem(meme: MemeListItem): HomeMemeListItem {
   return {
     title: meme.title,
     slug: meme.slug,
@@ -23,113 +28,112 @@ function toHomeMemeListItem(meme: MemeListItem): HomeMemeListItem {
 
 export default function HomePage() {
   const memes = getMemeListItems();
+  const latest = [...memes]
+    .sort((a, b) => (b.collected_at ?? "").localeCompare(a.collected_at ?? "") || a.title.localeCompare(b.title, "zh-CN"))
+    .slice(0, 6)
+    .map(toHomeItem);
+  // 仅用明确的日期排序，不把“已有传播记录，首发未确认”等说明当成首发日期。
+  const chronological = memes
+    .filter((meme) => /^\d{4}(?:-\d{2}){0,2}$/.test(meme.first_seen ?? ""))
+    .sort((a, b) => b.first_seen!.localeCompare(a.first_seen!) || a.title.localeCompare(b.title, "zh-CN"))
+    .slice(0, 6)
+    .map(toHomeItem);
+  const featured = getMeme("yyds");
+  const featuredSource = featured?.sources.find((source) => source.url);
+  const examples = ["hongwen", "4396", "wo-chovy"]
+    .map((slug) => memes.find((meme) => meme.slug === slug))
+    .filter((meme) => meme !== undefined);
   const players = getPlayers();
-  const teams = getTeams();
-  const events = getEvents();
-  const popular = [...memes].sort((a, b) => (b.heat ?? 0) - (a.heat ?? 0));
-  const homeMemeListItems = memes.map(toHomeMemeListItem);
-  /* 初见只认 YYYY / YYYY-MM 这类可比较写法；“更早”等未定时间沉到时间线末尾，不占头部。 */
-  const datedFirstSeen = (value?: string) => (/^\d{4}/.test(value ?? "") ? (value as string) : "");
-  const chronological = [...homeMemeListItems].sort((a, b) => datedFirstSeen(b.first_seen).localeCompare(datedFirstSeen(a.first_seen)));
-  const latest = [...homeMemeListItems].sort((a, b) => (b.collected_at ?? "").localeCompare(a.collected_at ?? "") || a.title.localeCompare(b.title, "zh-CN"));
-  const tags = [...new Set(memes.flatMap((meme) => meme.tags))].slice(0, 12);
-  const typeCounts = [
-    { tag: "游戏梗", suffix: "条" },
-    { tag: "赛事梗", suffix: "条" },
-    { tag: "英雄台词", suffix: "条" },
-  ].map((item) => ({ ...item, count: memes.filter((meme) => meme.tags.includes(item.tag)).length }));
-
-  const jsonLd = {
-    "@context": "https://schema.org",
-    "@type": "WebSite",
-    name: "研发.lol",
-    url: siteConfig.url,
-    description: "英雄联盟与电竞社区梗文化档案",
-    potentialAction: {
-      "@type": "SearchAction",
-      target: `${siteConfig.url}/memes?q={search_term_string}`,
-      "query-input": "required name=search_term_string",
-    },
-  };
+  const playerLinks = ["uzi", "faker", "bin", "the-shy", "chovy"]
+    .map((slug) => players.find((player) => player.slug === slug))
+    .filter((player) => player !== undefined);
 
   return (
-    <div className="wiki-page wiki-home">
-      <JsonLd data={jsonLd} />
-      <section className="home-hero" aria-labelledby="home-title">
-        <div className="home-hero-bg" aria-hidden="true" />
-        <div className="wiki-shell home-hero-grid">
-          <div className="home-hero-copy">
-            <p className="home-kicker"><CircleDot size={13} /> 赛后公报室 · 持续归档</p>
-            <p className="home-hero-index">ARCHIVE / 2026 · 01</p>
-            <h1 id="home-title">把赛后的<br /><em>复读句</em>找回来。</h1>
-            <p className="home-hero-description">从名场面到弹幕暗号，记录英雄联盟社区里那些<strong>大家都懂</strong>的瞬间，也把它们的出处和语境保留下来。</p>
-            <div className="home-search home-hero-search">
-              <InlineSearch />
-              <RandomMemeButton compact slugs={memes.map((meme) => meme.slug)} />
-            </div>
-            {popular.length ? (
-              <div className="home-hotwords" aria-label="热门词条">
-                <span>此刻在刷</span>
-                {popular.slice(0, 6).map((meme) => <Link key={meme.slug} href={`/meme/${meme.slug}`}>{meme.title}</Link>)}
+    <div className="homepage">
+      <JsonLd data={{
+        "@context": "https://schema.org",
+        "@type": "WebSite",
+        name: siteConfig.name,
+        url: siteConfig.url,
+        description: siteConfig.description,
+        potentialAction: {
+          "@type": "SearchAction",
+          target: `${siteConfig.url}/memes?q={search_term_string}`,
+          "query-input": "required name=search_term_string",
+        },
+      }} />
+      <div className="homepage-shell">
+        <section className="homepage-intro" aria-labelledby="home-title">
+          <div className="homepage-intro-heading">
+            <h1 id="home-title">英雄联盟的梗，查个明白。</h1>
+            <Link className="homepage-count" href="/memes">已收录 {memes.length} 条</Link>
+          </div>
+          <p className="homepage-description">选手外号、赛场名场面、弹幕里的半句话。查含义，也找出处。</p>
+          <InlineSearch />
+          <div className="homepage-search-foot">
+            {examples.length ? (
+              <div className="homepage-examples" aria-label="可以从这些梗开始看">
+                <span>比如</span>
+                {examples.map((meme) => <Link key={meme.slug} href={`/meme/${meme.slug}`}>{meme.title}</Link>)}
               </div>
             ) : null}
-          </div>
-
-          <aside className="home-hero-ledger" aria-label="站点资料概览">
-            <div className="ledger-stamp"><BookOpenText size={20} /><span>MEME<br />DOSSIER</span></div>
-            <div className="ledger-topline"><span>本期卷宗</span><span>2026.08</span></div>
-            <div className="ledger-total"><strong>{memes.length}</strong><span>条可追溯词条</span></div>
-            <div className="ledger-lines">
-              <p><span>赛事叙事</span><b>{typeCounts.find((item) => item.tag === "赛事梗")?.count ?? 0}</b></p>
-              <p><span>选手档案</span><b>{players.length}</b></p>
-              <p><span>战队坐标</span><b>{teams.length}</b></p>
-            </div>
-            <Link href="/memes" className="ledger-link">翻阅全部词条 <ArrowUpRight size={15} /></Link>
-            <div className="ledger-route" aria-hidden="true"><i /><i /><i /><i /></div>
-          </aside>
-        </div>
-      </section>
-
-      <div className="wiki-shell home-content">
-        <section className="home-featured" aria-labelledby="timeline-title">
-          <div className="section-label"><span>01 / 时间线</span><p>按初见时间倒着回看，最近发生的复读句排在最前。</p></div>
-          <div className="home-top">
-            <HomeMemeList headingId="timeline-title" title="按时间排序" description="从刚刚诞生的复读句，倒着回看那些至今仍在被引用的名场面。" memes={chronological} showFirstSeen />
-            <aside className="wiki-infobox home-index-card">
-              <div className="wiki-infobox-title"><Layers3 size={15} /> 收录索引</div>
-              <table><tbody>
-                <tr><th>类型</th><td>社区百科</td></tr>
-                <tr><th>词条</th><td><Link href="/memes">{memes.length} 条</Link></td></tr>
-                {typeCounts.map((item) => {
-                  const topic = getTopicForTag(item.tag);
-                  return <tr key={item.tag}><th>{item.tag}</th><td><Link href={topic ? `/topics/${topic.slug}` : `/memes?tag=${encodeURIComponent(item.tag)}`}>{item.count} {item.suffix}</Link></td></tr>;
-                })}
-                <tr><th>选手</th><td><Link href="/players">{players.length} 人</Link></td></tr>
-                <tr><th>战队</th><td><Link href="/teams">{teams.length} 支</Link></td></tr>
-                <tr><th>赛事</th><td><Link href="/events">{events.length} 项</Link></td></tr>
-              </tbody></table>
-            </aside>
+            <RandomMemeButton compact slugs={memes.map((meme) => meme.slug)} />
           </div>
         </section>
 
-        <main className="wiki-main home-main">
-          <div className="section-label home-list-label"><span>02 / 收录动态</span><p>按加入本站的日期，查看新收录的词条。</p></div>
-          <HomeMemeList columns={2} title="最新收录" description="最近加入本站的梗，包含新梗和补录的老梗。" memes={latest} />
-          <section className="home-catalogue" aria-labelledby="catalogue-title">
-            <div className="section-label"><span>03 / 索引柜</span><p>从人、队伍与赛事三个入口，继续追踪一条梗的来处。</p></div>
-            <h2 id="catalogue-title">继续翻阅</h2>
-            <div className="home-cats">
-              <div><strong>选手档案</strong><p>{players.slice(0, 8).map((entry, index) => <Fragment key={entry.slug}>{index > 0 ? "、" : null}<Link href={`/player/${entry.slug}`}>{entry.title}</Link></Fragment>)}{players.length > 8 ? "…" : null} <Link className="home-more" href="/players">浏览全部 <ArrowUpRight size={13} /></Link></p></div>
-              <div><strong>战队档案</strong><p>{teams.slice(0, 8).map((entry, index) => <Fragment key={entry.slug}>{index > 0 ? "、" : null}<Link href={`/team/${entry.slug}`}>{entry.title}</Link></Fragment>)}{teams.length > 8 ? "…" : null} <Link className="home-more" href="/teams">浏览全部 <ArrowUpRight size={13} /></Link></p></div>
-              <div><strong>赛事索引</strong><p>{events.slice(0, 8).map((entry, index) => <Fragment key={entry.slug}>{index > 0 ? "、" : null}<Link href={`/event/${entry.slug}`}>{entry.title}</Link></Fragment>)}{events.length > 8 ? "…" : null} <Link className="home-more" href="/events">浏览全部 <ArrowUpRight size={13} /></Link></p></div>
-            </div>
-          </section>
-        </main>
+        <div className="homepage-columns">
+          <HomeMemeList latest={latest} chronological={chronological} />
+          <aside className="homepage-aside" aria-label="推荐阅读与专题">
+            {featured ? (
+              <section className="homepage-pick" aria-labelledby="home-pick-title">
+                <h2 id="home-pick-title">精选词条</h2>
+                <h3><Link href={`/meme/${featured.slug}`}>{featured.title}</Link></h3>
+                <p>{featured.summary}</p>
+                <Link className="homepage-read-link" href={`/meme/${featured.slug}`}>读完整释义</Link>
+                {featuredSource?.url ? (
+                  <div className="homepage-source">
+                    <span>来源线索</span>
+                    <a href={featuredSource.url} target="_blank" rel="noreferrer">
+                      {featuredSource.title}<ExternalLink size={13} aria-label="在新窗口打开" />
+                    </a>
+                  </div>
+                ) : null}
+              </section>
+            ) : null}
+            <section className="homepage-topics" aria-labelledby="home-topics-title">
+              <div className="homepage-section-heading">
+                <h2 id="home-topics-title">顺着专题看</h2>
+                <Link href="/topics">全部专题</Link>
+              </div>
+              <ul>
+                {topicLinks.map(({ slug, label, description }) => {
+                  if (!getTopic(slug)) return null;
+                  return (
+                    <li key={slug}>
+                      <Link href={`/topics/${slug}`}>{label}</Link>
+                      <p>{description}</p>
+                    </li>
+                  );
+                })}
+              </ul>
+            </section>
+            {playerLinks.length ? (
+              <section className="homepage-players" aria-labelledby="home-players-title">
+                <h2 id="home-players-title">从选手找梗</h2>
+                <div>{playerLinks.map((player) => <Link key={player.slug} href={`/player/${player.slug}`}>{player.title}</Link>)}</div>
+                <Link className="homepage-read-link" href="/players">全部选手</Link>
+              </section>
+            ) : null}
+          </aside>
+        </div>
 
-        <footer className="wiki-cats home-tag-footer">
-          {tags.length ? <p><span>主题索引</span>{tags.map((tag) => { const topic = getTopicForTag(tag); return <Link key={tag} href={topic ? `/topics/${topic.slug}` : `/memes?tag=${encodeURIComponent(tag)}`}>{tag}</Link>; })}<Link href="/topics">全部专题</Link></p> : null}
-          <p><span>没找到想查的？</span><Link href="/submit">提交一份新卷宗 <ArrowUpRight size={14} /></Link></p>
-        </footer>
+        <section className="homepage-contribute" aria-labelledby="home-contribute-title">
+          <div>
+            <h2 id="home-contribute-title">你记得的，也值得留下来。</h2>
+            <p>有漏掉的梗，或者更早的出处？带上原帖或视频，一起补全。</p>
+          </div>
+          <Link href="/submit">提交新梗</Link>
+        </section>
       </div>
     </div>
   );
