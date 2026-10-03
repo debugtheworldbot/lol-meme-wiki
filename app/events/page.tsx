@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { EntityDirectory } from "@/components/entity-directory";
+import { DirectoryNavigation, EntityDirectory } from "@/components/entity-directory";
 import { getEvents } from "@/lib/content";
 import { buildBreadcrumbJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/json-ld";
@@ -16,18 +16,15 @@ export default function EventsPage() {
   return (
     <article className="wiki-page">
       <div className="wiki-shell">
-        <header className="wiki-head">
-          <h1>赛事</h1>
-          <p className="wiki-meta">共 {entries.length} 项 · 赛程里留下的社区梗</p>
-        </header>
         <JsonLd data={buildBreadcrumbJsonLd([{ name: "首页", path: "/" }, { name: "赛事", path: "/events" }])} />
         <nav className="wiki-crumb" aria-label="面包屑">
-          <ol>
-            <li><Link href="/">首页</Link></li>
-            <li aria-current="page">赛事</li>
-          </ol>
+          <ol><li><Link href="/">首页</Link></li><li aria-current="page">赛事</li></ol>
         </nav>
-        <h2 className="wiki-h">全部赛事</h2>
+        <header className="wiki-head">
+          <h1>赛事</h1>
+          <p className="wiki-meta">共 {entries.length} 项赛事。回到比赛，找当时的解说、比分和赛后故事。</p>
+        </header>
+        <DirectoryNavigation current="/events" />
         <EntityDirectory entries={entries} kind="event" />
       </div>
     </article>

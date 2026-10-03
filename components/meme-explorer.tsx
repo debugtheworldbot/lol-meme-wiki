@@ -3,7 +3,7 @@
 import { useEffect, useMemo, useState } from "react";
 import Link from "next/link";
 import Fuse from "fuse.js";
-import { ArrowUpRight, Search } from "lucide-react";
+import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { track } from "@/lib/analytics";
 import type { MemeListItem } from "@/lib/types";
@@ -49,6 +49,7 @@ export function MemeExplorer({ memes, canonicalTags }: { memes: MemeListItem[]; 
   const fuse = useMemo(() => new Fuse(memes, { keys: ["title", "aliases", "summary", "tags", "keywords"], threshold: 0.35 }), [memes]);
   const searched = query ? fuse.search(query).map((result) => result.item) : ordered;
   const visible = tag === DEFAULT_TAG ? searched : searched.filter((meme) => meme.tags.includes(tag));
+  const hasFilters = Boolean(query) || tag !== DEFAULT_TAG;
 
   function replaceSearchParams(update: (params: URLSearchParams) => void) {
     const params = new URLSearchParams(window.location.search);
@@ -77,29 +78,46 @@ export function MemeExplorer({ memes, canonicalTags }: { memes: MemeListItem[]; 
     });
   }
 
+  function clearFilters() {
+    setQuery("");
+    setTag(DEFAULT_TAG);
+    replaceSearchParams((params) => {
+      params.delete("q");
+      params.delete("tag");
+    });
+  }
+
   return (
     <>
       <div className="directory-tools">
         <label>
-          <Search size={16} />
-          <input value={query} onChange={(event) => setQuery(event.target.value)} maxLength={QUERY_MAX} placeholder="筛选词条、别名或标签……" />
+          <Search size={18} aria-hidden="true" />
+          <input type="search" aria-label="筛选词条、别名或标签" value={query} onChange={(event) => setQuery(event.target.value)} maxLength={QUERY_MAX} placeholder="输入梗名、别名或关键词" />
         </label>
         <div className="sort-switch" role="group" aria-label="排序方式">
-          <button type="button" aria-pressed={sort === "hot"} className={sort === "hot" ? "active" : ""} onClick={() => selectSort("hot")}>最热</button>
-          <button type="button" aria-pressed={sort === "latest"} className={sort === "latest" ? "active" : ""} onClick={() => selectSort("latest")}>最新</button>
+          <button type="button" disabled={Boolean(query)} aria-pressed={sort === "hot"} className={sort === "hot" ? "active" : ""} onClick={() => selectSort("hot")}>常见优先</button>
+          <button type="button" disabled={Boolean(query)} aria-pressed={sort === "latest"} className={sort === "latest" ? "active" : ""} onClick={() => selectSort("latest")}>最近更新</button>
         </div>
-        <span className="result-total">{visible.length} 条</span>
       </div>
-      <div className="tag-filter" aria-label="按类型筛选">
+      <div className="tag-filter" role="group" aria-label="按类型筛选">
         {tags.map((item) => (
-          <button key={item} className={item === tag ? "active" : ""} onClick={() => selectTag(item)}>{item}</button>
+          <button key={item} type="button" aria-pressed={item === tag} className={item === tag ? "active" : ""} onClick={() => selectTag(item)}>{item}</button>
         ))}
       </div>
+      <div className="directory-results-summary">
+        <p role="status" aria-live="polite">
+          {hasFilters ? `找到 ${visible.length} 条，共 ${memes.length} 条` : `共 ${memes.length} 条词条`}
+          {tag !== DEFAULT_TAG ? <span> · {tag}</span> : null}
+          {query ? <span> · “{query}”</span> : null}
+        </p>
+        {hasFilters ? <button type="button" onClick={clearFilters}>清除筛选</button> : null}
+      </div>
+      {query ? <p className="directory-sort-note">搜索结果按相关程度排列；清除关键词后恢复所选排序。</p> : null}
       {visible.length ? (
-        <ul className="entry-list">
+        <ul className="entry-list" aria-label="梗词条列表">
           {visible.map((meme) => (
             <li key={meme.slug}>
-              <Link href={`/meme/${meme.slug}`}>{meme.title}<ArrowUpRight size={14} /></Link>
+              <Link href={`/meme/${meme.slug}`}>{meme.title}</Link>
               {meme.tags.length ? <span className="entry-alias">{meme.tags.slice(0, 3).join(" · ")}</span> : null}
               <p>{meme.summary}</p>
             </li>
@@ -107,8 +125,10 @@ export function MemeExplorer({ memes, canonicalTags }: { memes: MemeListItem[]; 
         </ul>
       ) : (
         <div className="directory-empty">
-          <strong>没有匹配词条。</strong>
-          <span>换个关键词，或者 <Link href="/submit">提交一个新梗</Link>。</span>
+          <strong>没有找到匹配的词条</strong>
+          <p>试试更短的关键词、其他别名，或清除分类筛选。</p>
+          <button type="button" className="button-secondary" onClick={clearFilters}>清除筛选，查看全部梗</button>
+          <p>还没有收录？<Link href={`/submit${query.trim() ? `?name=${encodeURIComponent(query.trim())}` : ""}`}>提交一个新梗</Link></p>
         </div>
       )}
     </>

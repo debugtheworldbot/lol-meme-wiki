@@ -1,6 +1,5 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { JsonLd } from "@/components/json-ld";
@@ -64,32 +63,31 @@ export default async function TopicPage({ params }: PageProps) {
       <JsonLd data={jsonLd} />
       <JsonLd data={buildBreadcrumbJsonLd([{ name: "首页", path: "/" }, { name: "梗专题", path: "/topics" }, { name: topic.tag, path }])} />
       <div className="wiki-shell">
-        <header className="wiki-head dir-head">
-          <div><h1>{title}</h1><p className="wiki-meta">共 {memes.length} 条{guide?.updated_at ? ` · 导读更新：${guide.updated_at}` : " · 持续补充出处与演变"}</p></div>
-        </header>
         <nav className="wiki-crumb" aria-label="面包屑">
           <ol><li><Link href="/">首页</Link></li><li><Link href="/topics">梗专题</Link></li><li aria-current="page">{topic.tag}</li></ol>
         </nav>
+        <header className="wiki-head">
+          <h1>{title}</h1>
+          <p className="wiki-meta">共 {memes.length} 条相关梗{guide?.updated_at ? ` · 导读更新：${guide.updated_at}` : ""}</p>
+          {guide ? <div className="wiki-tools"><a href="#topic-memes">直接查看相关词条</a></div> : null}
+        </header>
         {guide ? (
-          <section className="wiki-prose">
+          <section className="wiki-prose" aria-label="专题导读">
             <MDXRemote source={guide.body} />
           </section>
         ) : (
-          <section className="wiki-main">
-            <h2 className="wiki-h">专题说明</h2>
-            <p className="wiki-lead">{topic.introduction}</p>
-          </section>
+          <p className="wiki-lead">{topic.introduction}</p>
         )}
-        <h2 className="wiki-h">相关词条目录</h2>
-        <ul className="entry-list">
+        <h2 id="topic-memes" className="wiki-h">相关词条</h2>
+        {memes.length ? <ul className="entry-list" aria-labelledby="topic-memes">
           {memes.map((meme) => (
             <li key={meme.slug}>
-              <Link href={`/meme/${meme.slug}`}>{meme.title}<ArrowUpRight size={14} /></Link>
+              <Link href={`/meme/${meme.slug}`}>{meme.title}</Link>
               {meme.aliases?.length ? <span className="entry-alias">又称：{meme.aliases.slice(0, 3).join(" · ")}</span> : null}
               <p>{meme.summary}</p>
             </li>
           ))}
-        </ul>
+        </ul> : <p className="wiki-empty">这个专题还没有收录词条。</p>}
       </div>
     </article>
   );

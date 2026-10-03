@@ -1,6 +1,6 @@
 import type { Metadata } from "next";
 import Link from "next/link";
-import { ArrowUpRight } from "lucide-react";
+import { DirectoryNavigation } from "@/components/entity-directory";
 import { JsonLd } from "@/components/json-ld";
 import { getMemes } from "@/lib/content";
 import { buildBreadcrumbJsonLd } from "@/lib/seo";
@@ -17,22 +17,23 @@ export default function TopicsPage() {
   return (
     <article className="wiki-page">
       <div className="wiki-shell">
-        <header className="wiki-head dir-head">
-          <div>
-            <h1>梗专题</h1>
-            <p className="wiki-meta">从选手、赛事、年份和表达形式进入 LOL 梗档案</p>
-          </div>
-        </header>
         <JsonLd data={buildBreadcrumbJsonLd([{ name: "首页", path: "/" }, { name: "梗专题", path: "/topics" }])} />
         <nav className="wiki-crumb" aria-label="面包屑">
           <ol><li><Link href="/">首页</Link></li><li aria-current="page">梗专题</li></ol>
         </nav>
-        <ul className="entry-list">
+        <header className="wiki-head dir-head">
+          <div>
+            <h1>梗专题</h1>
+            <p className="wiki-meta">{topicDefinitions.length} 个专题，从一个选手、一类说法或一个赛季开始读。</p>
+          </div>
+        </header>
+        <DirectoryNavigation current="/topics" />
+        <ul className="entry-list" aria-label="梗专题列表">
           {topicDefinitions.map((topic) => {
             const count = getMemesForTopic(memes, topic).length;
             return (
               <li key={topic.slug}>
-                <Link href={`/topics/${topic.slug}`}>{topic.title}<ArrowUpRight size={14} /></Link>
+                <Link href={`/topics/${topic.slug}`}>{topic.player ? `${topic.tag} 梗导读` : /^\d{4}$/.test(topic.tag) ? `${topic.tag} 年的新梗` : topic.tag}</Link>
                 <span className="entry-alias">{count} 条词条</span>
                 <p>{topic.introduction}</p>
               </li>

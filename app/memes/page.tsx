@@ -6,6 +6,7 @@ import { getMemeListItems } from "@/lib/content";
 import { buildBreadcrumbJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/json-ld";
 import { topicDefinitions } from "@/lib/topics";
+import { DirectoryNavigation } from "@/components/entity-directory";
 
 export const metadata: Metadata = {
   title: "全部 LOL 梗",
@@ -19,20 +20,18 @@ export default function MemesPage() {
   return (
     <article className="wiki-page">
       <div className="wiki-shell">
+        <JsonLd data={buildBreadcrumbJsonLd([{ name: "首页", path: "/" }, { name: "梗目录", path: "/memes" }])} />
+        <nav className="wiki-crumb" aria-label="面包屑">
+          <ol><li><Link href="/">首页</Link></li><li aria-current="page">梗目录</li></ol>
+        </nav>
         <header className="wiki-head dir-head">
           <div>
             <h1>全部梗</h1>
-            <p className="wiki-meta">共 {memes.length} 条 · 从数字黑话到名场面</p>
+            <p className="wiki-meta">查梗名、别名和关键词，也可以按类型慢慢找。</p>
           </div>
           <RandomMemeButton compact slugs={memes.map((meme) => meme.slug)} />
         </header>
-        <JsonLd data={buildBreadcrumbJsonLd([{ name: "首页", path: "/" }, { name: "梗目录", path: "/memes" }])} />
-        <nav className="wiki-crumb" aria-label="面包屑">
-          <ol>
-            <li><Link href="/">首页</Link></li>
-            <li aria-current="page">梗目录</li>
-          </ol>
-        </nav>
+        <DirectoryNavigation current="/memes" />
         <MemeExplorer memes={memes} canonicalTags={canonicalTags} />
       </div>
     </article>
