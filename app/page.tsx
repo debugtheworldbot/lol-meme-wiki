@@ -1,10 +1,10 @@
 import Link from "next/link";
-import { ExternalLink } from "lucide-react";
 import { InlineSearch } from "@/components/inline-search";
+import { FeaturedMeme } from "@/components/featured-meme";
 import { RandomMemeButton } from "@/components/random-meme-button";
 import { HomeMemeList } from "@/components/home-meme-lists";
 import { JsonLd } from "@/components/json-ld";
-import { getMeme, getMemeListItems, getPlayers } from "@/lib/content";
+import { getMemes, getMemeListItems, getPlayers } from "@/lib/content";
 import { getTopic } from "@/lib/topics";
 import { siteConfig } from "@/lib/site";
 import type { HomeMemeListItem, MemeListItem } from "@/lib/types";
@@ -38,8 +38,14 @@ export default function HomePage() {
     .sort((a, b) => b.first_seen!.localeCompare(a.first_seen!) || a.title.localeCompare(b.title, "zh-CN"))
     .slice(0, 6)
     .map(toHomeItem);
-  const featured = getMeme("yyds");
-  const featuredSource = featured?.sources.find((source) => source.url);
+  const featured = getMemes()
+    .filter((meme) => meme.featured)
+    .map((meme) => ({
+      title: meme.title,
+      slug: meme.slug,
+      summary: meme.summary,
+      source: meme.sources.find((source) => source.url),
+    }));
   const examples = ["hongwen", "4396", "wo-chovy"]
     .map((slug) => memes.find((meme) => meme.slug === slug))
     .filter((meme) => meme !== undefined);
@@ -84,22 +90,7 @@ export default function HomePage() {
         <div className="homepage-columns">
           <HomeMemeList latest={latest} chronological={chronological} />
           <aside className="homepage-aside" aria-label="推荐阅读与专题">
-            {featured ? (
-              <section className="homepage-pick" aria-labelledby="home-pick-title">
-                <h2 id="home-pick-title">精选词条</h2>
-                <h3><Link href={`/meme/${featured.slug}`}>{featured.title}</Link></h3>
-                <p>{featured.summary}</p>
-                <Link className="homepage-read-link" href={`/meme/${featured.slug}`}>读完整释义</Link>
-                {featuredSource?.url ? (
-                  <div className="homepage-source">
-                    <span>来源线索</span>
-                    <a href={featuredSource.url} target="_blank" rel="noreferrer">
-                      {featuredSource.title}<ExternalLink size={13} aria-label="在新窗口打开" />
-                    </a>
-                  </div>
-                ) : null}
-              </section>
-            ) : null}
+            <FeaturedMeme items={featured} />
             <section className="homepage-topics" aria-labelledby="home-topics-title">
               <div className="homepage-section-heading">
                 <h2 id="home-topics-title">顺着专题看</h2>
