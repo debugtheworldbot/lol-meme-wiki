@@ -1,5 +1,4 @@
 import Link from "next/link";
-import { Fragment } from "react";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getEntity, getMemesForEntity } from "@/lib/content";
@@ -7,6 +6,7 @@ import type { EntityKind } from "@/lib/types";
 import { buildBreadcrumbJsonLd, buildEntityJsonLd } from "@/lib/seo";
 import { JsonLd } from "@/components/json-ld";
 import { CorrectionDialog } from "@/components/correction-dialog";
+import { MemeInfobox } from "@/components/meme-infobox";
 
 const config = {
   player: { label: "选手", list: "/players" },
@@ -21,7 +21,7 @@ export function EntityDetail({ kind, slug }: { kind: Exclude<EntityKind, "meme">
   const meta = config[kind];
 
   return (
-    <article className="wiki-page">
+    <article className="wiki-page wiki-detail-page">
       <JsonLd data={buildEntityJsonLd(kind, entry)} />
       <JsonLd
         data={buildBreadcrumbJsonLd([
@@ -31,15 +31,6 @@ export function EntityDetail({ kind, slug }: { kind: Exclude<EntityKind, "meme">
         ])}
       />
       <div className="wiki-shell">
-        <header className="wiki-head">
-          <h1>{entry.title}</h1>
-          <p className="wiki-meta">
-            {entry.display_name ? <span>{entry.display_name}</span> : null}
-            {entry.aliases?.length ? <span>又称：{entry.aliases.join(" / ")}</span> : null}
-            {entry.updated_at ? <span>更新日期：{entry.updated_at}</span> : null}
-          </p>
-        </header>
-
         <nav className="wiki-crumb" aria-label="面包屑">
           <ol>
             <li><Link href="/">首页</Link></li>
@@ -51,44 +42,47 @@ export function EntityDetail({ kind, slug }: { kind: Exclude<EntityKind, "meme">
           </div>
         </nav>
 
-        <div className="wiki-layout">
-          <aside className="wiki-infobox">
-            <div className="wiki-infobox-title">{entry.title}</div>
-            <table>
-              <tbody>
-                <tr><th>类型</th><td>{meta.label}</td></tr>
-                {entry.display_name ? <tr><th>常用名</th><td>{entry.display_name}</td></tr> : null}
-                {entry.aliases?.length ? <tr><th>又称</th><td>{entry.aliases.join("、")}</td></tr> : null}
-                {entry.region ? <tr><th>赛区</th><td>{entry.region}</td></tr> : null}
-                {entry.active_years ? <tr><th>活跃</th><td>{entry.active_years}</td></tr> : null}
-                {memes.length ? (
-                  <tr>
-                    <th>相关梗</th>
-                    <td>
-                      {memes.map((meme, index) => (
-                        <Fragment key={meme.slug}>
-                          {index > 0 ? "、" : null}
-                          <Link href={`/meme/${meme.slug}`}>{meme.title}</Link>
-                        </Fragment>
-                      ))}
-                    </td>
-                  </tr>
-                ) : null}
-              </tbody>
-            </table>
-          </aside>
+        <header className="wiki-head">
+          <h1>{entry.title}</h1>
+          <p className="wiki-meta">
+            <span>{meta.label}</span>
+            {entry.display_name ? <span>{entry.display_name}</span> : null}
+            {entry.updated_at ? <span>更新于 <time dateTime={entry.updated_at}>{entry.updated_at}</time></span> : null}
+          </p>
+        </header>
+
+        <div className="wiki-layout meme-layout">
+          <div className="meme-intro wiki-intro">
+            <p className="wiki-lead">{entry.summary}</p>
+          </div>
+
+          <MemeInfobox title={entry.title} label={`${meta.label}资料`}>
+            <dl className="wiki-infobox-facts">
+              <div><dt>类型</dt><dd>{meta.label}</dd></div>
+              {entry.display_name ? <div><dt>常用名</dt><dd>{entry.display_name}</dd></div> : null}
+              {entry.aliases?.length ? <div><dt>又称</dt><dd>{entry.aliases.join("、")}</dd></div> : null}
+              {entry.region ? <div><dt>{kind === "event" ? "范围" : "赛区"}</dt><dd>{entry.region}</dd></div> : null}
+              {entry.active_years ? <div><dt>{kind === "event" ? "举办时间" : "活跃时间"}</dt><dd>{entry.active_years}</dd></div> : null}
+              <div><dt>相关梗</dt><dd><a href="#entity-memes">{memes.length} 条</a></dd></div>
+            </dl>
+          </MemeInfobox>
 
           <div className="wiki-main">
-            <section>
-              <h2 className="wiki-h">简介</h2>
-              <p className="wiki-lead">{entry.summary}</p>
+            <nav className="wiki-page-nav" aria-label="本页内容">
+              <span>本页内容</span>
+              <a href="#entity-background">背景介绍</a>
+              <a href="#entity-memes">相关梗（{memes.length}）</a>
+            </nav>
+
+            <section id="entity-background" className="wiki-detail-section" aria-labelledby="entity-background-title">
+              <h2 id="entity-background-title" className="wiki-h">背景介绍</h2>
               <div className="wiki-prose">
                 <MDXRemote source={entry.body} />
               </div>
             </section>
 
-            <section>
-              <h2 className="wiki-h">相关梗</h2>
+            <section id="entity-memes" className="wiki-detail-section" aria-labelledby="entity-memes-title">
+              <h2 id="entity-memes-title" className="wiki-h">相关梗 <span className="wiki-section-count">{memes.length}</span></h2>
               {memes.length ? (
                 <ul className="wiki-related">
                   {memes.map((meme) => (

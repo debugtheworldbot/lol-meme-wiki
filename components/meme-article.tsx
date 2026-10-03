@@ -23,7 +23,7 @@ export function MemeArticle({ slug, sources, children }: {
     return () => observer.disconnect();
   }, [slug]);
 
-  function trackLink(event: MouseEvent<HTMLDivElement>) {
+  function trackLink(event: MouseEvent<HTMLElement>) {
     if (!(event.target instanceof Element)) return;
     const anchor = event.target.closest("a");
     if (!anchor || !event.currentTarget.contains(anchor)) return;
@@ -50,9 +50,9 @@ export function MemeArticle({ slug, sources, children }: {
   }
 
   return (
-    <div className="wiki-prose" onClick={trackLink}>
+    <section id="meme-body" className="wiki-prose" aria-label="词条释义" onClick={trackLink}>
       {children}
       <span ref={end} className="article-end-marker" aria-hidden="true" />
-    </div>
+    </section>
   );
 }

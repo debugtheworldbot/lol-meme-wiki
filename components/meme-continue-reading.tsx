@@ -19,13 +19,13 @@ export function MemeContinueReading({
   if (!items.length) return null;
 
   return (
-    <nav className="meme-continue" aria-labelledby="meme-continue-title">
+    <nav id="meme-related" className="meme-continue wiki-detail-section" aria-labelledby="meme-continue-title">
       <div className="meme-continue-head">
-        <h2 id="meme-continue-title">继续看</h2>
-        <p>顺着人物、战队与同类说法继续查档。</p>
+        <h2 id="meme-continue-title">相关梗</h2>
+        <p>从同一人物、比赛或相近说法继续了解。</p>
       </div>
-      <ol>
-        {items.map((item, index) => (
+      <ul>
+        {items.slice(0, 4).map((item, index) => (
           <li key={item.slug}>
             <Link
               href={`/meme/${item.slug}`}
@@ -36,18 +36,31 @@ export function MemeContinueReading({
                 placement: "after_article",
               })}
             >
-              <span className="meme-continue-index" aria-hidden="true">
-                {String(index + 1).padStart(2, "0")}
-              </span>
               <span className="meme-continue-copy">
                 <strong>{item.title}</strong>
                 <small>{item.summary}</small>
               </span>
-              <span className="meme-continue-arrow" aria-hidden="true">↗</span>
             </Link>
           </li>
         ))}
-      </ol>
+      </ul>
+      {items.length > 4 ? (
+        <div className="meme-continue-more">
+          <span>更多相关</span>
+          {items.slice(4).map((item, index) => (
+            <Link
+              key={item.slug}
+              href={`/meme/${item.slug}`}
+              onClick={() => track("Related Meme Click", {
+                from: currentSlug,
+                to: item.slug,
+                position: index + 5,
+                placement: "after_article",
+              })}
+            >{item.title}</Link>
+          ))}
+        </div>
+      ) : null}
     </nav>
   );
 }

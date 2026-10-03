@@ -1,25 +1,25 @@
 "use client";
 
-import { Archive, ChevronDown } from "lucide-react";
+import { ChevronDown } from "lucide-react";
 import { ReactNode, useId, useState } from "react";
 
 export function MemeInfobox({
   title,
-  itemCount,
+  label = "词条资料",
   quickLinks,
   children,
 }: {
   title: string;
-  itemCount: number;
-  quickLinks: ReactNode;
+  label?: string;
+  quickLinks?: ReactNode;
   children: ReactNode;
 }) {
   const [open, setOpen] = useState(false);
   const contentId = useId();
 
   return (
-    <aside className="wiki-infobox meme-infobox" data-open={open ? "true" : "false"}>
-      <div className="wiki-infobox-title">{title}</div>
+    <aside className="wiki-infobox meme-infobox" aria-label={`${title}的${label}`} data-open={open ? "true" : "false"}>
+      <h2 className="wiki-infobox-title">{label}</h2>
       <div className="meme-infobox-mobile-head">
         <button
           type="button"
@@ -28,14 +28,13 @@ export function MemeInfobox({
           aria-controls={contentId}
           onClick={() => setOpen((value) => !value)}
         >
-          <Archive size={17} aria-hidden="true" />
-          <strong>词条档案</strong>
-          <span>· {itemCount} 项</span>
+          <strong>{label}</strong>
+          <span>{open ? "收起" : "展开"}</span>
           <ChevronDown size={17} aria-hidden="true" />
         </button>
-        <div className="meme-infobox-quicklinks" aria-label="主要关联">
+        {quickLinks ? <div className="meme-infobox-quicklinks" aria-label="主要关联">
           {quickLinks}
-        </div>
+        </div> : null}
       </div>
       <div id={contentId} className="meme-infobox-body">
         {children}

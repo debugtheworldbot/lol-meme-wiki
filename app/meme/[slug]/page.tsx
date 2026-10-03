@@ -85,10 +85,6 @@ export default async function MemeDetailPage({ params }: PageProps) {
     meme.teams[0] ? { kind: "team" as const, slug: meme.teams[0] } : null,
     meme.events[0] ? { kind: "event" as const, slug: meme.events[0] } : null,
   ].filter((fact): fact is { kind: Exclude<EntityKind, "meme">; slug: string } => Boolean(fact));
-  const infoboxItemCount = 3
-    + Number(meme.players.length > 0)
-    + Number(meme.teams.length > 0)
-    + Number(meme.events.length > 0);
   const url = `${siteConfig.url}/meme/${meme.slug}`;
   const lastModified = getContentLastModified([meme]);
   const jsonLd = {
@@ -108,19 +104,10 @@ export default async function MemeDetailPage({ params }: PageProps) {
   };
 
   return (
-    <article className="wiki-page">
+    <article className="wiki-page wiki-detail-page">
       <JsonLd data={jsonLd} />
       <JsonLd data={buildBreadcrumbJsonLd([{ name: "首页", path: "/" }, { name: "梗目录", path: "/memes" }, { name: meme.title, path: `/meme/${meme.slug}` }])} />
       <div className="wiki-shell">
-        <header className="wiki-head">
-          <h1>{meme.title}</h1>
-          <p className="wiki-meta">
-            {meme.aliases?.length ? <span>又称：{meme.aliases.join(" / ")}</span> : null}
-            {lastModified ? <span>更新日期：{lastModified}</span> : null}
-            {meme.first_seen ? <span>时间线索：{meme.first_seen}</span> : null}
-          </p>
-        </header>
-
         <nav className="wiki-crumb" aria-label="面包屑">
           <ol>
             <li><Link href="/">首页</Link></li>
@@ -132,73 +119,78 @@ export default async function MemeDetailPage({ params }: PageProps) {
           </div>
         </nav>
 
+        <header className="wiki-head">
+          <h1>{meme.title}</h1>
+          <p className="wiki-meta">
+            {meme.collected_at ? <span>收录于 <time dateTime={meme.collected_at}>{meme.collected_at}</time></span> : null}
+            {lastModified ? <span>更新于 <time dateTime={lastModified}>{lastModified}</time></span> : null}
+          </p>
+        </header>
+
         <div className="wiki-layout meme-layout">
-          <section className="meme-intro">
-            <h2 className="wiki-h">背景介绍</h2>
+          <div className="meme-intro wiki-intro">
             <p className="wiki-lead">
               <WikiLinkedText text={meme.summary} terms={terms} />
             </p>
-          </section>
+          </div>
 
           <MemeInfobox
             title={meme.title}
-            itemCount={infoboxItemCount}
-            quickLinks={quickFacts.map((fact) => (
+            quickLinks={quickFacts.length ? quickFacts.map((fact) => (
               <span key={`${fact.kind}-${fact.slug}`}>
                 <WikiJoin slugs={[fact.slug]} kind={fact.kind} />
               </span>
-            ))}
+            )) : undefined}
           >
-            <table>
-              <tbody>
-                <tr><th>类型</th><td>梗</td></tr>
-                <tr><th>时间线索</th><td>{meme.first_seen ?? "尚待考证"}</td></tr>
-                {meme.players.length ? <tr><th>相关人物</th><td><WikiJoin slugs={meme.players} kind="player" /></td></tr> : null}
-                {meme.teams.length ? <tr><th>相关战队</th><td><WikiJoin slugs={meme.teams} kind="team" /></td></tr> : null}
-                {meme.events.length ? <tr><th>相关赛事</th><td><WikiJoin slugs={meme.events} kind="event" /></td></tr> : null}
-                <tr>
-                  <th>TAG标签</th>
-                  <td>
-                    {meme.tags.length
-                      ? meme.tags.map((tag, index) => {
-                          const topic = getTopicForTag(tag);
-                          return (
-                            <Fragment key={tag}>
-                              {index > 0 ? "、" : null}
-                              <Link className="wiki-tag" href={topic ? `/topics/${topic.slug}` : `/memes?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
-                            </Fragment>
-                          );
-                        })
-                      : "—"}
-                  </td>
-                </tr>
-              </tbody>
-            </table>
+            <dl className="wiki-infobox-facts">
+              {meme.aliases?.length ? <div><dt>又称</dt><dd>{meme.aliases.join("、")}</dd></div> : null}
+              <div><dt>时间线索</dt><dd>{meme.first_seen ?? "尚待考证"}</dd></div>
+              {meme.players.length ? <div><dt>相关人物</dt><dd><WikiJoin slugs={meme.players} kind="player" /></dd></div> : null}
+              {meme.teams.length ? <div><dt>相关战队</dt><dd><WikiJoin slugs={meme.teams} kind="team" /></dd></div> : null}
+              {meme.events.length ? <div><dt>相关赛事</dt><dd><WikiJoin slugs={meme.events} kind="event" /></dd></div> : null}
+              <div>
+                <dt>分类</dt>
+                <dd>
+                  {meme.tags.length
+                    ? meme.tags.map((tag, index) => {
+                        const topic = getTopicForTag(tag);
+                        return (
+                          <Fragment key={tag}>
+                            {index > 0 ? "、" : null}
+                            <Link className="wiki-tag" href={topic ? `/topics/${topic.slug}` : `/memes?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
+                          </Fragment>
+                        );
+                      })
+                    : "—"}
+                </dd>
+              </div>
+            </dl>
           </MemeInfobox>
 
           <div className="wiki-main">
+            <nav className="wiki-page-nav" aria-label="本页内容">
+              <span>本页内容</span>
+              <a href="#meme-body">释义</a>
+              {meme.timeline?.length ? <a href="#meme-timeline">演变</a> : null}
+              <a href="#meme-sources">参考来源</a>
+              {related.length ? <a href="#meme-related">相关梗</a> : null}
+            </nav>
             <MemeArticle key={meme.slug} slug={meme.slug} sources={meme.sources}>
               <MDXRemote source={meme.body} />
             </MemeArticle>
-            <MemeContinueReading
-              currentSlug={meme.slug}
-              items={related.slice(0, 4).map((entry) => ({
-                slug: entry.slug,
-                title: entry.title,
-                summary: entry.summary,
-              }))}
-            />
 
             {meme.timeline?.length ? (
-              <section>
-                <h2 className="wiki-h">演变</h2>
+              <section id="meme-timeline" className="wiki-detail-section" aria-labelledby="meme-timeline-title">
+                <h2 id="meme-timeline-title" className="wiki-h">演变</h2>
                 <ul className="wiki-timeline">
                   {meme.timeline.map((item) => (
                     <li key={`${item.year}-${item.title}`}>
-                      <time>{item.year}</time>
+                      {/^\d{4}(?:-\d{2}){0,2}$/.test(item.year)
+                        ? <time className="wiki-timeline-date" dateTime={item.year}>{item.year}</time>
+                        : <span className="wiki-timeline-date">{item.year}</span>}
                       <div>
-                        <strong>{item.title}</strong>
-                        {item.description}
+                        <h3>{item.title}</h3>
+                        <p>{item.description}</p>
                       </div>
                     </li>
                   ))}
@@ -206,8 +198,8 @@ export default async function MemeDetailPage({ params }: PageProps) {
               </section>
             ) : null}
 
-            <section>
-              <h2 className="wiki-h">参考</h2>
+            <section id="meme-sources" className="wiki-detail-section" aria-labelledby="meme-sources-title">
+              <h2 id="meme-sources-title" className="wiki-h">参考来源</h2>
               {meme.sources.length ? (
                 <ol className="wiki-refs">
                   {meme.sources.map((source, index) => (
@@ -230,6 +222,15 @@ export default async function MemeDetailPage({ params }: PageProps) {
               )}
               {meme.source_note ? <p className="wiki-note">编辑注：{meme.source_note}</p> : null}
             </section>
+
+            <MemeContinueReading
+              currentSlug={meme.slug}
+              items={related.map((entry) => ({
+                slug: entry.slug,
+                title: entry.title,
+                summary: entry.summary,
+              }))}
+            />
           </div>
         </div>
 
@@ -246,17 +247,6 @@ export default async function MemeDetailPage({ params }: PageProps) {
                   </Fragment>
                 );
               })}
-            </p>
-          ) : null}
-          {related.length ? (
-            <p>
-              <span>参见：</span>
-              {related.map((entry, index) => (
-                <Fragment key={entry.slug}>
-                  {index > 0 ? "、" : null}
-                  <Link href={`/meme/${entry.slug}`}>{entry.title}</Link>
-                </Fragment>
-              ))}
             </p>
           ) : null}
         </footer>
