@@ -118,6 +118,7 @@ function parseRegion(value?: string) {
 export function buildEntityJsonLd(kind: EntityKindWithoutMeme, entry: EntityEntry) {
   const { league, area } = parseRegion(entry.region);
   const { start, end } = parseActiveYears(entry.active_years);
+  const sport = entry.sport?.trim() || "英雄联盟";
   // name 用页面 title（H1 和 canonical 都是它，且一定干净）；全名和别名进 alternateName。
   const alternateName = unique([entry.display_name ?? "", ...(entry.aliases ?? [])]).filter(
     (name) => name !== entry.title,
@@ -134,21 +135,21 @@ export function buildEntityJsonLd(kind: EntityKindWithoutMeme, entry: EntityEntr
   if (kind === "player") {
     return {
       ...base,
-      jobTitle: "英雄联盟职业选手",
+      jobTitle: `${sport}职业选手`,
       ...(area ? { nationality: { "@type": "Country", name: area } } : {}),
     };
   }
   if (kind === "team") {
     return {
       ...base,
-      sport: "英雄联盟",
+      sport,
       ...(league ? { memberOf: { "@type": "SportsOrganization", name: league } } : {}),
       ...(start ? { foundingDate: start } : {}),
     };
   }
   return {
     ...base,
-    sport: "英雄联盟",
+    sport,
     ...(start ? { startDate: start } : {}),
     ...(end ? { endDate: end } : {}),
   };

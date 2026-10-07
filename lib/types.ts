@@ -62,6 +62,8 @@ export interface EntityEntry extends BaseEntry {
   indexable?: boolean;
   display_name?: string;
   region?: string;
+  // 跨项目实体显式标注；未填写的历史词条默认使用英雄联盟。
+  sport?: string;
   active_years?: string;
 }
 
