@@ -12,6 +12,7 @@ import { JsonLd } from "@/components/json-ld";
 import { CorrectionDialog } from "@/components/correction-dialog";
 import { MemeContinueReading } from "@/components/meme-continue-reading";
 import { MemeArticle } from "@/components/meme-article";
+import { AdsterraNativeBanner } from "@/components/adsterra-native-banner";
 import { MemeInfobox } from "@/components/meme-infobox";
 import { TrackedSourceLink } from "@/components/tracked-source-link";
 import { getTopicForTag } from "@/lib/topics";
@@ -231,6 +232,7 @@ export default async function MemeDetailPage({ params }: PageProps) {
                 summary: entry.summary,
               }))}
             />
+            <AdsterraNativeBanner key={`adsterra-${meme.slug}`} />
           </div>
         </div>
 

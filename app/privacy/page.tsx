@@ -10,7 +10,7 @@ export const metadata: Metadata = {
 
 export default function PrivacyPage() {
   return (
-    <InfoPage title="隐私政策" description="最后更新：2026-08-30" pathname="/privacy" sections={[
+    <InfoPage title="隐私政策" description="最后更新：2026-10-08" pathname="/privacy" sections={[
         { id: "information", title: "我们收集的信息" },
         { id: "cookies", title: "Cookie 与第三方广告" },
         { id: "analytics", title: "访问统计" },
@@ -32,9 +32,10 @@ export default function PrivacyPage() {
 
       <h2 id="cookies" className="wiki-h">Cookie 与第三方广告</h2>
       <p>
-        本站可能展示由第三方广告服务商（包括 Google 及其 AdSense 合作网络）投放的广告。这些第三方可能使用 Cookie 或类似技术，根据你在本站及其它网站的访问记录来投放和衡量广告效果。
+        本站在梗详情页末尾展示 Adsterra 提供的原生横幅广告，并保留 Google AdSense 的站点验证。这些第三方可能使用 Cookie 或类似技术，根据你在本站及其它网站的访问记录来投放和衡量广告效果。
       </p>
       <ul>
+        <li>Adsterra 及其广告合作方可能处理 IP 地址、设备与浏览器信息、页面访问和广告交互数据，用于投放、衡量广告及防止欺诈。详情见 <a href="https://adsterra.com/privacy-policy/" target="_blank" rel="noopener noreferrer">Adsterra 隐私政策</a>。</li>
         <li>作为第三方供应商，Google 会使用 Cookie（含 DART Cookie）在本站及其它网站投放广告。</li>
         <li>你可以访问 <a href="https://www.google.com/settings/ads" target="_blank" rel="noopener noreferrer">Google 广告设置</a> 管理或关闭个性化广告；也可通过 <a href="https://www.aboutads.info/choices/" target="_blank" rel="noopener noreferrer">aboutads.info</a> 了解更多选择。</li>
         <li>更多关于 Google 如何处理数据的说明，见 <a href="https://policies.google.com/technologies/partner-sites" target="_blank" rel="noopener noreferrer">Google 合作伙伴网站隐私政策</a>。</li>

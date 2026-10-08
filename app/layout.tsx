@@ -40,7 +40,7 @@ export default function RootLayout({ children }: Readonly<{ children: React.Reac
   return (
     <html lang="zh-CN" suppressHydrationWarning data-scroll-behavior="smooth">
       <head>
-        {/* 整改期间仅保留站点验证；通过审核并确定内容页投放范围后再接入广告。 */}
+        {/* AdSense 整改期间仅保留站点验证；Adsterra 由词条页单独加载。 */}
         <meta name="google-adsense-account" content="ca-pub-3460143338187515" />
       </head>
       <body>

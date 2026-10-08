@@ -74,7 +74,9 @@ Umami 脚本仅在生产构建加载，并通过 `data-domains` 限定站点配�
 
 ### AdSense 整改与重新送审
 
-当前全站暂停加载广告脚本，以全局 `google-adsense-account` meta 标签保留站点验证，`public/ads.txt` 保留发布商声明。重新开放广告时需单独确定有实质内容的广告页面与位置。
+当前暂停加载 AdSense 广告脚本，以全局 `google-adsense-account` meta 标签保留站点验证，`public/ads.txt` 保留发布商声明。重新开放 AdSense 广告时需单独确定有实质内容的广告页面与位置。
+
+Adsterra 的 Native Banner 仅放在公开梗详情页的来源与相关阅读之后，由 `components/adsterra-native-banner.tsx` 异步加载；空广告位不显示，不接入 Popunder、Social Bar 或 Smartlink。站内切换词条时重新挂载广告位。
 
 1. 先修订重点词条，撤回核心事实无依据的稿件，检查来源与正文是否真正对应。
 2. 运行下列检查后部署新版本；只在本地修改并不会更新送审网站。

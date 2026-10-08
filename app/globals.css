@@ -121,6 +121,11 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 1
 .meme-layout > .meme-infobox { grid-area: infobox; }
 .meme-layout > .wiki-main { grid-area: body; }
 .wiki-main { min-width: 0; }
+.wiki-advertisement { margin: 32px 0; border-top: 1px solid var(--border-soft); padding-top: 16px; }
+.wiki-advertisement:has(.wiki-advertisement-slot:empty) { margin: 0; border: 0; padding: 0; }
+.wiki-advertisement:has(.wiki-advertisement-slot:empty) .wiki-advertisement-label { display: none; }
+.wiki-advertisement-label { margin: 0 0 12px; color: var(--text-muted); font-size: .875rem; }
+.wiki-advertisement-slot { max-width: 100%; min-width: 0; overflow-x: auto; }
 .wiki-lead { margin: 0 0 24px; font-size: 1rem; line-height: 1.8; overflow-wrap: anywhere; }
 .wiki-h, .wiki-prose h2 { margin: 32px 0 16px; border-bottom: 1px solid var(--border); padding-bottom: 10px; color: var(--text); font: 650 1.375rem/1.5 var(--sans); overflow-wrap: anywhere; }
 .wiki-main > section:first-child > .wiki-h:first-child, .meme-intro > .wiki-h:first-child { margin-top: 0; }
