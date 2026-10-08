@@ -13,6 +13,7 @@ import { CorrectionDialog } from "@/components/correction-dialog";
 import { MemeContinueReading } from "@/components/meme-continue-reading";
 import { MemeArticle } from "@/components/meme-article";
 import { AdsterraNativeBanner } from "@/components/adsterra-native-banner";
+import { AdsterraDesktopSidebars } from "@/components/adsterra-desktop-sidebars";
 import { MemeInfobox } from "@/components/meme-infobox";
 import { TrackedSourceLink } from "@/components/tracked-source-link";
 import { getTopicForTag } from "@/lib/topics";
@@ -105,7 +106,8 @@ export default async function MemeDetailPage({ params }: PageProps) {
   };
 
   return (
-    <article className="wiki-page wiki-detail-page">
+    <article className="wiki-page wiki-detail-page wiki-detail-page-with-ads">
+      <AdsterraDesktopSidebars key={`sidebars-${meme.slug}`} />
       <JsonLd data={jsonLd} />
       <JsonLd data={buildBreadcrumbJsonLd([{ name: "首页", path: "/" }, { name: "梗目录", path: "/memes" }, { name: meme.title, path: `/meme/${meme.slug}` }])} />
       <div className="wiki-shell">

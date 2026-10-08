@@ -115,6 +115,17 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 1
 .directory-empty button { margin-right: 16px; }
 
 /* 词条、人物与赛事详情 */
+.wiki-detail-page-with-ads { position: relative; }
+.wiki-desktop-ad { display: none; }
+@media (min-width: 1280px) {
+  .wiki-detail-page-with-ads > .wiki-shell { width: min(var(--page), calc(100% - 416px)); }
+  .wiki-desktop-ad { display: block; position: absolute; top: 28px; bottom: 64px; width: 160px; }
+  .wiki-desktop-ad[data-ready="false"] { visibility: hidden; }
+  .wiki-desktop-ad-left { left: max(24px, calc((100% - var(--page)) / 2 - 184px)); }
+  .wiki-desktop-ad-right { right: max(24px, calc((100% - var(--page)) / 2 - 184px)); }
+  .wiki-desktop-ad-sticky { position: sticky; top: 96px; }
+  .wiki-desktop-ad-slot { display: block; width: 160px; border: 0; }
+}
 .wiki-layout { display: grid; grid-template-columns: minmax(0, 1fr) 300px; gap: 48px; align-items: start; }
 .meme-layout { grid-template-areas: "intro infobox" "body infobox"; row-gap: 0; }
 .meme-intro { grid-area: intro; min-width: 0; }

@@ -32,7 +32,7 @@ export default function PrivacyPage() {
 
       <h2 id="cookies" className="wiki-h">Cookie 与第三方广告</h2>
       <p>
-        本站在梗详情页末尾展示 Adsterra 提供的原生横幅广告，并保留 Google AdSense 的站点验证。这些第三方可能使用 Cookie 或类似技术，根据你在本站及其它网站的访问记录来投放和衡量广告效果。
+        本站在梗详情页展示 Adsterra 提供的广告，包括文末原生横幅和宽屏 PC 的左右侧栏横幅，并保留 Google AdSense 的站点验证。这些第三方可能使用 Cookie 或类似技术，根据你在本站及其它网站的访问记录来投放和衡量广告效果。
       </p>
       <ul>
         <li>Adsterra 及其广告合作方可能处理 IP 地址、设备与浏览器信息、页面访问和广告交互数据，用于投放、衡量广告及防止欺诈。详情见 <a href="https://adsterra.com/privacy-policy/" target="_blank" rel="noopener noreferrer">Adsterra 隐私政策</a>。</li>
