@@ -10,7 +10,7 @@ import { DirectoryNavigation } from "@/components/entity-directory";
 
 export const metadata: Metadata = {
   title: "全部 LOL 梗",
-  description: "浏览 研发.lol 收录的英雄联盟与电竞社区梗，按名称、别名与类型快速筛选。",
+  description: "浏览研发.lol 收录的英雄联盟与电竞社区梗，按梗名、别名和关键词检索，或通过游戏梗、赛事梗、英雄台词等分类筛选。支持常见优先与最近更新排序，每条结果提供简短解释，点击可继续查看出处、比赛背景和使用语境。还可以沿相关选手、战队、赛事与专题发现其他词条，查清数字、外号和弹幕半句话的意思；找不到时可清除筛选或提交新梗线索。",
   alternates: { canonical: "/memes" },
 };
 

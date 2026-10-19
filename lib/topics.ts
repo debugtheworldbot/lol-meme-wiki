@@ -5,6 +5,7 @@ export interface TopicDefinition {
   tag: string;
   title: string;
   description: string;
+  seo_description?: string;
   introduction: string;
   player?: string;
 }
@@ -30,6 +31,7 @@ export const topicDefinitions: TopicDefinition[] = [
     tag: "赛事梗",
     title: "LOL 赛事梗大全：LPL 与世界赛名场面出处",
     description: "整理 LPL、MSI、全球总决赛等英雄联盟赛事梗，回看经典比赛、赛后名场面和社区用法。",
+    seo_description: "英雄联盟赛事梗专题整理 LPL、MSI 和全球总决赛中的经典比分、解说原话、选手采访与赛后名场面。每个词条解释比赛背景、梗的含义和后续用法，并连接相关选手、战队及赛事资料，从一句弹幕回到对局。既能查找数字梗和关键操作，也能比较同一句话在胜利、失利后的语气变化；涉及首次传播或计时争议时，按词条提供的来源和编辑说明核对。",
     introduction: "一场关键比赛往往会留下比分、解说原话、赛后采访和弹幕复读。这里按词条归档英雄联盟赛事中的代表性梗，并连接对应选手、战队与赛事背景。",
   },
   {
@@ -51,6 +53,7 @@ export const topicDefinitions: TopicDefinition[] = [
     tag: "出圈梗",
     title: "LOL 出圈梗大全：从电竞社区传到全网的热梗",
     description: "盘点从英雄联盟和 LPL 社区传播到全网的出圈梗，解释原始出处、含义和后续演变。",
+    seo_description: "英雄联盟出圈梗专题整理从 LOL 与 LPL 社区传播到直播、短视频和日常聊天的表达，区分最初的电竞语境和后来泛化的用法。可以从词条查看原话、含义、传播背景与二创接法，再沿相关选手、战队或赛事继续阅读。外号、空耳与表情包各有不同来历，本页帮助读者理解一句话为何被复读；对尚未确认的首创者和原始时间，以来源与编辑说明为准。",
     introduction: "有些 LOL 梗会越过游戏和赛事圈层，进入直播、短视频乃至日常聊天。这里区分它们的原始电竞语境与出圈后的泛化用法。",
   },
   {
@@ -58,6 +61,7 @@ export const topicDefinitions: TopicDefinition[] = [
     tag: "2026",
     title: "2026 LPL 新梗盘点：比赛热梗和出处时间线",
     description: "持续整理 2026 年 LPL、MSI 与英雄联盟赛事新梗，按出现时间记录比赛背景、原话和传播过程。",
+    seo_description: "2026 LPL 新梗专题持续整理当年英雄联盟赛事与社区中的比赛热梗、选手语录、队内语音和赛后讨论。词条按首次出现时间排序，从具体比赛、采访或直播片段查找原话、含义及传播背景，并沿关联选手、战队和赛事阅读。既保留当时的赛果和上下文，也解释后来衍生的调侃与回旋镖用法；来源未能确认首发或细节有分歧时，查看词条中的考证说明。",
     introduction: "本页追踪 2026 年英雄联盟赛事与社区的新梗。词条按首次出现时间排序，方便从一场比赛、一次采访或一段队内语音追溯当年的热门表达。",
   },
   {

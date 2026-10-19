@@ -3,7 +3,7 @@ import { getMemesForEntity } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
 import type { EntityEntry, EntityKind, MemeEntry } from "@/lib/types";
 
-const DESCRIPTION_MAX = 155;
+const DESCRIPTION_MAX = 160;
 const BASE_KEYWORDS = ["LOL梗", "英雄联盟梗", "LPL梗", "电竞梗", "梗百科"];
 
 type EntityKindWithoutMeme = Exclude<EntityKind, "meme">;
@@ -40,7 +40,7 @@ export function getContentLastModified(entries: { updated_at?: string; collected
 
 export function buildMemeMetadata(meme: MemeEntry): Metadata {
   const title = meme.seo_title?.trim() || `${meme.title}是什么梗？出处和含义`;
-  const description = clamp(meme.summary);
+  const description = clamp(meme.seo_description?.trim() || meme.summary);
   const url = `/meme/${meme.slug}`;
   return {
     title,

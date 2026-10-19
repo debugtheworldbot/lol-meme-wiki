@@ -24,6 +24,7 @@ for (const [kind, entries] of Object.entries(collections)) {
       if (typeof entry[key] !== "string" || !entry[key].trim()) fail(key + " 不能为空");
     }
     if (entry.seo_title !== undefined && (typeof entry.seo_title !== "string" || !entry.seo_title.trim())) fail("seo_title 必须是非空字符串");
+    if (entry.seo_description !== undefined && (typeof entry.seo_description !== "string" || !entry.seo_description.trim() || entry.seo_description.length > 160)) fail("seo_description 必须是 160 字以内的非空字符串");
     if (kind === "guides") {
       if (!entry.body.trim()) fail("专题导读正文不能为空");
       for (const match of entry.body.matchAll(/\]\(\/meme\/([^\s)#?]+)/g)) {

@@ -22,7 +22,7 @@ export async function generateMetadata({ params }: PageProps): Promise<Metadata>
   const url = `/topics/${topic.slug}`;
   const guide = getTopicGuide(topic.slug);
   const title = guide?.title ?? topic.title;
-  const description = guide?.summary ?? topic.description;
+  const description = guide?.seo_description ?? topic.seo_description ?? guide?.summary ?? topic.description;
   return {
     title,
     description,
