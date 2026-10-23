@@ -1,3 +1,4 @@
+// 仅投稿页使用整页骨架；可索引的阅读页应直接输出完整正文。
 export default function Loading() {
   return (
     <div className="homepage homepage-loading" role="status" aria-label="正在加载页面">

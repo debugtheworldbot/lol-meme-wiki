@@ -65,7 +65,7 @@
 | 说明页 | 文档正文、桌面页内目录、相关说明链接 | [InfoPage](components/info-page.tsx) |
 | 投稿／纠错 | 可见字段标签、必填说明、就近帮助、结果状态；投稿表单为主，说明为辅 | [SubmissionForm](components/submission-form.tsx)、[CorrectionDialog](components/correction-dialog.tsx) |
 | 全站导航／搜索 | 固定的栏目名称与当前页状态，页面间共用搜索和页脚 | [SiteHeader](components/site-header.tsx)、[SiteNav](components/site-nav.tsx)、[SiteFooter](components/site-footer.tsx)、[SearchDialog](components/search-dialog.tsx) |
-| 404／加载 | 有意义的恢复入口或骨架，保持同一阅读宽度与色彩 | [404](app/not-found.tsx)、[加载页](app/loading.tsx)、[InlineSearch](components/inline-search.tsx) |
+| 404／加载 | 有意义的恢复入口或骨架，保持同一阅读宽度与色彩；整页骨架仅用于投稿页，可索引阅读页直接输出正文 | [404](app/not-found.tsx)、[投稿加载页](app/submit/loading.tsx)、[InlineSearch](components/inline-search.tsx) |
 | 分享图 | 1200×630，暖白底、朱红中文分类、深色标题、细分隔线；字号随标题长度调整 | [OgCard](components/og-card.tsx) |
 
 通用页面沿用 `wiki-page`、`wiki-shell`、`wiki-crumb`、`wiki-head`；文档用 `wiki-prose`，列表用 `entry-list`。保留标准 `ul` 圆点、`ol` 编号和参考来源编号，避免 Tailwind 基础重置吞掉列表标记。新页面仅在现有结构无法表达需求时增加语义类或组件。
