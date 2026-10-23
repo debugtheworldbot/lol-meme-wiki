@@ -7,7 +7,19 @@ import { getMemesForTopic, topicDefinitions } from "@/lib/topics";
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteConfig.url;
   const allMemes = getMemes();
-  const staticRoutes = ["", "/memes", "/topics", "/players", "/teams", "/events", "/about", "/contact", "/privacy"].map((path) => ({ url: `${base}${path}`, changeFrequency: "weekly" as const, priority: path === "" ? 1 : 0.7 }));
+  // 目录日期取自实际展示的内容集合；没有可靠日期的页面省略，不用构建时间补齐。
+  const directoryLastModified: Record<string, string | undefined> = {
+    "/memes": getContentLastModified(allMemes),
+    "/players": getContentLastModified(getPlayers()),
+    "/teams": getContentLastModified(getTeams()),
+    "/events": getContentLastModified(getEvents()),
+  };
+  const staticRoutes = ["", "/memes", "/topics", "/players", "/teams", "/events", "/about", "/contact", "/privacy"].map((path) => ({
+    url: `${base}${path}`,
+    lastModified: directoryLastModified[path],
+    changeFrequency: "weekly" as const,
+    priority: path === "" ? 1 : 0.7,
+  }));
   const topics = topicDefinitions.map((topic) => ({
     url: `${base}/topics/${topic.slug}`,
     lastModified: getContentLastModified([
