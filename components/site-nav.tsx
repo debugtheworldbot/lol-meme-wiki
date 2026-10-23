@@ -1,8 +1,11 @@
 "use client";
 
-import Link from "next/link";
+import { LocalizedContent } from "@/components/localized-content";
+
+import Link from "@/components/locale-link";
 import { usePathname } from "next/navigation";
 import { ChineseScriptToggle } from "@/components/chinese-script-toggle";
+import { stripLocalePath } from "@/lib/locale-path";
 
 const items = [
   { label: "梗目录", href: "/memes", detail: "/meme/" },
@@ -13,8 +16,8 @@ const items = [
 ];
 
 export function SiteNav() {
-  const pathname = usePathname();
-  return (
+  const pathname = stripLocalePath(usePathname());
+  return <LocalizedContent>{(
     <nav className="main-nav" aria-label="主导航">
       {items.map((item) => (
         <Link key={item.href} href={item.href} aria-current={pathname === item.href ? "page" : pathname.startsWith(item.detail) ? "location" : undefined}>
@@ -23,5 +26,5 @@ export function SiteNav() {
       ))}
       <ChineseScriptToggle />
     </nav>
-  );
+  )}</LocalizedContent>;
 }

@@ -1,5 +1,7 @@
 "use client";
 
+import { LocalizedContent } from "@/components/localized-content";
+
 import { useEffect, useRef } from "react";
 
 const AD_KEY = "8d96a43131dafb65c73ff424c58946b6";
@@ -26,10 +28,10 @@ export function AdsterraNativeBanner() {
     };
   }, []);
 
-  return (
+  return <LocalizedContent>{(
     <aside ref={placement} className="wiki-advertisement" aria-label="广告">
       <p className="wiki-advertisement-label">广告</p>
       <div ref={slot} id={`container-${AD_KEY}`} className="wiki-advertisement-slot" />
     </aside>
-  );
+  )}</LocalizedContent>;
 }

@@ -1,3 +1,4 @@
+import { localizeMetadata } from "@/lib/locale-seo";
 import type { Metadata } from "next";
 import { getMemesForEntity } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
@@ -42,7 +43,7 @@ export function buildMemeMetadata(meme: MemeEntry): Metadata {
   const title = meme.seo_title?.trim() || `${meme.title}是什么梗？出处和含义`;
   const description = clamp(meme.seo_description?.trim() || meme.summary);
   const url = `/meme/${meme.slug}`;
-  return {
+  return localizeMetadata({
     title,
     description,
     // 别名是最主要的长尾入口（“不会真有人”和“不会吧不会吧”是两个搜索词），页面正文已有“又称”，这里再给一遍。
@@ -57,7 +58,7 @@ export function buildMemeMetadata(meme: MemeEntry): Metadata {
     ]),
     alternates: { canonical: url },
     openGraph: { type: "article", title, description, url, publishedTime: meme.collected_at, modifiedTime: getContentLastModified([meme]) },
-  };
+  }, "zh-CN");
 }
 
 export function buildEntityMetadata(kind: EntityKindWithoutMeme, entry: EntityEntry): Metadata {
@@ -67,7 +68,7 @@ export function buildEntityMetadata(kind: EntityKindWithoutMeme, entry: EntityEn
   const count = getMemesForEntity(kind, entry.slug).length;
   const description = clamp(count ? `${entry.summary}本页收录 ${count} 条相关梗及其出处。` : entry.summary);
   const url = `/${kind}/${entry.slug}`;
-  return {
+  return localizeMetadata({
     title,
     description,
     robots: { index: entry.indexable === true, follow: true },
@@ -79,7 +80,7 @@ export function buildEntityMetadata(kind: EntityKindWithoutMeme, entry: EntityEn
     ]),
     alternates: { canonical: url },
     openGraph: { type: "article", title, description, url, modifiedTime: entry.updated_at },
-  };
+  }, "zh-CN");
 }
 
 export type Crumb = { name: string; path: string };

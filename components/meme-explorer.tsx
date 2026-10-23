@@ -1,7 +1,9 @@
 "use client";
 
+import { LocalizedContent } from "@/components/localized-content";
+
 import { useEffect, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import Fuse from "fuse.js";
 import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
@@ -112,7 +114,7 @@ export function MemeExplorer({ memes, canonicalTags }: { memes: MemeListItem[]; 
     inputRef.current?.focus();
   }
 
-  return (
+  return <LocalizedContent>{(
     <>
       <div className="directory-tools">
         <label>
@@ -158,5 +160,5 @@ export function MemeExplorer({ memes, canonicalTags }: { memes: MemeListItem[]; 
         </div>
       )}
     </>
-  );
+  )}</LocalizedContent>;
 }

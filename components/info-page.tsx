@@ -1,5 +1,6 @@
+import { LocalizedContent } from "@/components/localized-content";
 import type { ReactNode } from "react";
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { JsonLd } from "@/components/json-ld";
 import { buildBreadcrumbJsonLd } from "@/lib/seo";
 
@@ -16,7 +17,7 @@ export function InfoPage({ title, description, pathname, sections, children }: {
   sections: { id: string; title: string }[];
   children: ReactNode;
 }) {
-  return (
+  return <LocalizedContent>{(
     <article className="wiki-page wiki-info-page">
       <JsonLd data={buildBreadcrumbJsonLd([{ name: "首页", path: "/" }, { name: title, path: pathname }])} />
       <div className="wiki-shell">
@@ -42,5 +43,5 @@ export function InfoPage({ title, description, pathname, sections, children }: {
         </div>
       </div>
     </article>
-  );
+  )}</LocalizedContent>;
 }

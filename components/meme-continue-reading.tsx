@@ -1,6 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { LocalizedContent } from "@/components/localized-content";
+
+import Link from "@/components/locale-link";
 import { track } from "@/lib/analytics";
 
 interface ContinueReadingItem {
@@ -18,7 +20,7 @@ export function MemeContinueReading({
 }) {
   if (!items.length) return null;
 
-  return (
+  return <LocalizedContent>{(
     <nav id="meme-related" className="meme-continue wiki-detail-section" aria-labelledby="meme-continue-title">
       <div className="meme-continue-head">
         <h2 id="meme-continue-title">相关梗</h2>
@@ -62,5 +64,5 @@ export function MemeContinueReading({
         </div>
       ) : null}
     </nav>
-  );
+  )}</LocalizedContent>;
 }

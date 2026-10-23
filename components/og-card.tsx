@@ -2,6 +2,8 @@ import { ImageResponse } from "next/og";
 import { getEntity, getEvents, getMeme, getMemes, getMemesForEntity, getPlayers, getTeams } from "@/lib/content";
 import { siteConfig } from "@/lib/site";
 import type { EntityKind } from "@/lib/types";
+import type { Locale } from "@/lib/locale-path";
+import { translateSeo } from "@/lib/locale-seo";
 
 export const OG_SIZE = { width: 1200, height: 630 };
 export const OG_CONTENT_TYPE = "image/png";
@@ -42,18 +44,25 @@ function titleFontSize(title: string) {
 }
 
 function OgCard({
+  locale = "zh-CN",
   kicker,
   title,
   subtitle,
   footLeft,
   footRight,
 }: {
+  locale?: Locale;
   kicker: string;
   title: string;
   subtitle?: string;
   footLeft?: string;
   footRight?: string;
 }) {
+  kicker = translateSeo(kicker, locale);
+  title = translateSeo(title, locale);
+  subtitle = subtitle ? translateSeo(subtitle, locale) : subtitle;
+  footLeft = footLeft ? translateSeo(footLeft, locale) : footLeft;
+  footRight = footRight ? translateSeo(footRight, locale) : footRight;
   return (
     <div
       style={{
@@ -86,10 +95,11 @@ function OgCard({
   );
 }
 
-export function renderSiteOgImage() {
+export function renderSiteOgImage(locale: Locale = "zh-CN") {
   return new ImageResponse(
     (
       <OgCard
+        locale={locale}
         kicker="英雄联盟梗百科"
         title={siteConfig.name}
         subtitle="英雄联盟的梗，查个明白。查含义，也找出处。"
@@ -105,13 +115,14 @@ export function memeOgParams() {
   return getMemes().map((meme) => ({ slug: meme.slug }));
 }
 
-export async function renderMemeOgImage(params: Promise<{ slug: string }>) {
+export async function renderMemeOgImage(params: Promise<{ slug: string }>, locale: Locale = "zh-CN") {
   const { slug } = await params;
   const meme = getMeme(slug);
-  if (!meme) return renderSiteOgImage();
+  if (!meme) return renderSiteOgImage(locale);
   return new ImageResponse(
     (
       <OgCard
+        locale={locale}
         kicker="英雄联盟梗百科"
         title={meme.title}
         subtitle={leadSentence(meme.summary)}
@@ -127,14 +138,15 @@ export function entityOgParams(kind: EntityKindWithoutMeme) {
   return entityOg[kind].list().map((entry) => ({ slug: entry.slug }));
 }
 
-export async function renderEntityOgImage(kind: EntityKindWithoutMeme, params: Promise<{ slug: string }>) {
+export async function renderEntityOgImage(kind: EntityKindWithoutMeme, params: Promise<{ slug: string }>, locale: Locale = "zh-CN") {
   const { slug } = await params;
   const entry = getEntity(kind, slug);
-  if (!entry) return renderSiteOgImage();
+  if (!entry) return renderSiteOgImage(locale);
   const count = getMemesForEntity(kind, slug).length;
   return new ImageResponse(
     (
       <OgCard
+        locale={locale}
         kicker={entityOg[kind].kicker}
         title={entry.title}
         subtitle={entry.display_name ?? leadSentence(entry.summary)}

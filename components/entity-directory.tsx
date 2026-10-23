@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { LocalizedContent } from "@/components/localized-content";
+import Link from "@/components/locale-link";
 import type { EntityEntry, EntityKind } from "@/lib/types";
 
 const directoryLinks = [
@@ -10,20 +11,20 @@ const directoryLinks = [
 ] as const;
 
 export function DirectoryNavigation({ current }: { current: typeof directoryLinks[number]["href"] }) {
-  return (
+  return <LocalizedContent>{(
     <nav className="directory-nav" aria-label="浏览分类">
       {directoryLinks.map(({ href, label }) => (
         <Link key={href} href={href} aria-current={current === href ? "page" : undefined}>{label}</Link>
       ))}
     </nav>
-  );
+  )}</LocalizedContent>;
 }
 
 export function EntityDirectory({ entries, kind }: { entries: EntityEntry[]; kind: Exclude<EntityKind, "meme"> }) {
   if (!entries.length) {
-    return <p className="wiki-empty">还没有条目。</p>;
+    return <LocalizedContent>{<p className="wiki-empty">还没有条目。</p>}</LocalizedContent>;
   }
-  return (
+  return <LocalizedContent>{(
     <ul className="entry-list" aria-label={{ player: "选手列表", team: "战队列表", event: "赛事列表" }[kind]}>
       {entries.map((entry) => (
         <li key={entry.slug}>
@@ -33,5 +34,5 @@ export function EntityDirectory({ entries, kind }: { entries: EntityEntry[]; kin
         </li>
       ))}
     </ul>
-  );
+  )}</LocalizedContent>;
 }

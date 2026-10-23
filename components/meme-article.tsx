@@ -1,8 +1,11 @@
 "use client";
 
+import { LocalizedContent } from "@/components/localized-content";
+
 import { useEffect, useRef, type MouseEvent, type ReactNode } from "react";
 import { track } from "@/lib/analytics";
 import type { Source } from "@/lib/types";
+import { stripLocalePath } from "@/lib/locale-path";
 
 export function MemeArticle({ slug, sources, children }: {
   slug: string;
@@ -31,12 +34,13 @@ export function MemeArticle({ slug, sources, children }: {
     if (!href) return;
     const url = new URL(href, window.location.href);
     if (url.origin === window.location.origin) {
+      const pathname = stripLocalePath(url.pathname);
       if (url.pathname === window.location.pathname && url.hash) {
         track("Article Section Click", { meme: slug, section: url.hash });
-      } else if (url.pathname.startsWith("/topics/")) {
-        track("Topic Guide Click", { from: slug, to: url.pathname, placement: "article" });
-      } else if (url.pathname.startsWith("/meme/")) {
-        track("Related Meme Click", { from: slug, to: url.pathname.slice(6), placement: "article" });
+      } else if (pathname.startsWith("/topics/")) {
+        track("Topic Guide Click", { from: slug, to: pathname, placement: "article" });
+      } else if (pathname.startsWith("/meme/")) {
+        track("Related Meme Click", { from: slug, to: pathname.slice(6), placement: "article" });
       }
       return;
     }
@@ -49,10 +53,10 @@ export function MemeArticle({ slug, sources, children }: {
     });
   }
 
-  return (
+  return <LocalizedContent>{(
     <section id="meme-body" className="wiki-prose" aria-label="词条释义" onClick={trackLink}>
       {children}
       <span ref={end} className="article-end-marker" aria-hidden="true" />
     </section>
-  );
+  )}</LocalizedContent>;
 }

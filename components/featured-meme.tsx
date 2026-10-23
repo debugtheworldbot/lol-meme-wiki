@@ -1,9 +1,12 @@
 "use client";
 
-import Link from "next/link";
+import { LocalizedContent } from "@/components/localized-content";
+
+import Link from "@/components/locale-link";
 import { ExternalLink } from "lucide-react";
 import { useEffect, useState } from "react";
 import type { MemeEntry, Source } from "@/lib/types";
+import { useLocale } from "@/components/locale-provider";
 
 type FeaturedItem = Pick<MemeEntry, "title" | "slug" | "summary"> & { source?: Source };
 
@@ -20,6 +23,7 @@ function readPreviousSlug() {
 }
 
 export function FeaturedMeme({ items }: { items: FeaturedItem[] }) {
+  const { translate } = useLocale();
   const [featured, setFeatured] = useState(items[0]);
 
   useEffect(() => {
@@ -58,7 +62,7 @@ export function FeaturedMeme({ items }: { items: FeaturedItem[] }) {
 
   if (!featured) return null;
 
-  return (
+  return <LocalizedContent>{(
     <section className="homepage-pick" aria-labelledby="home-pick-title">
       <h2 id="home-pick-title">精选词条</h2>
       <h3><Link href={`/meme/${featured.slug}`}>{featured.title}</Link></h3>
@@ -68,10 +72,10 @@ export function FeaturedMeme({ items }: { items: FeaturedItem[] }) {
         <div className="homepage-source">
           <span>来源线索</span>
           <a href={featured.source.url} target="_blank" rel="noreferrer">
-            {featured.source.title}<ExternalLink size={13} aria-label="在新窗口打开" />
+            {featured.source.title}<ExternalLink size={13} aria-label={translate("在新窗口打开")} />
           </a>
         </div>
       ) : null}
     </section>
-  );
+  )}</LocalizedContent>;
 }

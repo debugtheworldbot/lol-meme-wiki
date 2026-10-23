@@ -1,13 +1,17 @@
 "use client";
 
+import { LocalizedContent } from "@/components/localized-content";
+
 import { type FormEvent, type KeyboardEvent, useEffect, useId, useRef, useState } from "react";
 import { createPortal } from "react-dom";
 import { Check, Clipboard, ExternalLink, LoaderCircle, X } from "lucide-react";
 import { track } from "@/lib/analytics";
+import { useSessionDraft } from "@/lib/use-session-draft";
 
 type CorrectionResult = { mode: "created" | "link" | "preview"; issueUrl?: string; markdown?: string };
 
 export function CorrectionDialog({ title, pathname }: { title: string; pathname: string }) {
+  const { readDraft, saveDraft, clearDraft } = useSessionDraft("correction", pathname);
   const [open, setOpen] = useState(false);
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState("");
@@ -79,6 +83,7 @@ export function CorrectionDialog({ title, pathname }: { title: string; pathname:
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "提交失败，请稍后重试。");
+      if (data.mode === "created") clearDraft();
       setResult(data);
       track("Correction Submission Success", { mode: data.mode, page: pathname });
     } catch (caught) {
@@ -100,14 +105,17 @@ export function CorrectionDialog({ title, pathname }: { title: string; pathname:
     }
   }
 
-  return (
+  return <LocalizedContent>{(
     <>
       <button ref={triggerRef} type="button" className="wiki-tool-button" aria-haspopup="dialog" aria-expanded={open} onClick={() => {
+        const draft = readDraft();
+        setContent(draft.content ?? "");
+        setSource(draft.source ?? "");
         track("Correction Open", { page: pathname });
         setOpen(true);
       }}>补充 / 纠错</button>
       {open ? createPortal(
-        <div className="correction-overlay" role="presentation" onPointerDown={(event) => {
+        <LocalizedContent>{<div className="correction-overlay" role="presentation" onPointerDown={(event) => {
           if (event.target === event.currentTarget) setOpen(false);
         }}>
           <section className="correction-modal" role="dialog" aria-modal="true" aria-labelledby={`${id}-heading`} aria-describedby={`${id}-description`} onKeyDown={handleDialogKeyDown}>
@@ -132,7 +140,7 @@ export function CorrectionDialog({ title, pathname }: { title: string; pathname:
                 {result.markdown ? <details className="draft-preview" open={Boolean(copyError)}><summary>查看草稿</summary><textarea readOnly value={result.markdown} rows={7} aria-label="纠错草稿，可选中后复制" /></details> : null}
                 <div className="success-actions">
                   <button type="button" className="text-button" onClick={() => {
-                    setResult(null); setContent(""); setSource(""); setCopied(false); setCopyError(""); setError("");
+                    clearDraft(); setResult(null); setContent(""); setSource(""); setCopied(false); setCopyError(""); setError("");
                   }}>再补充一条</button>
                   <button type="button" className="text-button" onClick={() => setOpen(false)}>完成</button>
                 </div>
@@ -141,12 +149,12 @@ export function CorrectionDialog({ title, pathname }: { title: string; pathname:
               <form className="submission-form correction-form" onSubmit={submit} aria-busy={loading}>
                 <label>
                   <span>修改内容 <small className="form-required">必填</small></span>
-                  <textarea ref={contentRef} name="content" rows={5} required maxLength={3000} value={content} onChange={(event) => setContent(event.target.value)} placeholder="哪里不准确？你建议改成什么？" aria-describedby={`${id}-content-help`} />
+                  <textarea ref={contentRef} name="content" rows={5} required maxLength={3000} value={content} onChange={(event) => { setContent(event.target.value); saveDraft({ content: event.target.value, source }); }} placeholder="哪里不准确？你建议改成什么？" aria-describedby={`${id}-content-help`} />
                   <small className="form-help" id={`${id}-content-help`}>可以补充出处、修正事实，或解释容易误解的语境。</small>
                 </label>
                 <label>
                   <span>参考来源</span>
-                  <input name="source" maxLength={1000} value={source} onChange={(event) => setSource(event.target.value)} placeholder="比赛、视频或帖子链接" aria-describedby={`${id}-source-help`} />
+                  <input name="source" maxLength={1000} value={source} onChange={(event) => { setSource(event.target.value); saveDraft({ content, source: event.target.value }); }} placeholder="比赛、视频或帖子链接" aria-describedby={`${id}-source-help`} />
                   <small className="form-help" id={`${id}-source-help`}>可选。直接出处能帮助维护者更快核实。</small>
                 </label>
                 <label className="form-honeypot" aria-hidden="true">请勿填写<input name="website" tabIndex={-1} autoComplete="off" /></label>
@@ -158,8 +166,8 @@ export function CorrectionDialog({ title, pathname }: { title: string; pathname:
               </form>
             )}
           </section>
-        </div>, document.body,
+        </div>}</LocalizedContent>, document.body,
       ) : null}
     </>
-  );
+  )}</LocalizedContent>;
 }

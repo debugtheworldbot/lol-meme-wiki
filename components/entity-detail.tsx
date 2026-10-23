@@ -1,4 +1,5 @@
-import Link from "next/link";
+import { LocalizedContent } from "@/components/localized-content";
+import Link from "@/components/locale-link";
 import { notFound } from "next/navigation";
 import { MDXRemote } from "next-mdx-remote/rsc";
 import { getEntity, getMemesForEntity } from "@/lib/content";
@@ -20,7 +21,7 @@ export function EntityDetail({ kind, slug }: { kind: Exclude<EntityKind, "meme">
   const memes = getMemesForEntity(kind, slug);
   const meta = config[kind];
 
-  return (
+  return <LocalizedContent>{(
     <article className="wiki-page wiki-detail-page">
       <JsonLd data={buildEntityJsonLd(kind, entry)} />
       <JsonLd
@@ -77,7 +78,7 @@ export function EntityDetail({ kind, slug }: { kind: Exclude<EntityKind, "meme">
             <section id="entity-background" className="wiki-detail-section" aria-labelledby="entity-background-title">
               <h2 id="entity-background-title" className="wiki-h">背景介绍</h2>
               <div className="wiki-prose">
-                <MDXRemote source={entry.body} />
+                <MDXRemote components={{ wrapper: LocalizedContent, a: Link }} source={entry.body} />
               </div>
             </section>
 
@@ -102,5 +103,5 @@ export function EntityDetail({ kind, slug }: { kind: Exclude<EntityKind, "meme">
         </div>
       </div>
     </article>
-  );
+  )}</LocalizedContent>;
 }

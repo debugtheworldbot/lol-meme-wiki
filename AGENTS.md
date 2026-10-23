@@ -19,7 +19,9 @@ Next.js 16 App Router + React 19 + MDX 的中文英雄联盟梗 Wiki。**内容�
 content/memes|players|teams|events/*.mdx   YAML front matter + MDX 正文
 lib/content.ts                             唯一读取层（fs + gray-matter + React cache）
 lib/types.ts                               MemeEntry / EntityEntry / SearchRecord
-app/                                       路由；detail 页 generateStaticParams 全量静态化
+app/(zh-cn)/                               简体页面；原有 URL 不变
+app/zh-tw/                                 繁体入口，复用简体页面及静态参数
+app/                                       API、sitemap、robots、简体分享图
 components/                                UI
 ```
 
@@ -33,6 +35,16 @@ components/                                UI
 - **`/api/submit` 三态降级**：有 `GITHUB_TOKEN` + repo → 建 Issue；只有 repo → 返回预填 Issue 链接；都没有 → 返回可复制的 markdown 草稿。含 honeypot 字段 `website`。纠错入口 `components/correction-dialog.tsx` 是站内弹层，走同款三态降级的 `/api/submit` 姊妹路由 `/api/correction`（标题 `[补充/纠错]`、label `内容纠错`），默认直接建 Issue，不跳 GitHub。
 - **SEO 分散在页面里**：每页自己的 `generateMetadata` + canonical，meme 页发 `DefinedTerm` JSON-LD、首页发 `WebSite` + SearchAction，`sitemap.ts` / `robots.ts` 从内容生成。加新路由记得补这几样。
 
+## 简繁 SEO（新增路由与内容时必读）
+
+完整规范维护在 [docs/i18n-seo.md](docs/i18n-seo.md)，不要另存一套规则。
+
+- 简体原 URL + 繁体 `/zh-tw/`，同一份 `content/` 和同一 slug；新增页面必须同步提供语言入口，新增词条自动双版生成。
+- 两版初始 HTML 都必须含完整可见正文；共享页面与组件使用 `LocalizedContent`，站内链接使用 `LocaleLink`。禁止恢复成按钮点击后才转换 DOM 的 SEO 方案。
+- 页面 metadata 走 `localizeMetadata`；canonical 指向当前语言自己，索引页互链 `zh-Hans` / `zh-Hant` / `x-default`。不得把繁体 canonical 指回简体。
+- 复用 `JsonLd` 和语言化分享图；`sitemap` 双语成对，保持同一内容日期。草稿不生成，noindex 实体与投稿页不进任何语言的 sitemap。
+- 修改路由、语言组件、metadata 或内容集合后，构建再跑 `npm run check:locale-seo`；浏览器验收禁用 JS 的繁体正文、跨语言链接、搜索、404 和手机布局。部署后抓取成功不等于已收录。
+
 ## 命令
 
 无测试框架，检查 = lint / typecheck / build。优先只跑和改动相关的那一项，不要默认全量 `build`。
@@ -43,6 +55,7 @@ npm run dev        # http://localhost:3000
 npm run lint       # eslint (flat config, eslint-config-next)
 npm run typecheck  # tsc --noEmit，TS strict
 npm run build      # 改路由、metadata、内容集合、生产配置时才跑
+npm run check:locale-seo # 构建后核验两版 HTML、SEO 和 sitemap
 ```
 
 改可见 UI 后要在浏览器里真正走完路径，不要只看截图。
@@ -62,7 +75,7 @@ npm run build      # 改路由、metadata、内容集合、生产配置时才跑
 - 必填：`title` / `slug` / `summary` / `players` / `teams` / `events` / `related` / `tags` / `sources`；可选 `aliases` / `first_seen` / `timeline` / `source_note` / `updated_at` / `featured` / `heat`。
 - 公开梗词条还必须填写 `collected_at: "YYYY-MM-DD"`（首次收录日期，日期带引号），供首页“最新收录”排序；历史日期按 Git 首次加入记录补齐。改旧文只更新 `updated_at`，不要改 `collected_at`；草稿首次公开时填写。`seo_title` 可选，用于定制搜索标题，不改页面标题或 slug。
 - 关联的实体 slug 必须已存在于 `content/players|teams|events/`，否则先补实体文件。不要写死展示名当外键。
-- 正文从 `##` 起（`#` 留给页面标题），惯用小节：`## 一句话看懂`、`## 为什么是 X`、`## 现在怎么用`。`MDXRemote` 没配自定义组件映射，写标准 markdown 即可。
+- 正文从 `##` 起（`#` 留给页面标题），惯用小节：`## 一句话看懂`、`## 为什么是 X`、`## 现在怎么用`。`MDXRemote` 的 `wrapper` / `a` 已映射为语言感知组件，写标准 markdown，不要对 MDX 源码整段简繁替换。
 - `tags` 是自由词表（现 75 个），沿用高频词：`游戏梗` `选手梗` `赛事梗` `英雄台词` `回旋镖` `数字梗` `技能梗` `谐音梗` `贴吧梗` `虎扑梗` `出圈梗` `黑称`，加年份 `2026` / 赛季 `S15`。首页会统计 `游戏梗` / `赛事梗` / `英雄台词` 三类计数，`/memes?tag=` 靠它筛选。
 - `heat` 用于目录“常见优先”和搜索推荐排序，不代表实时热度。`featured: true` 的公开词条进入首页精选池，每次进入首页随机展示一条；当前标签页用 `sessionStorage` 记录上一条，候选多于一条时避免连续重复。
 - `summary` 会被 `WikiLinkedText` 自动把关联实体的名字/别名（≥2 字）变成链接，第一句写清“是什么”。梗词条可用 `seo_description` 单独填写搜索描述（最多 160 字）；未填写时从 `summary` 截取，站内列表继续使用短摘要。专题同样支持独立搜索描述。
@@ -123,3 +136,13 @@ npm run build      # 改路由、metadata、内容集合、生产配置时才跑
 - 默认只 commit，**不 push、不改远程、不 force push、不改已推送历史**。用户明确要求再推。
 - 不要用 commit 当聊天记录，不要为“看起来勤快”拆成无意义碎提交。
 - 不要提交半截、编译失败或明知会炸的代码。
+
+<!-- BEGIN:nextjs-agent-rules -->
+
+# This is NOT the Next.js you know
+
+This version has breaking changes — APIs, conventions, and file structure may all differ from your training data. Read the relevant guide in `node_modules/next/dist/docs/` (resolved from this file's directory; in monorepos the `next` package may not be visible from the repo root) before writing any code. Heed deprecation notices.
+
+This block is written and re-added by `next dev` — verify at `node_modules/next/dist/server/lib/generate-agent-files.js`. Removing it from a diff only re-creates the uncommitted change; committing it with your work keeps the tree clean.
+
+<!-- END:nextjs-agent-rules -->

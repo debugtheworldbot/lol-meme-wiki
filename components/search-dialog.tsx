@@ -1,18 +1,23 @@
 "use client";
 
+import { LocalizedContent } from "@/components/localized-content";
+
 import { type KeyboardEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
 import { createPortal, flushSync } from "react-dom";
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { useRouter } from "next/navigation";
 import { Search, X } from "lucide-react";
 import { track } from "@/lib/analytics";
 import { loadClientSearchIndex, type ClientSearchIndex } from "@/lib/client-search-index";
 import type { SearchRecord } from "@/lib/types";
+import { useLocale } from "@/components/locale-provider";
+import { withLocalePath } from "@/lib/locale-path";
 
 const labels = { meme: "梗", player: "选手", team: "战队", event: "赛事" } as const;
 const PAGE_SIZE = 12;
 
 export function SearchDialog() {
+  const { locale } = useLocale();
   const [open, setOpen] = useState(false);
   const [query, setQuery] = useState("");
   const [activeIndex, setActiveIndex] = useState(-1);
@@ -149,7 +154,7 @@ export function SearchDialog() {
     flushSync(() => { setOpen(false); setQuery(""); setActiveIndex(-1); setVisibleCount(PAGE_SIZE); });
   }
 
-  return (
+  return <LocalizedContent>{(
     <>
       <button
         ref={triggerRef}
@@ -167,7 +172,7 @@ export function SearchDialog() {
         <kbd aria-hidden="true">⌘ K</kbd>
       </button>
       {open ? createPortal(
-        <div className="search-overlay" role="presentation" onPointerDown={(event) => {
+        <LocalizedContent>{<div className="search-overlay" role="presentation" onPointerDown={(event) => {
           if (event.target === event.currentTarget) setOpen(false);
         }}>
           <section className="search-modal" role="dialog" aria-modal="true" aria-labelledby={headingId} onKeyDown={trapTab}>
@@ -200,7 +205,7 @@ export function SearchDialog() {
                     event.preventDefault();
                     trackResult(activeResult, activeIndex + 1);
                     closeForNavigation();
-                    router.push(activeResult.href);
+                    router.push(withLocalePath(activeResult.href, locale));
                   }
                 }}
                 placeholder="搜梗名、选手、战队或赛事"
@@ -272,8 +277,8 @@ export function SearchDialog() {
             ) : null}
             <p className="search-hint" id={hintId}>↑ ↓ 选择结果 · Enter 打开 · Esc 关闭</p>
           </section>
-        </div>, document.body,
+        </div>}</LocalizedContent>, document.body,
       ) : null}
     </>
-  );
+  )}</LocalizedContent>;
 }

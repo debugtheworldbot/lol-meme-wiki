@@ -1,12 +1,17 @@
 "use client";
 
+import { LocalizedContent } from "@/components/localized-content";
+
 import { type FormEvent, useEffect, useId, useRef, useState } from "react";
 import { Check, Clipboard, ExternalLink, LoaderCircle } from "lucide-react";
 import { track } from "@/lib/analytics";
+import { useSessionDraft } from "@/lib/use-session-draft";
 
 type SubmitResult = { mode: "created" | "link" | "preview"; issueUrl?: string; markdown?: string };
 
 export function SubmissionForm() {
+  const formRef = useRef<HTMLFormElement>(null);
+  const { readDraft, saveDraft, clearDraft } = useSessionDraft("submission", "/submit");
   const nameRef = useRef<HTMLInputElement>(null);
   const resultHeadingRef = useRef<HTMLHeadingElement>(null);
   const wasResultRef = useRef(false);
@@ -18,9 +23,14 @@ export function SubmissionForm() {
   const id = useId();
 
   useEffect(() => {
+    const draft = readDraft();
+    for (const [name, value] of Object.entries(draft)) {
+      const field = formRef.current?.elements.namedItem(name);
+      if (field instanceof HTMLInputElement || field instanceof HTMLTextAreaElement || field instanceof HTMLSelectElement) field.value = value;
+    }
     const requestedName = new URLSearchParams(window.location.search).get("name");
-    if (requestedName && nameRef.current) nameRef.current.value = requestedName.slice(0, 80);
-  }, []);
+    if (!draft.name && requestedName && nameRef.current) nameRef.current.value = requestedName.slice(0, 80);
+  }, [readDraft]);
 
   useEffect(() => {
     if (result) {
@@ -50,6 +60,7 @@ export function SubmissionForm() {
       });
       const data = await response.json();
       if (!response.ok) throw new Error(data.error ?? "提交失败，请稍后重试。");
+      if (data.mode === "created") clearDraft();
       setResult(data);
       track("Meme Submission Success", { mode: data.mode });
     } catch (caught) {
@@ -72,7 +83,7 @@ export function SubmissionForm() {
   }
 
   if (result) {
-    return (
+    return <LocalizedContent>{(
       <div className="submission-success">
         {result.mode === "created" ? <span className="success-icon"><Check size={20} aria-hidden="true" /></span> : null}
         <h2 ref={resultHeadingRef} tabIndex={-1}>{result.mode === "created" ? "投稿已进入审核队列" : result.mode === "link" ? "还差一步，前往确认提交" : "投稿草稿已生成"}</h2>
@@ -84,13 +95,13 @@ export function SubmissionForm() {
         <p className="submission-status" role="status">{copied ? "草稿已复制到剪贴板。" : ""}</p>
         {copyError ? <p className="form-error" role="alert">{copyError}</p> : null}
         {result.markdown ? <details className="draft-preview" open={Boolean(copyError)}><summary>查看投稿草稿</summary><textarea readOnly value={result.markdown} rows={10} aria-label="投稿草稿，可选中后复制" /></details> : null}
-        <button type="button" className="text-button" onClick={() => { setResult(null); setCopied(false); setCopyError(""); }}>再提交一条</button>
+        <button type="button" className="text-button" onClick={() => { clearDraft(); setResult(null); setCopied(false); setCopyError(""); }}>再提交一条</button>
       </div>
-    );
+    )}</LocalizedContent>;
   }
 
-  return (
-    <form className="submission-form" onSubmit={submit} aria-busy={loading}>
+  return <LocalizedContent>{(
+    <form ref={formRef} className="submission-form" onSubmit={submit} onChange={(event) => saveDraft(Object.fromEntries(new FormData(event.currentTarget).entries()))} aria-busy={loading}>
       <p className="form-help">标注“必填”的两项需要填写，其余可以按你了解的情况补充。</p>
       <fieldset className="form-section">
         <legend>这个梗是什么</legend>
@@ -112,7 +123,7 @@ export function SubmissionForm() {
         <p className="form-help" id={`${id}-source-help`}>优先提供原始比赛、视频或帖子。暂时找不到也可以先提交线索。</p>
         <div className="form-row two-columns">
           <label><span>出处链接</span><input name="sourceUrl" type="url" maxLength={3000} placeholder="https://…" aria-describedby={`${id}-source-help`} autoCapitalize="off" spellCheck={false} /></label>
-          <label><span>来源类型</span><select name="sourceType" defaultValue="比赛"><option>比赛</option><option>视频</option><option>帖子</option><option>直播</option><option>其他</option></select></label>
+          <label><span>来源类型</span><select name="sourceType" defaultValue="比赛"><option value="比赛">比赛</option><option value="视频">视频</option><option value="帖子">帖子</option><option value="直播">直播</option><option value="其他">其他</option></select></label>
         </div>
       </fieldset>
       <fieldset className="form-section">
@@ -131,5 +142,5 @@ export function SubmissionForm() {
         <button type="submit" className="button-primary" disabled={loading}>{loading ? <LoaderCircle className="spin" size={18} aria-hidden="true" /> : null}{loading ? "正在提交…" : "提交新梗"}</button>
       </div>
     </form>
-  );
+  )}</LocalizedContent>;
 }

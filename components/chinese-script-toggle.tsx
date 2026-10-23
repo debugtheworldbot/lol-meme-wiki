@@ -1,55 +1,63 @@
 "use client";
 
-import { useEffect, useState, useSyncExternalStore } from "react";
-import { loadTraditionalConverter, type ChineseConverter } from "@/lib/chinese-converter";
-import { convertChineseDocument } from "@/lib/chinese-dom";
-import { getChineseScript, getServerChineseScript, setChineseScript, subscribeChineseScript } from "@/lib/chinese-script-preference";
+import { Suspense, useSyncExternalStore, type SyntheticEvent } from "react";
+import { usePathname, useSearchParams } from "next/navigation";
+import { useLocale } from "@/components/locale-provider";
+import { withLocalePath, type Locale } from "@/lib/locale-path";
 
-export function ChineseScriptToggle() {
-  const script = useSyncExternalStore(subscribeChineseScript, getChineseScript, getServerChineseScript);
-  const [converter, setConverter] = useState<ChineseConverter | null>(null);
-  const [error, setError] = useState(false);
-  const [attempt, setAttempt] = useState(0);
-  const traditional = script === "traditional" && converter !== null;
-  const loading = script === "traditional" && !converter && !error;
+function subscribeLocation(onChange: () => void) {
+  window.addEventListener("popstate", onChange);
+  window.addEventListener("hashchange", onChange);
+  return () => {
+    window.removeEventListener("popstate", onChange);
+    window.removeEventListener("hashchange", onChange);
+  };
+}
 
-  useEffect(() => {
-    if (script !== "traditional" || converter) return;
-    let active = true;
-    loadTraditionalConverter().then((convert) => {
-      if (active) { setConverter(() => convert); setError(false); }
-    }).catch(() => { if (active) setError(true); });
-    return () => { active = false; };
-  }, [script, converter, attempt]);
+function getHash() { return window.location.hash; }
+function getServerHash() { return ""; }
 
-  useEffect(() => {
-    if (!traditional || !converter) return;
-    const root = document.documentElement;
-    const originalLanguage = root.lang;
-    const restore = convertChineseDocument(root, converter);
-    root.lang = "zh-Hant";
-    return () => { restore(); root.lang = originalLanguage; };
-  }, [traditional, converter]);
+function ScriptLink({ pathname, locale, suffix = "" }: { pathname: string; locale: Locale; suffix?: string }) {
+  const traditional = locale === "zh-TW";
+  const targetLocale = traditional ? "zh-CN" : "zh-TW";
+  const label = traditional ? "切換為簡體中文" : "切换为繁体中文";
+  function syncDestination(event: SyntheticEvent<HTMLAnchorElement>) {
+    // 导航前再核对一次，覆盖查询提交与点击之间的极短时间窗口。
+    event.currentTarget.href = withLocalePath(window.location.pathname + window.location.search + window.location.hash, targetLocale);
+  }
 
-  const label = loading ? "正在加载繁体转换" : traditional ? "切換為簡體中文" : error ? "重新加载繁体转换" : "切换为繁体中文";
   return (
     <div className="script-switch" translate="no">
-      <button
-        type="button"
+      <a
         className="script-switch-button"
+        href={withLocalePath(`${pathname}${suffix}`, targetLocale)}
+        hrefLang={targetLocale}
+        lang={targetLocale}
         aria-label={label}
         title={label}
-        aria-pressed={traditional}
-        aria-busy={loading}
-        disabled={loading}
-        onClick={() => {
-          setError(false);
-          setAttempt((value) => value + 1);
-          setChineseScript(traditional ? "simplified" : "traditional");
-        }}
-      >{traditional ? "简" : "繁"}</button>
-      {error && script === "traditional" ? <span className="script-switch-error" role="alert">繁体暂不可用，点击“繁”重试。</span> : null}
-      <span className="sr-only" role="status">{traditional ? "已切換為繁體中文" : loading ? "正在加载繁体转换" : "当前为简体中文"}</span>
+        data-traditional={traditional ? "true" : "false"}
+        onClick={syncDestination}
+        onAuxClick={syncDestination}
+        onContextMenu={syncDestination}
+      >{traditional ? "简" : "繁"}</a>
     </div>
+  );
+}
+
+function QueryAwareScriptLink({ pathname, locale }: { pathname: string; locale: Locale }) {
+  const searchParams = useSearchParams();
+  const hash = useSyncExternalStore(subscribeLocation, getHash, getServerHash);
+  const query = searchParams.toString();
+  return <ScriptLink pathname={pathname} locale={locale} suffix={`${query ? `?${query}` : ""}${hash}`} />;
+}
+
+export function ChineseScriptToggle() {
+  const pathname = usePathname();
+  const { locale } = useLocale();
+  // 只延后查询相关的控件；正文及可抓取的语言链接仍在初始 HTML 中。
+  return (
+    <Suspense fallback={<ScriptLink pathname={pathname} locale={locale} />}>
+      <QueryAwareScriptLink pathname={pathname} locale={locale} />
+    </Suspense>
   );
 }

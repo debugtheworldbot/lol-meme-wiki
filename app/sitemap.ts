@@ -3,6 +3,7 @@ import { getEvents, getMemes, getPlayers, getTeams, getTopicGuide } from "@/lib/
 import { getContentLastModified } from "@/lib/seo";
 import { siteConfig } from "@/lib/site";
 import { getMemesForTopic, topicDefinitions } from "@/lib/topics";
+import { localeAlternates, withLocalePath } from "@/lib/locale-path";
 
 export default function sitemap(): MetadataRoute.Sitemap {
   const base = siteConfig.url;
@@ -33,5 +34,13 @@ export default function sitemap(): MetadataRoute.Sitemap {
   const entities = ([
     ["player", getPlayers()], ["team", getTeams()], ["event", getEvents()],
   ] as const).flatMap(([kind, entries]) => entries.filter((entry) => entry.indexable === true).map((entry) => ({ url: `${base}/${kind}/${entry.slug}`, lastModified: entry.updated_at, changeFrequency: "monthly" as const, priority: 0.65 })));
-  return [...staticRoutes, ...topics, ...memes, ...entities];
+  return [...staticRoutes, ...topics, ...memes, ...entities].flatMap((entry) => {
+    const path = new URL(entry.url).pathname;
+    const languages = Object.fromEntries(Object.entries(localeAlternates(path)).map(([lang, href]) => [lang, `${base}${href}`]));
+    return (["zh-CN", "zh-TW"] as const).map((locale) => ({
+      ...entry,
+      url: `${base}${withLocalePath(path, locale)}`,
+      alternates: { languages },
+    }));
+  });
 }

@@ -1,9 +1,10 @@
-import Link from "next/link";
+import { LocalizedContent } from "@/components/localized-content";
+import Link from "@/components/locale-link";
 import Image from "next/image";
 import { siteConfig } from "@/lib/site";
 
 export function SiteFooter() {
-  return (
+  return <LocalizedContent>{(
     <footer className="site-footer">
       <div className="page-shell footer-grid">
         <div>
@@ -21,5 +22,5 @@ export function SiteFooter() {
         <p className="footer-note">非 Riot Games 官方产品，亦未获得 Riot Games 认可。所有相关商标归其各自所有者。</p>
       </div>
     </footer>
-  );
+  )}</LocalizedContent>;
 }

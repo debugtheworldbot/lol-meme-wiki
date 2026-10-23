@@ -9,6 +9,7 @@
     "lint": "eslint .",
     "typecheck": "tsc --noEmit",
     "check:content": "node scripts/check-content.mjs",
+    "check:locale-seo": "node scripts/check-locale-seo.mjs",
     "push:indexnow": "node scripts/indexnow-push.mjs"
   },
   "dependencies": {

@@ -1,6 +1,8 @@
 "use client";
 
-import Link from "next/link";
+import { LocalizedContent } from "@/components/localized-content";
+
+import Link from "@/components/locale-link";
 import { useRef, useState } from "react";
 import type { HomeMemeListItem } from "@/lib/types";
 
@@ -17,7 +19,7 @@ export function HomeMemeList({ latest, chronological }: { latest: HomeMemeListIt
   const selected = modes.find((item) => item.id === mode)!;
   const memes = mode === "latest" ? latest : chronological;
 
-  return (
+  return <LocalizedContent>{(
     <section className="homepage-feed" aria-label="浏览梗词条">
       <div className="homepage-feed-heading">
         <div className="homepage-tabs" role="tablist" aria-label="词条排序">
@@ -70,5 +72,5 @@ export function HomeMemeList({ latest, chronological }: { latest: HomeMemeListIt
         <Link className="homepage-browse" href="/memes">去梗目录继续看</Link>
       </div>
     </section>
-  );
+  )}</LocalizedContent>;
 }

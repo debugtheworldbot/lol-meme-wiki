@@ -1,10 +1,11 @@
-import Link from "next/link";
+import { LocalizedContent } from "@/components/localized-content";
+import Link from "@/components/locale-link";
 import Image from "next/image";
 import { SearchDialog } from "@/components/search-dialog";
 import { SiteNav } from "@/components/site-nav";
 
 export function SiteHeader() {
-  return (
+  return <LocalizedContent>{(
     <header className="site-header">
       <div className="page-shell header-inner">
         <Link href="/" className="brand" aria-label="研发.lol 英雄联盟梗百科 首页">
@@ -21,5 +22,5 @@ export function SiteHeader() {
         </div>
       </div>
     </header>
-  );
+  )}</LocalizedContent>;
 }

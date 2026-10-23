@@ -1,5 +1,7 @@
 "use client";
 
+import { LocalizedContent } from "@/components/localized-content";
+
 import type { Source } from "@/lib/types";
 import { track } from "@/lib/analytics";
 
@@ -20,7 +22,7 @@ export function TrackedSourceLink({
   position: number;
   source: Source & { url: string };
 }) {
-  return (
+  return <LocalizedContent>{(
     <a
       href={source.url}
       target="_blank"
@@ -36,5 +38,5 @@ export function TrackedSourceLink({
     >
       {source.title}
     </a>
-  );
+  )}</LocalizedContent>;
 }

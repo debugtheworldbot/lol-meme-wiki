@@ -14,12 +14,13 @@
 import { execFileSync } from "node:child_process";
 import { readdirSync, readFileSync } from "node:fs";
 import { basename, extname, join } from "node:path";
+import matter from "gray-matter";
 
 const ENDPOINT = "https://api.indexnow.org/indexnow";
 const PUBLIC_DIR = "public";
 const BATCH = 10000; // IndexNow 单请求 URL 上限
 // content/ 的目录名 → 路由前缀。和 app/sitemap.ts 的单数路径保持一致。
-const CONTENT_ROUTES = { memes: "meme", players: "player", teams: "team", events: "event" };
+const CONTENT_ROUTES = { memes: "meme", players: "player", teams: "team", events: "event", guides: "topics" };
 const VERIFY_TIMEOUT_MS = 180000;
 const VERIFY_INTERVAL_MS = 10000;
 
@@ -83,8 +84,11 @@ function changedContentPaths(range) {
   for (const line of out.split("\n").map((l) => l.trim()).filter(Boolean)) {
     const match = line.match(/^content\/([^/]+)\/(.+)\.mdx$/);
     const route = match && CONTENT_ROUTES[match[1]];
-    if (route) paths.push(`/${route}/${match[2]}`);
-    else skipped.push(line);
+    if (!route) { skipped.push(line); continue; }
+    const { data } = matter(readFileSync(line, "utf8"));
+    if (data.draft === true || (["players", "teams", "events"].includes(match[1]) && data.indexable !== true)) continue;
+    const path = `/${route}/${match[2]}`;
+    paths.push(path, `/zh-tw${path}`);
   }
   if (skipped.length > 0) console.log(`跳过 ${skipped.length} 个无法映射成路由的文件：${skipped.slice(0, 3).join(", ")}`);
   return paths;

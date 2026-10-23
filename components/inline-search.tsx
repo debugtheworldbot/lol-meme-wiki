@@ -1,13 +1,17 @@
 "use client";
 
+import { LocalizedContent } from "@/components/localized-content";
+
 import { type FormEvent, type KeyboardEvent, useCallback, useEffect, useId, useMemo, useRef, useState } from "react";
-import Link from "next/link";
+import Link from "@/components/locale-link";
 import { useRouter } from "next/navigation";
 import { Search } from "lucide-react";
 import { track } from "@/lib/analytics";
 import { loadClientSearchIndex, type ClientSearchIndex } from "@/lib/client-search-index";
 import type { SearchRecord } from "@/lib/types";
 import styles from "./inline-search.module.css";
+import { useLocale } from "@/components/locale-provider";
+import { withLocalePath } from "@/lib/locale-path";
 
 const PREVIEW_LIMIT = 5;
 const PAGE_SIZE = 12;
@@ -19,6 +23,7 @@ const typeLabels: Record<SearchRecord["type"], string> = {
 };
 
 export function InlineSearch() {
+  const { locale } = useLocale();
   const [query, setQuery] = useState("");
   const [open, setOpen] = useState(false);
   const [expanded, setExpanded] = useState(false);
@@ -139,11 +144,11 @@ export function InlineSearch() {
         result: activeResult.title,
         type: activeResult.type,
       });
-      router.push(activeResult.href);
+      router.push(withLocalePath(activeResult.href, locale));
     }
   }
 
-  return (
+  return <LocalizedContent>{(
     <div
       ref={containerRef}
       className={`home-search-wrap ${styles.wrapper}`}
@@ -263,5 +268,5 @@ export function InlineSearch() {
         </div>
       ) : null}
     </div>
-  );
+  )}</LocalizedContent>;
 }

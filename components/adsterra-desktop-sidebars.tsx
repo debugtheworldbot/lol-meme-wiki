@@ -1,5 +1,7 @@
 "use client";
 
+import { LocalizedContent } from "@/components/localized-content";
+
 import { useEffect, useRef, useState, useSyncExternalStore } from "react";
 
 const DESKTOP_QUERY = "(min-width: 1280px)";
@@ -26,7 +28,7 @@ function DesktopBanner({ side, adKey, height }: typeof placements[number]) {
 <script src="https://bauval.org/22/${adKey}"></script>
 </body></html>`;
 
-  return (
+  return <LocalizedContent>{(
     <aside className={`wiki-desktop-ad wiki-desktop-ad-${side}`} aria-label={`${side === "left" ? "左" : "右"}侧广告`} data-ready={ready}>
       <div className="wiki-desktop-ad-sticky">
         <p className="wiki-advertisement-label">广告</p>
@@ -53,7 +55,7 @@ function DesktopBanner({ side, adKey, height }: typeof placements[number]) {
         />
       </div>
     </aside>
-  );
+  )}</LocalizedContent>;
 }
 
 export function AdsterraDesktopSidebars() {
@@ -65,9 +67,9 @@ export function AdsterraDesktopSidebars() {
 
   if (!isDesktop) return null;
 
-  return (
+  return <LocalizedContent>{(
     <>
       {placements.map((placement) => <DesktopBanner key={placement.side} {...placement} />)}
     </>
-  );
+  )}</LocalizedContent>;
 }

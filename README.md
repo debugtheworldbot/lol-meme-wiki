@@ -19,8 +19,11 @@ npm run dev
 - MDX + YAML Front Matter 内容存储
 - 梗来源、演变时间线、相关梗和纠错入口
 - GitHub Issues 投稿 API，并在未配置令牌时生成可复制草稿
-- 自动 metadata、canonical、OpenGraph、JSON-LD、sitemap 和 robots
+- 简体原路径与 `/zh-tw/` 繁体静态页面，语言切换与简繁搜索
+- 双语 metadata、canonical、hreflang、OpenGraph、JSON-LD、sitemap 和 robots
 - Vercel Analytics 与 Umami 双埋点
+
+简繁路由、内容、元数据与上线验收要求见 [简繁 SEO 维护规范](docs/i18n-seo.md)。
 
 ## 生产环境配置
 
@@ -90,6 +93,7 @@ npm run lint
 npm run typecheck
 npm run check:content
 npm run build
+npm run check:locale-seo
 ```
 
 `build` 会先运行内容校验，阻止无具体来源、搜索结果链接、失效外键及指向待考证稿件的正文链接进入构建。它只检查结构，不检查远程可访问性、原创性或事实准确性。

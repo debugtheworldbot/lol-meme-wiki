@@ -1,5 +1,7 @@
 "use client";
 
+import { LocalizedContent } from "@/components/localized-content";
+
 import { ChevronDown } from "lucide-react";
 import { ReactNode, useId, useState } from "react";
 
@@ -17,7 +19,7 @@ export function MemeInfobox({
   const [open, setOpen] = useState(false);
   const contentId = useId();
 
-  return (
+  return <LocalizedContent>{(
     <aside className="wiki-infobox meme-infobox" aria-label={`${title}的${label}`} data-open={open ? "true" : "false"}>
       <h2 className="wiki-infobox-title">{label}</h2>
       <div className="meme-infobox-mobile-head">
@@ -40,5 +42,5 @@ export function MemeInfobox({
         {children}
       </div>
     </aside>
-  );
+  )}</LocalizedContent>;
 }

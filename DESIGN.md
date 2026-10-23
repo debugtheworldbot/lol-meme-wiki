@@ -58,14 +58,14 @@
 
 | 场景 | 内容结构与约定 | 首选实现 |
 | --- | --- | --- |
-| 首页 | 搜索与例词 → 六条阅读列表 → 精选、专题与选手 → 投稿入口；两个排序标签共用列表 | [首页](app/page.tsx)、[HomeMemeList](components/home-meme-lists.tsx)、[FeaturedMeme](components/featured-meme.tsx) |
+| 首页 | 搜索与例词 → 六条阅读列表 → 精选、专题与选手 → 投稿入口；两个排序标签共用列表 | [首页](app/(zh-cn)/page.tsx)、[HomeMemeList](components/home-meme-lists.tsx)、[FeaturedMeme](components/featured-meme.tsx) |
 | 梗目录 | 面包屑、标题、分类导航、检索／筛选、结果数、自然高度列表；空结果有清除与投稿入口 | [MemeExplorer](components/meme-explorer.tsx)、[DirectoryNavigation](components/entity-directory.tsx) |
-| 实体目录／专题 | 按内容需要使用列表与导读；专题导读可直达相关词条。按选手聚合的专题不能冒充同名 tag 筛选 | [EntityDirectory](components/entity-directory.tsx)、[专题目录](app/topics/page.tsx)、[专题详情](app/topics/[slug]/page.tsx) |
-| 梗与实体详情 | 面包屑和纠错 → 标题与日期 → 摘要 → 资料与正文 → 来源／相关梗；桌面资料在右侧 | [词条页](app/meme/[slug]/page.tsx)、[MemeArticle](components/meme-article.tsx)、[MemeInfobox](components/meme-infobox.tsx)、[EntityDetail](components/entity-detail.tsx) |
+| 实体目录／专题 | 按内容需要使用列表与导读；专题导读可直达相关词条。按选手聚合的专题不能冒充同名 tag 筛选 | [EntityDirectory](components/entity-directory.tsx)、[专题目录](app/(zh-cn)/topics/page.tsx)、[专题详情](app/(zh-cn)/topics/[slug]/page.tsx) |
+| 梗与实体详情 | 面包屑和纠错 → 标题与日期 → 摘要 → 资料与正文 → 来源／相关梗；桌面资料在右侧 | [词条页](app/(zh-cn)/meme/[slug]/page.tsx)、[MemeArticle](components/meme-article.tsx)、[MemeInfobox](components/meme-infobox.tsx)、[EntityDetail](components/entity-detail.tsx) |
 | 说明页 | 文档正文、桌面页内目录、相关说明链接 | [InfoPage](components/info-page.tsx) |
 | 投稿／纠错 | 可见字段标签、必填说明、就近帮助、结果状态；投稿表单为主，说明为辅 | [SubmissionForm](components/submission-form.tsx)、[CorrectionDialog](components/correction-dialog.tsx) |
 | 全站导航／搜索 | 固定的栏目名称与当前页状态，页面间共用搜索和页脚 | [SiteHeader](components/site-header.tsx)、[SiteNav](components/site-nav.tsx)、[SiteFooter](components/site-footer.tsx)、[SearchDialog](components/search-dialog.tsx) |
-| 404／加载 | 有意义的恢复入口或骨架，保持同一阅读宽度与色彩；整页骨架仅用于投稿页，可索引阅读页直接输出正文 | [404](app/not-found.tsx)、[投稿加载页](app/submit/loading.tsx)、[InlineSearch](components/inline-search.tsx) |
+| 404／加载 | 有意义的恢复入口或骨架，保持同一阅读宽度与色彩；整页骨架仅用于投稿页，可索引阅读页直接输出正文 | [404](app/(zh-cn)/not-found.tsx)、[投稿加载页](app/(zh-cn)/submit/loading.tsx)、[InlineSearch](components/inline-search.tsx) |
 | 分享图 | 1200×630，暖白底、朱红中文分类、深色标题、细分隔线；字号随标题长度调整 | [OgCard](components/og-card.tsx) |
 
 通用页面沿用 `wiki-page`、`wiki-shell`、`wiki-crumb`、`wiki-head`；文档用 `wiki-prose`，列表用 `entry-list`。保留标准 `ul` 圆点、`ol` 编号和参考来源编号，避免 Tailwind 基础重置吞掉列表标记。新页面仅在现有结构无法表达需求时增加语义类或组件。
@@ -76,7 +76,7 @@
 
 - 主要独立操作至少 44px 高；站内跳转使用链接，状态变化使用按钮。保留跳到正文和 2px 可见焦点，不用移除 outline 来“清理界面”。
 - 当前导航用 `aria-current`；筛选／排序用 `aria-pressed`；页内标签用 `aria-selected` 并支持方向键、Home/End；资料折叠同步 `aria-expanded`。
-- 主导航末尾提供“繁／简”阅读切换，记住选择，覆盖正文、动态搜索结果、弹层和提示文字。默认输出简体静态 HTML，繁体词库按需加载；切回时恢复原文。保留 URL、代码、表单输入和 `translate="no"` 内容，简繁输入均可搜索；这不是独立的繁体 SEO 站点。
+- 主导航末尾提供“繁／简”语言链接，跳转到同一页面的另一语言 URL，并保留查询条件与锚点。简体使用原路径，繁体使用 `/zh-tw/`；URL 决定语言，不按浏览器偏好自动跳转。两版正文、导航和动态状态均在 React 渲染时转换，不在 hydration 后改 DOM；保留代码、表单输入和 `translate="no"` 内容。具体 SEO 维护规则见 [简繁 SEO 规范](docs/i18n-seo.md)。
 - 本页导航指向实际存在的章节。锚点避开顶栏，用现有 `scroll-padding-top`，不再叠加同等 `scroll-margin-top`。窄屏无吸顶时沿用较小偏移。
 - 动效只解释状态变化；复用短过渡并遵守 `prefers-reduced-motion`，不加循环装饰动画。
 

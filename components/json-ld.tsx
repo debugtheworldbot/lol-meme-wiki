@@ -1,3 +1,6 @@
+import { LocalizedJsonLd } from "@/components/localized-json-ld";
+import { siteConfig } from "@/lib/site";
+
 export function JsonLd({ data }: { data: object }) {
-  return <script type="application/ld+json" dangerouslySetInnerHTML={{ __html: JSON.stringify(data) }} />;
+  return <LocalizedJsonLd data={data} siteUrl={siteConfig.url} />;
 }
