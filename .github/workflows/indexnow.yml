@@ -36,6 +36,9 @@ jobs:
         with:
           node-version: "22"
 
+      - name: 安装脚本依赖
+        run: npm ci --omit=dev --ignore-scripts --no-audit --no-fund
+
       # --verify 会轮询等 URL 真的返回 200，所以不用猜 Vercel 部署要多久：
       # 部署没生效前一直等，最多 3 分钟，没等到的跳过而不是推个 404 给 Bing。
       - name: 推送
