@@ -41,6 +41,12 @@ button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
 .main-nav a { display: inline-flex; align-items: center; min-height: 44px; color: #404448; font-size: 15px; }
 .main-nav a:hover { color: #a43829; text-decoration: underline; text-underline-offset: 5px; }
 .main-nav a[aria-current] { color: var(--accent); text-decoration: underline; text-decoration-thickness: 2px; text-underline-offset: 7px; }
+.script-switch { position: relative; display: inline-flex; margin-inline-start: auto; }
+.script-switch-button { display: inline-flex; align-items: center; justify-content: center; width: 44px; min-height: 44px; padding: 0; border: 1px solid var(--border); border-radius: 4px; background: transparent; color: var(--text-muted); }
+.script-switch-button:hover, .script-switch-button[aria-pressed="true"] { border-color: var(--accent); color: var(--accent); }
+.script-switch-button[aria-pressed="true"] { background: var(--surface-muted); font-weight: 600; }
+.script-switch-button:disabled { opacity: .6; }
+.script-switch-error { position: absolute; top: calc(100% + 8px); right: 0; z-index: 1; width: 210px; padding: 10px 12px; border: 1px solid var(--border); border-radius: 4px; background: var(--surface); color: var(--text); font-size: .875rem; }
 .header-actions { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
 .search-trigger { min-height: 44px; display: flex; align-items: center; gap: 8px; border: 1px solid #d8d4cc; border-radius: 4px; background: transparent; padding: 0 12px; cursor: pointer; color: #54595d; font-size: 14px; }
 .search-trigger:hover { border-color: #72777d; color: #202122; }
@@ -508,7 +514,7 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 1
   .header-inner { column-gap: 12px; }
   .brand { font-size: 17px; gap: 8px; }
   .brand-mark { width: 32px; height: 32px; }
-  .main-nav { gap: 24px; min-height: 48px; }
+  .main-nav { gap: 0 12px; min-height: 48px; }
   .homepage-intro { padding-block: 24px 28px; }
   .homepage h1 { font-size: 1.75rem; line-height: 1.45; }
   .homepage-description { margin-block: 10px 20px; }

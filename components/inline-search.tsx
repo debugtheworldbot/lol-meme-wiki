@@ -59,7 +59,7 @@ export function InlineSearch() {
   }, [index]);
 
   const results = useMemo(() => trimmedQuery
-    ? (index?.fuse.search(trimmedQuery).map((item) => item.item) ?? [])
+    ? (index?.fuse.search(index.normalizeQuery(trimmedQuery)).map((item) => item.item) ?? [])
     : [], [index, trimmedQuery]);
   const visibleResults = results.slice(0, expanded ? visibleCount : PREVIEW_LIMIT);
   const showPanel = open && Boolean(trimmedQuery);
@@ -108,7 +108,7 @@ export function InlineSearch() {
     setActiveIndex(-1);
     const loadedIndex = await ensureSearchIndex();
     if (!loadedIndex) return;
-    const count = loadedIndex.fuse.search(trimmedQuery).length;
+    const count = loadedIndex.fuse.search(loadedIndex.normalizeQuery(trimmedQuery)).length;
     track(count ? "Homepage Search" : "Homepage Search No Results", {
       query: trimmedQuery,
       result_count: count,

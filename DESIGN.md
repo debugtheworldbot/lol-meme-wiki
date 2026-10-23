@@ -76,6 +76,7 @@
 
 - 主要独立操作至少 44px 高；站内跳转使用链接，状态变化使用按钮。保留跳到正文和 2px 可见焦点，不用移除 outline 来“清理界面”。
 - 当前导航用 `aria-current`；筛选／排序用 `aria-pressed`；页内标签用 `aria-selected` 并支持方向键、Home/End；资料折叠同步 `aria-expanded`。
+- 主导航末尾提供“繁／简”阅读切换，记住选择，覆盖正文、动态搜索结果、弹层和提示文字。默认输出简体静态 HTML，繁体词库按需加载；切回时恢复原文。保留 URL、代码、表单输入和 `translate="no"` 内容，简繁输入均可搜索；这不是独立的繁体 SEO 站点。
 - 本页导航指向实际存在的章节。锚点避开顶栏，用现有 `scroll-padding-top`，不再叠加同等 `scroll-margin-top`。窄屏无吸顶时沿用较小偏移。
 - 动效只解释状态变化；复用短过渡并遵守 `prefers-reduced-motion`，不加循环装饰动画。
 

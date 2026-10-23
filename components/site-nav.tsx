@@ -2,6 +2,7 @@
 
 import Link from "next/link";
 import { usePathname } from "next/navigation";
+import { ChineseScriptToggle } from "@/components/chinese-script-toggle";
 
 const items = [
   { label: "梗目录", href: "/memes", detail: "/meme/" },
@@ -20,6 +21,7 @@ export function SiteNav() {
           {item.label}
         </Link>
       ))}
+      <ChineseScriptToggle />
     </nav>
   );
 }

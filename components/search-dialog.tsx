@@ -56,7 +56,7 @@ export function SearchDialog() {
   }, [index]);
 
   const results = useMemo(() => trimmedQuery
-    ? (index?.fuse.search(trimmedQuery).map((result) => result.item) ?? [])
+    ? (index?.fuse.search(index.normalizeQuery(trimmedQuery)).map((result) => result.item) ?? [])
     : (index?.records ?? []).filter((record) => record.type === "meme")
       .sort((a, b) => (b.heat ?? 0) - (a.heat ?? 0)).slice(0, 6), [index, trimmedQuery]);
   const visibleResults = results.slice(0, visibleCount);

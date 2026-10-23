@@ -7,6 +7,7 @@ import { Search } from "lucide-react";
 import { useRouter } from "next/navigation";
 import { track } from "@/lib/analytics";
 import type { MemeListItem } from "@/lib/types";
+import { loadSimplifiedConverter, type ChineseConverter } from "@/lib/chinese-converter";
 
 const DEFAULT_TAG = "全部";
 const QUERY_MAX = 80;
@@ -20,6 +21,20 @@ export function MemeExplorer({ memes, canonicalTags }: { memes: MemeListItem[]; 
   const [query, setQuery] = useState("");
   const [tag, setTag] = useState(DEFAULT_TAG);
   const [sort, setSort] = useState<Sort>("hot");
+  const [searchConverter, setSearchConverter] = useState<ChineseConverter | null>(null);
+  const [conversionError, setConversionError] = useState(false);
+  const [conversionAttempt, setConversionAttempt] = useState(0);
+  const hasQuery = Boolean(query);
+  const preparingSearch = hasQuery && !searchConverter && !conversionError;
+
+  useEffect(() => {
+    if (!hasQuery || searchConverter) return;
+    let active = true;
+    loadSimplifiedConverter().then((convert) => {
+      if (active) { setSearchConverter(() => convert); setConversionError(false); }
+    }).catch(() => { if (active) setConversionError(true); });
+    return () => { active = false; };
+  }, [hasQuery, searchConverter, conversionAttempt]);
 
   useEffect(() => {
     function syncFromLocation() {
@@ -47,8 +62,16 @@ export function MemeExplorer({ memes, canonicalTags }: { memes: MemeListItem[]; 
     }
     return chips;
   }, [canonicalTags, tag]);
-  const fuse = useMemo(() => new Fuse(memes, { keys: ["title", "aliases", "summary", "tags", "keywords"], threshold: 0.35 }), [memes]);
-  const searched = query ? fuse.search(query).map((result) => result.item) : ordered;
+  const fuse = useMemo(() => new Fuse(memes, {
+    keys: ["title", "aliases", "summary", "tags", "keywords"],
+    threshold: 0.35,
+    getFn: (record, path) => {
+      const value = Fuse.config.getFn(record, path);
+      if (!searchConverter) return value;
+      return typeof value === "string" ? searchConverter(value) : value.map(searchConverter);
+    },
+  }), [memes, searchConverter]);
+  const searched = query ? fuse.search(searchConverter ? searchConverter(query) : query).map((result) => result.item) : ordered;
   const visible = tag === DEFAULT_TAG ? searched : searched.filter((meme) => meme.tags.includes(tag));
   const hasFilters = Boolean(query) || tag !== DEFAULT_TAG;
 
@@ -108,14 +131,15 @@ export function MemeExplorer({ memes, canonicalTags }: { memes: MemeListItem[]; 
       </div>
       <div className="directory-results-summary">
         <p role="status" aria-live="polite">
-          {hasFilters ? `找到 ${visible.length} 条，共 ${memes.length} 条` : `共 ${memes.length} 条词条`}
+          {preparingSearch ? "正在准备简繁搜索…" : hasFilters ? `找到 ${visible.length} 条，共 ${memes.length} 条` : `共 ${memes.length} 条词条`}
           {tag !== DEFAULT_TAG ? <span> · {tag}</span> : null}
           {query ? <span> · “{query}”</span> : null}
         </p>
         {hasFilters ? <button type="button" onClick={clearFilters}>清除筛选</button> : null}
       </div>
       {query ? <p className="directory-sort-note">搜索结果按相关程度排列；清除关键词后恢复所选排序。</p> : null}
-      {visible.length ? (
+      {conversionError && query ? <p className="directory-sort-note" role="alert">简繁搜索暂不可用，当前按原文匹配。<button className="text-button" type="button" onClick={() => { setConversionError(false); setConversionAttempt((value) => value + 1); }}>重新加载</button></p> : null}
+      {preparingSearch ? null : visible.length ? (
         <ul className="entry-list" aria-label="梗词条列表">
           {visible.map((meme) => (
             <li key={meme.slug}>
