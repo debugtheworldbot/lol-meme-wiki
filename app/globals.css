@@ -427,6 +427,7 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 1
 .homepage-intro { padding-block: 40px 32px; }
 .homepage-intro-heading { display: flex; flex-wrap: wrap; align-items: baseline; justify-content: space-between; gap: 8px 24px; }
 .homepage h1 { margin: 0; font: 650 2.125rem/1.4 var(--sans); letter-spacing: -.025em; text-wrap: balance; }
+.homepage h1 > span { display: inline-block; }
 .homepage-count { color: var(--home-muted); font-size: .875rem; white-space: nowrap; }
 .homepage-description { margin: 10px 0 24px; color: var(--home-muted); }
 .homepage-search-foot { display: flex; flex-wrap: wrap; align-items: center; justify-content: space-between; gap: 0 16px; margin-top: 6px; }

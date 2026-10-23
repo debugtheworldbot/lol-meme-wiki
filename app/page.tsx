@@ -71,7 +71,7 @@ export default function HomePage() {
       <div className="homepage-shell">
         <section className="homepage-intro" aria-labelledby="home-title">
           <div className="homepage-intro-heading">
-            <h1 id="home-title">英雄联盟的梗，查个明白。</h1>
+            <h1 id="home-title"><span>英雄联盟梗百科，</span><span>查个明白。</span></h1>
             <Link className="homepage-count" href="/memes">已收录 {memes.length} 条</Link>
           </div>
           <p className="homepage-description">选手外号、赛场名场面、弹幕里的半句话。查含义，也找出处。</p>

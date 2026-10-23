@@ -8,7 +8,7 @@ import "./globals.css";
 
 export const metadata: Metadata = {
   metadataBase: new URL(siteConfig.url),
-  title: { default: `${siteConfig.name}｜英雄联盟梗文化档案`, template: `%s｜${siteConfig.name}` },
+  title: { default: `英雄联盟梗百科：选手外号与名场面｜${siteConfig.name}`, template: `%s｜${siteConfig.name}` },
   description: siteConfig.description,
   keywords: ["英雄联盟梗", "LOL梗", "LPL梗", "电竞梗", "梗百科", "LOL Wiki"],
   alternates: { canonical: "/" },
@@ -16,7 +16,7 @@ export const metadata: Metadata = {
     type: "website",
     locale: "zh_CN",
     siteName: siteConfig.name,
-    title: `${siteConfig.name}｜英雄联盟梗文化档案`,
+    title: `英雄联盟梗百科：选手外号与名场面｜${siteConfig.name}`,
     description: siteConfig.description,
     url: "/",
   },
