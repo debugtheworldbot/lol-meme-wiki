@@ -52,6 +52,15 @@ button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
 .submit-mini { min-height: 44px; display: inline-flex; align-items: center; justify-content: center; border: 1px solid #a43829; border-radius: 4px; background: transparent; color: #a43829; padding: 0 14px; font-size: 14px; font-weight: 600; white-space: nowrap; }
 .submit-mini:hover { background: #f5ece7; }
 
+.community-banner { border-bottom: 1px solid var(--border-soft); background: var(--surface-muted); }
+.community-banner-inner { display: flex; align-items: center; justify-content: space-between; gap: 12px; padding-block: 10px; }
+.community-banner-copy { display: flex; align-items: center; gap: 10px; margin: 0; font-size: .875rem; }
+.community-banner-copy svg { flex: none; color: var(--accent); }
+.community-banner-copy strong { color: var(--text); font-weight: 600; white-space: nowrap; }
+.community-banner-copy span { color: var(--text-muted); }
+.community-banner-button { display: inline-flex; align-items: center; justify-content: center; flex: none; min-height: 44px; padding: 0 14px; border: 1px solid var(--accent); border-radius: 4px; background: var(--accent); color: var(--surface); font-size: .875rem; font-weight: 600; white-space: nowrap; }
+.community-banner-button:hover { border-color: var(--accent-hover); background: var(--accent-hover); }
+
 .site-footer { border-top: 1px solid #d8d4cc; background: #f4f1eb; color: #54595d; }
 .footer-grid { width: min(1120px, calc(100% - 48px)); display: grid; grid-template-columns: minmax(240px, 1fr) auto; align-items: start; gap: 18px 40px; padding-block: 32px; }
 .footer-logo { display: flex; align-items: center; gap: 10px; margin: 0 0 8px; color: #202122; }
@@ -397,6 +406,9 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 1
   .search-trigger span, .search-trigger kbd { display: none; }
   .search-trigger { width: 44px; padding: 0; justify-content: center; }
   .submit-mini { padding-inline: 10px; }
+  .community-banner-copy span { display: none; }
+  .community-banner-copy { gap: 8px; }
+  .community-banner-button { padding-inline: 10px; }
   .wiki-shell { padding-block: 20px 40px; }
   .wiki-head { margin-bottom: 24px; padding-bottom: 20px; }
   .wiki-head h1 { font-size: 1.75rem; }

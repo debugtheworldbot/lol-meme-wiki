@@ -8,7 +8,7 @@ import { LocalizedContent } from "@/components/localized-content";
 const QR_CODE = "/qq-group-1125802287.jpg";
 const GROUP_NUMBER = "1125802287";
 
-export function QqGroupDialog() {
+export function QqGroupDialog({ placement = "footer" }: { placement?: "footer" | "banner" }) {
   const [open, setOpen] = useState(false);
   const [copyStatus, setCopyStatus] = useState("");
   const dialogRef = useRef<HTMLDialogElement>(null);
@@ -41,7 +41,7 @@ export function QqGroupDialog() {
 
   return <LocalizedContent>{(
     <>
-      <button type="button" className="footer-community-button" aria-haspopup="dialog" aria-expanded={open} aria-controls={id} onClick={() => { setCopyStatus(""); setOpen(true); }}>
+      <button type="button" className={placement === "banner" ? "community-banner-button" : "footer-community-button"} aria-haspopup="dialog" aria-expanded={open} aria-controls={id} onClick={() => { setCopyStatus(""); setOpen(true); }}>
         加入 QQ 群
       </button>
       <dialog ref={dialogRef} id={id} className="qq-group-dialog" aria-labelledby={`${id}-title`} aria-describedby={`${id}-description`} onCancel={(event) => { event.preventDefault(); setOpen(false); }} onClick={(event) => {
