@@ -5,6 +5,7 @@ import { LocalizedContent } from "@/components/localized-content";
 import Link from "@/components/locale-link";
 import { usePathname } from "next/navigation";
 import { ChineseScriptToggle } from "@/components/chinese-script-toggle";
+import { QqGroupDialog } from "@/components/qq-group-dialog";
 import { stripLocalePath } from "@/lib/locale-path";
 
 const items = [
@@ -24,6 +25,7 @@ export function SiteNav() {
           {item.label}
         </Link>
       ))}
+      <QqGroupDialog />
       <ChineseScriptToggle />
     </nav>
   )}</LocalizedContent>;
