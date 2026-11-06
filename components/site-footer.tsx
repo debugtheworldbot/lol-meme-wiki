@@ -2,7 +2,7 @@ import { LocalizedContent } from "@/components/localized-content";
 import Link from "@/components/locale-link";
 import Image from "next/image";
 import { siteConfig } from "@/lib/site";
-import { WechatGroupDialog } from "@/components/wechat-group-dialog";
+import { QqGroupDialog } from "@/components/qq-group-dialog";
 
 export function SiteFooter() {
   return <LocalizedContent>{(
@@ -18,7 +18,7 @@ export function SiteFooter() {
         <div className="footer-links">
           <Link href="/memes">全部梗</Link><Link href="/players">选手</Link><Link href="/teams">战队</Link><Link href="/events">赛事</Link><Link href="/submit">投稿</Link>
           <Link href="/about">关于</Link><Link href="/contact">联系</Link><Link href="/privacy">隐私政策</Link>
-          <WechatGroupDialog />
+          <QqGroupDialog />
           <a href={`https://github.com/${siteConfig.githubRepo}`} target="_blank" rel="noreferrer">GitHub</a>
         </div>
         <p className="footer-note">非 Riot Games 官方产品，亦未获得 Riot Games 认可。所有相关商标归其各自所有者。</p>
