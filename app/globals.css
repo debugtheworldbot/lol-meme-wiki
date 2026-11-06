@@ -48,6 +48,7 @@ button, a, input, textarea, select { -webkit-tap-highlight-color: transparent; }
 .script-switch-button:hover, .script-switch-button[data-traditional="true"] { border-color: var(--accent); color: var(--accent); }
 .script-switch-button[data-traditional="true"] { background: var(--surface-muted); font-weight: 600; }
 .header-actions { display: flex; justify-content: flex-end; align-items: center; gap: 8px; }
+.mobile-control-label, .mobile-script-switch { display: none; }
 .search-trigger { min-height: 44px; display: flex; align-items: center; gap: 8px; border: 1px solid #d8d4cc; border-radius: 4px; background: transparent; padding: 0 12px; cursor: pointer; color: #54595d; font-size: 14px; }
 .search-trigger:hover { border-color: #72777d; color: #202122; }
 .search-trigger kbd { color: #54595d; border-left: 1px solid #d8d4cc; padding-left: 8px; font: 12px var(--sans); }
@@ -397,7 +398,13 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 1
   .brand-mark { width: 32px; height: 32px; }
   .search-trigger span, .search-trigger kbd { display: none; }
   .search-trigger { width: 44px; padding: 0; justify-content: center; }
-  .submit-mini { padding-inline: 10px; }
+  .header-actions { gap: 6px; }
+  .desktop-control-label, .main-nav > .script-switch { display: none; }
+  .mobile-control-label { display: inline; }
+  .mobile-script-switch { display: inline-flex; }
+  .submit-mini { width: 44px; padding: 0; }
+  .main-nav a { font-size: .875rem; }
+  .nav-community-button { padding-inline: 10px; }
   .wiki-shell { padding-block: 20px 40px; }
   .wiki-head { margin-bottom: 24px; padding-bottom: 20px; }
   .wiki-head h1 { font-size: 1.75rem; }
@@ -528,7 +535,7 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 1
   .header-inner { column-gap: 12px; }
   .brand { font-size: 17px; gap: 8px; }
   .brand-mark { width: 32px; height: 32px; }
-  .main-nav { gap: 0 12px; min-height: 48px; }
+  .main-nav { justify-content: space-between; flex-wrap: nowrap; gap: 8px; min-height: 60px; padding-block: 8px; }
   .homepage-intro { padding-block: 24px 28px; }
   .homepage h1 { font-size: 1.75rem; line-height: 1.45; }
   .homepage-description { margin-block: 10px 20px; }
@@ -540,4 +547,7 @@ input::placeholder, textarea::placeholder { color: var(--text-muted); opacity: 1
   .homepage-aside { grid-template-columns: minmax(0, 1fr); }
   .homepage-pick { padding: 24px; }
   .homepage-contribute { flex-direction: column; align-items: flex-start; gap: 16px; margin-top: 36px; padding-block: 28px 32px; }
+}
+@media (max-width: 360px) {
+  .site-header .brand-sub { display: none; }
 }

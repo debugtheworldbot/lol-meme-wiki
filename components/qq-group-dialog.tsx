@@ -41,8 +41,9 @@ export function QqGroupDialog() {
 
   return <LocalizedContent>{(
     <>
-      <button type="button" className="nav-community-button" aria-haspopup="dialog" aria-expanded={open} aria-controls={id} onClick={() => { setCopyStatus(""); setOpen(true); }}>
-        加入 QQ 群
+      <button type="button" className="nav-community-button" aria-label="加入 QQ 群" aria-haspopup="dialog" aria-expanded={open} aria-controls={id} onClick={() => { setCopyStatus(""); setOpen(true); }}>
+        <span className="desktop-control-label">加入 QQ 群</span>
+        <span className="mobile-control-label">QQ 群</span>
       </button>
       <dialog ref={dialogRef} id={id} className="qq-group-dialog" aria-labelledby={`${id}-title`} aria-describedby={`${id}-description`} onCancel={(event) => { event.preventDefault(); setOpen(false); }} onClick={(event) => {
         if (event.target !== event.currentTarget) return;

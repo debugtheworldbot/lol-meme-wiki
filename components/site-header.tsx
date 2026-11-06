@@ -3,6 +3,7 @@ import Link from "@/components/locale-link";
 import Image from "next/image";
 import { SearchDialog } from "@/components/search-dialog";
 import { SiteNav } from "@/components/site-nav";
+import { ChineseScriptToggle } from "@/components/chinese-script-toggle";
 
 export function SiteHeader() {
   return <LocalizedContent>{(
@@ -18,7 +19,11 @@ export function SiteHeader() {
         <SiteNav />
         <div className="header-actions">
           <SearchDialog />
-          <Link className="submit-mini" href="/submit">提交新梗</Link>
+          <div className="mobile-script-switch"><ChineseScriptToggle /></div>
+          <Link className="submit-mini" href="/submit" aria-label="提交新梗">
+            <span className="desktop-control-label">提交新梗</span>
+            <span className="mobile-control-label">投稿</span>
+          </Link>
         </div>
       </div>
     </header>
