@@ -1,0 +1,21 @@
+patina-cli
+Copyright (c) devswha and patina contributors
+
+This repository and its npm packages are distributed under the MIT License. See
+the LICENSE file for the full license text.
+
+Open baseline (this repository; npm packages "patina-cli" and "patina-humanizer")
+--------------------------------------------------------------------------------
+The pattern packs, the deterministic stylometry/lexicon analyzer, the scorer,
+and the bundled backends are part of the open baseline and are covered by the
+MIT License.
+
+Private assets (NOT included)
+-----------------------------
+No private corpora, reinforced lexicons/patterns, prompts, or hosted-server
+assets are included in this repository or its npm packages.
+
+Acknowledgements
+----------------
+Inspired by oh-my-zsh's plugin architecture, Wikipedia's "Signs of AI writing"
+catalog, and blader/humanizer.

@@ -1,0 +1,209 @@
+version: "9.1.0"
+language: ko              # Korean (default) -- auto-loads all ko-*.md patterns
+                          # language: en      -- English -- auto-loads all en-*.md patterns
+                          # language: zh      -- Chinese -- auto-loads all zh-*.md patterns
+                          # language: ja      -- Japanese -- auto-loads all ja-*.md patterns
+                          # Override with CLI: --lang en / --lang zh / --lang ja
+document-type: default     # pattern policy: default, blog, academic, technical,
+                           # formal, social, email, legal, medical, marketing,
+                           # narrative, instructional, casual-conversation,
+                           # code-comment, commit-message, release-notes, namuwiki
+# `formal` means structured documents; `casual-conversation` means chat/message
+# structure. Neither selects casual/professional delivery — use `register`.
+output: rewrite            # rewrite | diff | audit | score
+
+# Optional rewrite axes. Omit persona to preserve source voice; omit register
+# to preserve the source register.
+register:                  # casual | professional
+# --persona applies a reusable voice fingerprint from personas/{lang}/.
+persona:
+personas:
+  thresholds:
+    # Persona match and surface churn are advisory voice-quality signals.
+    # Meaning, numbers, and fidelity are enforced by the global rewrite and
+    # --verify paths whether or not a persona is active.
+    source: placeholder
+    persona_match_min: 45
+    churn_max: 0.9
+
+# Supported languages: ko, en, zh, ja
+
+# patterns 목록은 기본 언어(ko)의 팩을 문서화합니다.
+# 실제 로딩은 Glob patterns/{lang}-*.md로 자동 탐색합니다.
+# 특정 팩을 제외하려면 skip-patterns를 사용하세요.
+patterns:
+  - ko-structure
+  - ko-content
+  - ko-language
+  - ko-style
+  - ko-communication
+  - ko-filler
+  - ko-viral-hook    # score-only — detection without rewrite
+
+# English packs (auto-discovered when language: en):
+#   - en-structure (5 patterns: #25-28, #30)
+#   - en-content
+#   - en-language
+#   - en-style
+#   - en-communication
+#   - en-filler (4 patterns: #22-24, #31)
+
+# Chinese packs (auto-discovered when language: zh):
+#   - zh-structure (5 patterns: #25-28, #30)
+#   - zh-content
+#   - zh-language
+#   - zh-style
+#   - zh-communication
+#   - zh-filler (4 patterns: #22-24, #31)
+
+# Japanese packs (auto-discovered when language: ja):
+#   - ja-structure (5 patterns: #25-28, #30)
+#   - ja-content
+#   - ja-language
+#   - ja-style
+#   - ja-communication
+#   - ja-filler (4 patterns: #22-24, #31)
+
+skip-patterns: []          # additive merge across default/global/project configs
+blocklist: []              # additive merge: 추가로 감지할 어휘
+allowlist: []              # additive merge: 감지에서 제외할 어휘
+# Other arrays are replaced by the higher-precedence config so users can choose
+# an exact value instead of merging by accident.
+
+# Over-editing guard: before a rewrite, if the deterministic layer finds
+# nothing to fix (0 hot paragraphs, near-zero signal, 3+ paragraphs), warn that
+# rewriting already-human text can ADD AI-likeness (measured on human documents
+# in docs/research/2026-rewrite-efficacy-study1.md). Advisory only — never
+# blocks. Set to false to silence.
+over-editing-guard: true
+
+# Star reminder: after the 3rd and the 20th successful run, print one line
+# asking for a GitHub star, then never again. CLI: stderr, terminal sessions
+# only (never when piped, in CI, or with --quiet). Skill: the helper sets
+# `notice: "star"` in its summary. No network call; the counter lives in
+# ~/.patina/star-nudge.json. Set to false (or PATINA_NO_STAR_NUDGE=1) to silence.
+star-nudge: true
+
+# Scoring: LLM score remains canonical, with a deterministic shadow score
+# from src/features/* for reproducible drift checks.
+scoring:
+  deterministic:
+    enabled: true
+    divergence-threshold: 20  # warn and prefer the more pessimistic score above this delta
+    combined-weight: 0        # default off for combinedScore; users may opt in (e.g. 0.2)
+  category-weights:
+    ko:
+      content: 0.18
+      language: 0.18
+      style: 0.18
+      communication: 0.13
+      filler: 0.08
+      structure: 0.15
+      viral-hook: 0.10  # score-only pack (excluded from rewrite)
+    en:
+      content: 0.20
+      language: 0.20
+      style: 0.20
+      communication: 0.12
+      filler: 0.08
+      structure: 0.10
+      viral-hook: 0.10  # score-only pack (excluded from rewrite)
+    zh:
+      content: 0.18
+      language: 0.18
+      style: 0.18
+      communication: 0.13
+      filler: 0.08
+      structure: 0.15
+      viral-hook: 0.10  # score-only pack (excluded from rewrite)
+    ja:
+      content: 0.18
+      language: 0.18
+      style: 0.18
+      communication: 0.13
+      filler: 0.08
+      structure: 0.15
+      viral-hook: 0.10  # score-only pack (excluded from rewrite)
+  combined-weights:
+    default:
+      ai-likeness: 0.60
+      fidelity: 0.40
+    academic:
+      ai-likeness: 0.40
+      fidelity: 0.60
+    blog:
+      ai-likeness: 0.70
+      fidelity: 0.30
+    technical:
+      ai-likeness: 0.35
+      fidelity: 0.65
+    social:
+      ai-likeness: 0.75
+      fidelity: 0.25
+    email:
+      ai-likeness: 0.50
+      fidelity: 0.50
+    legal:
+      ai-likeness: 0.35
+      fidelity: 0.65
+    medical:
+      ai-likeness: 0.35
+      fidelity: 0.65
+    marketing:
+      ai-likeness: 0.65
+      fidelity: 0.35
+    namuwiki:
+      ai-likeness: 0.65
+      fidelity: 0.35
+  severity-points:
+    high: 3
+    medium: 2
+    low: 1
+
+verification:
+  mps-floor: 70
+  fidelity-floor: 70
+
+# Stylometry: deterministic statistical preprocessing (SKILL.md Step 4.6)
+# Calculates burstiness (sentence-length CV) and MATTR (lexical diversity) per
+# paragraph, marks suspect zones, and feeds them into 5a/5b as internal memory.
+# See core/stylometry.md for the full algorithm reference.
+stylometry:
+  languages: [ko, en, zh, ja] # zh/ja use deterministic character-token fallback
+  burstiness:
+    bands:
+      low: 0.30              # CV < 0.30 → low (suspect). Calibrated v3.5.1 from
+                             # 0.25 against 300 external paragraphs (HC3 + Wikipedia).
+      high: 0.50             # CV > 0.50 → high
+  ttr:
+    window: 50               # MATTR window in tokens
+    bands:
+      low: 0.55              # MATTR < 0.55 → low (suspect)
+      high: 0.70             # MATTR > 0.70 → high
+  ko_diagnostics:
+    enabled: true              # conservative ko-only composite; requires all bands below
+    bands:
+      minSentences: 4
+      minEojeols: 20
+      spacing:
+        maxEojeolLengthCV: 0.38
+      comma:
+        maxPerSentence: 1
+      posProxy:
+        minMatchedCount: 10
+        maxClassDiversity: 0.26
+
+# AI-Lexicon Overlap (SKILL.md Step 4.7)
+# Matches paragraphs against an AI-favored phrase dictionary not covered
+# by the 28-pattern catalog. Computes density per 1000 tokens; high
+# density paragraphs are flagged SUSPECT under the 3-signal OR rule
+# (burstiness OR MATTR OR lexicon_density).
+# See core/stylometry.md §16 for the full algorithm.
+lexicon:
+  enabled: true
+  languages: [en, ko, zh, ja]
+  density_threshold: 3.0     # matches per 1000 tokens; > threshold → SUSPECT
+  # Lexicon files auto-discovered via Glob lexicon/ai-{lang}.md.
+  # en/ko use the calibrated baseline from HC3 + Wikipedia + NamuWiki:
+  # AI catch 66% → 76% with Wikipedia FP staying at 25% boundary.
+  # zh/ja are starter, local-gate lexicons; expand only after a larger corpus pass.

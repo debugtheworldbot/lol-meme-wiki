@@ -1,0 +1,634 @@
+---
+name: AI-Likeness Scoring Algorithm
+version: 1.0.0
+description: Pattern-based AI-likeness scoring reference for patina score and verification
+---
+
+# AI-Likeness Scoring Algorithm
+
+Pattern-based scoring that converts AI pattern detection results into a numeric 0-100 score.
+Used by `--score` mode and strict verification.
+
+
+## 1. Severity Scale (Per-Detection)
+
+Severity is assigned **per detection** by the LLM during the pattern scan phase.
+It is NOT intrinsic to the pattern — the same pattern may receive different severity
+depending on how egregiously it appears in context.
+
+| Level | Points | Criteria |
+|-------|--------|----------|
+| High | 3 | Pattern is pervasive — appears multiple times or is especially blatant |
+| Medium | 2 | Pattern present at moderate frequency or impact |
+| Low | 1 | Pattern barely present — isolated occurrence |
+| Not detected | 0 | Pattern not found in text |
+`scoring.severity-points` configures the numeric values for `high`, `medium`, and
+`low` severity (defaults: 3, 2, and 1).
+
+`scoring.deterministic` configures the deterministic shadow score used for
+reproducible drift checks; the LLM score remains canonical.
+
+---
+
+## 2. Severity Assignment Rubric
+
+To reduce variance between runs, follow these guidelines when assigning severity:
+
+### General Rubric (4+ paragraph text)
+
+| Instances | Severity |
+|-----------|----------|
+| 1-2 isolated occurrences | Low (1) |
+| 3-5 occurrences, or concentrated in one section | Medium (2) |
+| 6+ occurrences, or pervasive throughout | High (3) |
+
+### Special Cases
+
+- **Structure patterns (#25-28):** Assess at document level, not instance count.
+  A single structural issue (e.g., every paragraph follows identical template) is High.
+- **Communication patterns (#19-21):** A single clear chatbot expression
+  (e.g., "좋은 질문입니다!") may be High — these are strong AI signals regardless of count.
+- **Short text (1-2 paragraphs):** Adjust thresholds proportionally.
+  2 instances in 2 paragraphs = Medium, not Low.
+
+---
+
+## 3. Category Derivation
+
+Categories are derived **dynamically** from pack frontmatter, not hardcoded.
+
+```
+Category = pack frontmatter `pack` field minus language prefix
+Example: pack: ko-content  → category: content
+         pack: en-style    → category: style
+         pack: ko-custom   → category: custom
+
+Pattern count = pack frontmatter `patterns` field
+```
+
+If multiple packs map to the same category (e.g., `ko-content` and `custom/ko-content`),
+their patterns are merged and counts summed for that category.
+
+Unknown categories (from custom packs not in the weight config) get default weight: **0.10**.
+
+---
+
+## 4. Category Weights
+
+### Korean (ko)
+
+| Category | Weight | Patterns | Notes |
+|----------|--------|----------|-------|
+| content | 0.18 | 6 | |
+| language | 0.18 | 9 | |
+| style | 0.18 | 7 | |
+| communication | 0.13 | 5 | |
+| filler | 0.08 | 8 | |
+| structure | 0.15 | 6 | |
+| viral-hook | 0.10 | 9 | score-only (no rewrite) |
+| **Total** | **1.00** | **50** | |
+
+### English (en)
+
+| Category | Weight | Patterns | Notes |
+|----------|--------|----------|-------|
+| content | 0.20 | 6 | |
+| language | 0.20 | 9 | |
+| style | 0.20 | 8 | |
+| communication | 0.12 | 4 | |
+| filler | 0.08 | 6 | |
+| structure | 0.10 | 5 | |
+| viral-hook | 0.10 | 9 | score-only (no rewrite) |
+| **Total** | **1.00** | **47** | |
+
+### Chinese (zh)
+
+| Category | Weight | Patterns | Notes |
+|----------|--------|----------|-------|
+| content | 0.18 | 6 | |
+| language | 0.18 | 9 | |
+| style | 0.18 | 7 | |
+| communication | 0.13 | 4 | |
+| filler | 0.08 | 6 | |
+| structure | 0.15 | 5 | |
+| viral-hook | 0.10 | 9 | score-only (no rewrite) |
+| **Total** | **1.00** | **46** | |
+
+### Japanese (ja)
+
+| Category | Weight | Patterns | Notes |
+|----------|--------|----------|-------|
+| content | 0.18 | 6 | |
+| language | 0.18 | 9 | |
+| style | 0.18 | 7 | |
+| communication | 0.13 | 4 | |
+| filler | 0.08 | 6 | |
+| structure | 0.15 | 5 | |
+| viral-hook | 0.10 | 9 | score-only (no rewrite) |
+| **Total** | **1.00** | **46** | |
+
+Weights are configurable via `scoring.category-weights.{lang}` in `.patina.yaml`.
+
+**viral-hook weight review (issue #154):** kept at `0.10`. The pack remains score-only and the three added patterns improve the category denominator/granularity rather than broadening it enough to justify a larger score contribution. Rewrite and diff modes still skip the pack.
+
+---
+
+## 5. Document-Type Pattern Policy
+
+Before summing severities, apply the active document type's `pattern-overrides`:
+
+| Override | Factor | Effect |
+|----------|--------|--------|
+| amplify | × 1.5 (cap at 3) | Increases severity contribution |
+| reduce | × 0.5 | Decreases severity contribution |
+| suppress | × 0.0 | Excludes pattern entirely |
+| normal (default) | × 1.0 | No change |
+
+Example: the `blog` document type suppresses #14 (bold), so pattern #14
+contributes 0 to the ko-style category.
+
+### Language-Scoped Overrides
+
+`pattern-overrides` may be nested under a language code (`ko:`, `en:`) to avoid
+cross-language number collisions (e.g., ko #8 is "~적 접미사" while en #8 is
+"Copula Avoidance" — the same number refers to unrelated patterns in each language).
+
+```yaml
+# Language-scoped format (recommended for multilingual document types)
+pattern-overrides:
+  ko:
+    8: amplify    # ko-language #8 (~적 접미사)
+    14: suppress  # ko-style #14 (볼드체)
+  en:
+    8: amplify    # en-language #8 (Copula Avoidance)
+    14: suppress  # en-style #14 (Boldface)
+```
+
+**Resolution rule:** When the active language has a sub-section under `pattern-overrides`,
+apply **only** that sub-section's overrides. Top-level (unscoped) overrides apply to all
+languages and are merged before language-scoped ones (language-scoped wins on conflict).
+
+---
+
+## 6. Scoring Formula
+
+### Per-Category Score
+
+```
+category_score = (sum of adjusted severities / (pattern_count × 3)) × 100
+```
+
+- `sum of adjusted severities`: sum severity points for all detected patterns in category,
+  after applying document-type pattern factors
+- `pattern_count × 3`: maximum possible score (all patterns detected at High severity)
+- Result: 0-100 per category
+
+### Overall Score
+
+```
+overall_score = Σ(category_score × category_weight) for all categories
+```
+
+### Worked Example (Korean, default document type)
+
+Input text detected patterns:
+
+| Pattern | Category | Raw Severity | Override | Adjusted |
+|---------|----------|-------------|----------|----------|
+| #1 과도한 중요성 부여 | content | High (3) | normal | 3 |
+| #3 피상적 분석 | content | Medium (2) | normal | 2 |
+| #5 모호한 출처 | content | Low (1) | normal | 1 |
+| #8 ~적 접미사 | language | Medium (2) | normal | 2 |
+| #14 볼드체 | style | High (3) | normal | 3 |
+| #22 채움 표현 | filler | Low (1) | normal | 1 |
+| #25 구조적 반복 | structure | High (3) | normal | 3 |
+
+Category scores:
+
+| Category | Detected | Sum | Max (count×3) | Score |
+|----------|----------|-----|---------------|-------|
+| content | 3/6 | 3+2+1=6 | 6×3=18 | 33.3 |
+| language | 1/9 | 2 | 9×3=27 | 7.4 |
+| style | 1/7 | 3 | 7×3=21 | 14.3 |
+| communication | 0/4 | 0 | 4×3=12 | 0.0 |
+| filler | 1/6 | 1 | 6×3=18 | 5.6 |
+| structure | 1/5 | 3 | 5×3=15 | 20.0 |
+| viral-hook | 0/9 | 0 | 9×3=27 | 0.0 |
+
+Overall = 33.3×0.18 + 7.4×0.18 + 14.3×0.18 + 0.0×0.13 + 5.6×0.08 + 20.0×0.15 + 0.0×0.10
+       = 6.0 + 1.3 + 2.6 + 0.0 + 0.4 + 3.0 + 0.0
+       = **13.3**
+
+(Weighted terms are computed from the unrounded category scores and shown to
+one decimal; they sum exactly to the displayed total. Unrounded: 6.000 + 1.333
++ 2.571 + 0.000 + 0.444 + 3.000 = 13.349 → 13.3.)
+
+Interpretation: 0-15 range = "사람다움" (Strongly human-like)
+
+---
+
+## 7. Score Interpretation
+
+| Range | Label | Meaning |
+|-------|-------|---------|
+| 0-15 | 사람다움 | Strongly human-like |
+| 16-30 | 거의 사람다움 | Mostly human, minor AI traces |
+| 31-50 | 혼재 | Mixed signals, noticeable AI patterns |
+| 51-70 | AI 느낌 | Clearly AI-generated |
+| 71-100 | AI 생성 | Heavily AI-generated |
+
+> **Variance Note:** Scores have expected variance of **±8-10 points** between runs
+> due to LLM severity assignment. Use score ranges, not exact numbers, for comparison.
+> A score of 42 should be interpreted as "roughly 32-52 range" for decision-making.
+
+---
+
+## 8. Known Limitations
+
+- **Custom pattern packs** are auto-discovered and scored. A new category
+  (e.g., `custom/patterns/ko-domain.md` with `pack: ko-domain`) gets default weight 0.10.
+- **LLM non-determinism** means the same text may score differently across runs.
+  The formula is deterministic; the severity assignment is not.
+- **Fidelity scoring** (meaning preservation vs original) is defined in §§ 9–13 below
+  and used by scoring and strict verification.
+
+### Short-text boost (v3.11 Phase 3.2)
+
+For inputs ≤200 non-whitespace chars OR ≤3 non-empty paragraphs, register-
+sensitive categories get a 1.5x severity multiplier (capped at 3 per detection):
+
+- `language` — 종결어미, register cues, sentence form patterns
+- `style` — connectors, transition fillers, formulaic openers
+- `viral-hook` — shock numbers, clickbait closes, hyperbolic lexicon
+
+Rationale: case-04 found that voice/register shifts (e.g., `~다` ↔ `~습니다`)
+are clearly perceived by humans but barely move the standard formula because
+short texts only accumulate 1–2 pattern detections. The boost surfaces those
+shifts so single-paragraph score deltas align with reader intuition.
+
+The boost is applied at severity-assignment time by the scoring LLM (per the
+prompt instruction in `buildScoreInstructions`), not as a post-multiplier on
+category scores. This keeps the formula in §6 unchanged.
+
+---
+
+## 9. Fidelity Scoring — Overview
+
+AI-likeness (§§ 1–7) measures *how AI-like the output sounds*.
+Fidelity measures *how faithfully the output preserves the original meaning*.
+
+Both dimensions are necessary: aggressive humanization can achieve a low AI score
+by deleting content or changing meaning entirely. Fidelity scoring guards against this.
+
+Fidelity scoring is used by scoring and strict verification.
+See SKILL.md § 6 (score mode) for integration details.
+
+---
+
+## 10. Fidelity Criteria
+
+Four criteria, each scored independently by the LLM comparing original → output:
+
+### 10.1 Claims Preserved
+
+Every factual claim in the original appears (perhaps rephrased) in the output.
+Stylistic packaging is not a claim. Hype and intensifiers ("cutting-edge",
+"unprecedented", "seamlessly") carry no checkable content, so removing them is
+the rewrite's job and is never scored as loss — the same exemption the
+Meaning-Preservation Score applies.
+
+| Level | Points | Criteria |
+|-------|--------|----------|
+| High | 3 | All key claims preserved — no factual content lost |
+| Medium | 2 | Minor claims omitted — supporting details or examples dropped, but core argument intact |
+| Low | 1 | Significant claims missing — one or more central facts or arguments absent |
+| Fail | 0 | Core meaning lost — the output says something fundamentally different |
+
+### 10.2 No Fabrication
+
+The output does not add claims, facts, or specifics not present or implied by the original.
+
+| Level | Points | Criteria |
+|-------|--------|----------|
+| High | 3 | No fabrication — every claim in the output traces to the original |
+| Medium | 2 | Minor additions — a reasonable inference stated as fact, or an illustrative example added |
+| Low | 1 | Noticeable fabrication — specific numbers, names, or claims not in the original |
+| Fail | 0 | Significant fabrication — output contains substantial invented content |
+
+### 10.3 Audience/Register Match
+
+The output serves the same audience and document function as the original.
+When the user explicitly supplies `--register`, assess against that requested
+register. Judge function rather than AI-ish stiffness, hype, or ceremony.
+
+| Level | Points | Criteria |
+|-------|--------|----------|
+| High | 3 | Same audience and domain — a policy notice still reads as a policy notice, a product page as a product page |
+| Medium | 2 | Slight drift — somewhat more/less formal, but still appropriate for the context |
+| Low | 1 | Noticeable mismatch — formal original made casual (or vice versa) without an explicit register override |
+| Fail | 0 | Register violation — academic text made into slang, or casual text made into legalese |
+
+
+### 10.4 Length Ratio
+
+Compares output length to original. Extreme changes suggest content loss or padding.
+
+| Ratio | Points | Criteria |
+|-------|--------|----------|
+| 50–130% | 3 | Length preserved, or compressed as expected when packaging is stripped |
+| 35–49% or 131–150% | 2 | Moderate change — heavy compression or expansion, likely acceptable |
+| 25–34% or 151–200% | 1 | Significant change — substantial content probably lost or padded |
+| < 25% or > 200% | 0 | Extreme change — content almost certainly lost or heavily padded |
+
+**Calculation:** `length_ratio = len(output) / len(original) × 100`
+
+Length is measured in characters (not words or tokens) for language-agnostic consistency.
+
+---
+
+## 11. Fidelity Severity Assignment Rubric
+
+To reduce variance, apply these guidelines when scoring fidelity criteria:
+
+### Claims Preserved
+- Count discrete factual claims in the original. If all appear (rephrased or not) → High.
+- If only supporting details are dropped but the argument structure survives → Medium.
+- If a numbered list loses items, a causal chain loses a step, or a key qualifier is dropped → Low.
+
+### No Fabrication
+- Paraphrasing that changes word choice but not meaning → High.
+- Adding a commonly-known context note ("Seoul, the capital of South Korea") → Medium.
+- Inventing a statistic, date, or name not in the original → Low or Fail.
+
+### Audience/Register Match
+- Compare the first and last paragraphs for audience, function, and register cues.
+- Removing hype, ceremony, or AI-ish stiffness is the rewrite's job → High.
+- An explicit register override is expected and is not penalized.
+- Mixed register (formal opening, casual middle) counts as Low.
+
+### Length Ratio
+- This criterion is deterministic — compute the ratio and look up the table.
+- No LLM judgment needed. Include the raw ratio in the score output.
+
+---
+
+## 12. Fidelity Scoring Formula
+
+### Per-Criterion Score
+
+Each criterion is scored 0–3 (same as AI-likeness severity). The fidelity score normalizes
+across all four criteria:
+
+```
+fidelity_score = ((claims + fabrication + audience_register + length) / 12) × 100
+```
+
+- Maximum: (3+3+3+3) / 12 × 100 = **100** (perfect fidelity)
+- Minimum: (0+0+0+0) / 12 × 100 = **0** (total meaning loss)
+
+### Criterion Weighting
+
+The four fidelity criteria have equal weight (0.25 each), which is equivalent to the
+simple formula above.
+
+### Worked Example
+
+Original: 4-paragraph academic article about climate change policy.
+Output: Humanized version.
+
+| Criterion | Score | Reasoning |
+|-----------|-------|-----------|
+| Claims preserved | 3 (High) | All policy recommendations and cited figures present |
+| No fabrication | 2 (Medium) | Added "as widely reported" — minor inference stated as fact |
+| Audience/register match | 3 (High) | Academic audience and document function held throughout |
+| Length ratio | 3 (High) | Output is 68% of original length (within the 50–130% band) |
+
+Fidelity = (3+2+3+3) / 12 × 100 = **91.7**
+
+Interpretation: 91-100 range = "완벽한 충실도" (Perfect fidelity, all meaning preserved)
+
+### Fidelity Score Interpretation
+
+| Range | Label | Meaning |
+|-------|-------|---------|
+| 91-100 | 완벽한 충실도 | Perfect fidelity — all meaning preserved |
+| 76-90 | 높은 충실도 | High fidelity — minor omissions or additions |
+| 51-75 | 보통 충실도 | Moderate fidelity — noticeable meaning changes |
+| 26-50 | 낮은 충실도 | Low fidelity — significant meaning loss or fabrication |
+| 0-25 | 의미 왜곡 | Meaning severely distorted or lost |
+
+> **Note:** Unlike AI-likeness (lower = better), fidelity uses **higher = better**.
+> A score of 83 means "roughly 73-93 range" given ±10 LLM variance —
+> solidly in the "높은 충실도" band.
+
+---
+
+## 13. Combined Score
+
+### Formula
+
+AI-likeness and fidelity compose into a combined score with configurable weighting:
+
+```
+combined = (ai_likeness × ai_weight) + (fidelity_inverted × fidelity_weight)
+```
+
+Where:
+- `ai_likeness`: AI-likeness score from § 6 (0-100, lower = more human)
+- `fidelity_inverted`: `100 - fidelity_score` (invert so both dimensions use "lower is better")
+- `ai_weight + fidelity_weight = 1.0`
+
+### Default Weights
+
+| Context | AI Weight | Fidelity Weight | Rationale |
+|---------|-----------|-----------------|-----------|
+| Default | 0.60 | 0.40 | Balanced — humanization is primary goal |
+| Academic document type | 0.40 | 0.60 | Meaning preservation is critical in scholarly work |
+| Blog document type | 0.70 | 0.30 | Pattern cleanup may be more liberal |
+| Technical document type | 0.35 | 0.65 | Accuracy is paramount in docs |
+| Social document type | 0.75 | 0.25 | Fragments and platform conventions are legitimate |
+| Email document type | 0.50 | 0.50 | Equal importance |
+| Legal document type | 0.35 | 0.65 | Legal precision must be preserved |
+| Medical document type | 0.35 | 0.65 | Clinical accuracy is critical |
+| Marketing document type | 0.65 | 0.35 | Persuasive conventions are legitimate |
+| Namuwiki document type | 0.65 | 0.35 | Wiki-style structural conventions are legitimate |
+
+Configurable via `scoring.combined-weights.{document-type}` in `.patina.yaml`:
+```yaml
+scoring:
+  combined-weights:
+    default:
+      ai-likeness: 0.60
+      fidelity: 0.40
+    academic:
+      ai-likeness: 0.40
+      fidelity: 0.60
+```
+
+### Combined Score Interpretation
+
+| Range | Label | Meaning |
+|-------|-------|---------|
+| 0-15 | 최적 | Excellent — human-like and faithful |
+| 16-30 | 양호 | Good — minor issues in one or both dimensions |
+| 31-50 | 보통 | Acceptable — noticeable trade-offs |
+| 51-70 | 주의 | Caution — significant AI traces or meaning loss |
+| 71-100 | 부적합 | Poor — heavy AI patterns and/or substantial meaning loss |
+
+### Verification Floors
+
+Strict verification accepts a rewritten result only when both configured floors pass:
+- Fidelity score ≥ `verification.fidelity-floor` (default: 70)
+- MPS ≥ `verification.mps-floor` (default: 70)
+
+A failed floor requires retrying the affected span or restoring its original text. This prevents a lower AI score from being accepted at the cost of meaning preservation.
+
+---
+
+## 14. MPS (Meaning Preservation Score) — Overview
+
+AI-likeness (§§ 1–7) measures *how AI-like the output sounds*.
+Fidelity (§§ 9–13) measures *how faithfully the output preserves overall meaning*.
+MPS measures *whether specific semantic anchors survive the humanization pipeline*.
+
+MPS is anchor-based: it tracks discrete meaning units (claims, polarity, causation, quantifiers, negations) extracted from the original text in SKILL.md Step 4.5, and checks whether each anchor is preserved after each pipeline phase.
+
+MPS complements fidelity scoring — fidelity is a holistic LLM judgment, MPS is a structured anchor-by-anchor verification.
+
+---
+
+## 15. MPS Anchor Verification Criteria
+
+Each anchor extracted in Step 4.5 is verified against the pipeline output. Verification produces one of three verdicts:
+
+### PASS
+Anchor content is present in the output and its polarity is preserved. The anchor may be rephrased but its core assertion is unambiguously recoverable.
+
+### SOFT FAIL
+Anchor content is present but weakened or made ambiguous. Examples:
+- Specific claim became vague: "매출이 30% 증가" → "매출이 크게 증가"
+- Quantifier lost precision: "p<0.05" → "통계적으로 유의미하다"
+- Causal link became correlational: "A 때문에 B가 발생" → "A와 B는 관련이 있다"
+- Definitive statement became hedged: "시스템이 실패했다" → "시스템에 문제가 있었을 수 있다"
+
+### HARD FAIL
+Anchor content is deleted or its polarity is inverted. Examples:
+- Claim removed entirely from output
+- Negation dropped: "검증되지 않았다" → "검증되었다"
+- Causation reversed: "A가 B를 야기했다" → "B가 A를 야기했다"
+
+### PASS vs SOFT FAIL Boundary
+
+If a reader can **unambiguously recover** the original anchor's meaning from the rewritten version, it is PASS. If a reader could **reasonably interpret** the rewritten version differently from the original, it is SOFT FAIL.
+
+---
+
+## 16. MPS Scoring Formula
+
+### Base Formula
+
+```
+anchor_pass_rate = PASS_count / total_anchor_count
+polarity_preserved = polarity_PASS_count / total_polarity_anchor_count
+
+MPS = (anchor_pass_rate × 0.6 + polarity_preserved × 0.4) × 100
+```
+
+Where:
+- `PASS_count`: anchors with PASS verdict after all remediation (including successful retries)
+- `total_anchor_count`: all extracted anchors
+- `polarity_PASS_count`: polarity-type anchors (Polarity + Negation) with PASS verdict
+- `total_polarity_anchor_count`: all polarity-type anchors (Polarity + Negation)
+
+### Retry Counting Rule
+
+If a SOFT FAIL anchor passes after alternative correction (retry), it counts as **PASS** in the formula. Only anchors that remain SOFT FAIL or HARD FAIL after all remediation are counted as failures.
+
+### Fallback (No Polarity Anchors)
+
+If the text contains no Polarity or Negation anchors:
+
+```
+MPS = anchor_pass_rate × 100
+```
+
+### Fallback (No Anchors Extracted)
+
+When anchor extraction is skipped (text ≤1 paragraph and ≤2 sentences) or yields zero anchors:
+
+```
+MPS = N/A (not applicable)
+```
+
+When MPS = N/A:
+- `--score` mode displays: `의미 보존 (MPS): N/A (앵커 없음)`
+- Strict verification does not apply the MPS floor when no anchors were extracted.
+
+### MPS Interpretation
+
+| Range | Label | Meaning |
+|-------|-------|---------|
+| 90–100 | 우수 (Excellent) | Full meaning preservation |
+| 70–89 | 양호 (Good) | Minor weakening, acceptable |
+| 50–69 | 주의 (Warning) | Significant anchor loss, review needed |
+| < 50 | 위험 (Critical) | Severe meaning corruption |
+
+### Worked Example
+
+Original text (3 paragraphs) with extracted anchors:
+
+| # | Type | Content | Verdict | After Retry |
+|---|------|---------|---------|-------------|
+| 1 | Claim | "시스템이 실패했다" | SOFT FAIL | PASS (retry succeeded) |
+| 2 | Polarity | "아직 검증되지 않았다" (negative) | PASS | — |
+| 3 | Quantifier | "매출 30% 증가" | PASS | — |
+| 4 | Causation | "A 때문에 B 발생" | HARD FAIL | — (original restored) |
+| 5 | Negation | "불가능하다" | PASS | — |
+
+After remediation:
+- PASS: #1 (retry), #2, #3, #5 = 4
+- HARD FAIL: #4 = 1 (original restored, so meaning is preserved in output but pattern not humanized)
+- Total anchors: 5
+- Polarity anchors (#2, #5): both PASS = 2/2
+
+```
+anchor_pass_rate = 4/5 = 0.80
+polarity_preserved = 2/2 = 1.00
+MPS = (0.80 × 0.6 + 1.00 × 0.4) × 100 = (0.48 + 0.40) × 100 = 88
+```
+
+Interpretation: 70–89 range = "양호" (Good, minor weakening)
+
+> **Note:** Anchor #4 was a HARD FAIL, so its original sentence was restored in the output.
+> The anchor counts as a failure in MPS (reducing the score), but the meaning IS preserved
+> in the output because the original was kept. MPS reflects humanization success rate,
+> not output meaning accuracy (which is always preserved via fallback).
+
+### MPS vs Fidelity: Complementary Metrics
+
+MPS measures **humanization coverage** — what fraction of meaning anchors were successfully humanized while being preserved. A HARD FAIL anchor that was restored to its original wording counts as a humanization failure (the pattern wasn't removable without meaning loss), even though the final output's meaning is intact. Fidelity (§§ 9-13) measures **overall output meaning accuracy** against the original — restored sentences score perfectly on fidelity. Use both metrics together: high fidelity + low MPS means "meaning is safe but some AI patterns couldn't be removed."
+
+---
+
+## 17. MPS Integration Points
+
+### `--score` Mode Output
+
+When a scored rewrite has the original text available, MPS is displayed alongside AI-likeness and Fidelity:
+
+| 지표 | 점수 |
+|------|------|
+| AI 유사도 | 23/100 (낮을수록 좋음) |
+| 충실도 | 87/100 (높을수록 좋음) |
+| 의미 보존 (MPS) | 92/100 (높을수록 좋음) |
+| 종합 | 25/100 (낮을수록 좋음) |
+
+> **Note:** MPS is NOT included in the combined score formula (§13).
+> Combined score uses fidelity (holistic) while MPS is a structural verification metric.
+> Both are displayed for transparency but serve different purposes.
+
+### Strict Verification Gate
+
+MPS and fidelity are checked independently against `verification.mps-floor` and
+`verification.fidelity-floor`; both numeric scores must meet their configured floors
+before the rewrite is accepted.
