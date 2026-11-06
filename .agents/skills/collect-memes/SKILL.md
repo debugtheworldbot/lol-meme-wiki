@@ -45,9 +45,10 @@ python3 .agents/skills/collect-memes/scripts/inventory.py
 1. 缺的 `players` / `teams` / `events` **先建实体**，再写梗。外键只写 slug。
 2. 字段、小节、来源顺序、`source_note`、tags、heat：跟 AGENTS.md「写内容」。范本 `content/memes/wo-chovy.mdx`。
 3. 正文写完按 AGENTS.md「社区梗百科口吻」自检：钉事实、用社区词、禁 AI／通稿味；过不了三问就改，不要整段复述 AGENTS 字段清单。
-4. 同一套材料的衍生（谐音逃生、队名玩法）收进主条 aliases / 正文，不另开。
-5. 新条 `related` 只指向已存在的 meme slug；旧条只追加，不改无关字段。
-6. 校验：
+4. 口吻过关后 **Load／遵循** [`../humanizer-zh/SKILL.md`](../humanizer-zh/SKILL.md) 扫正文（只改 MDX 正文；frontmatter／专名听写不动）。需要第二轮可审计改写时再 Load [`../patina/SKILL.md`](../patina/SKILL.md)（本仓无 CLI，按该 skill instruction-only）。冲突仍以 AGENTS 范本为准；不要把两套规则整段抄进本文件。
+5. 同一套材料的衍生（谐音逃生、队名玩法）收进主条 aliases / 正文，不另开。
+6. 新条 `related` 只指向已存在的 meme slug；旧条只追加，不改无关字段。
+7. 校验：
 
 ```bash
 python3 .agents/skills/collect-memes/scripts/validate-memes.py

@@ -110,7 +110,12 @@ npm run check:locale-seo # 构建后核验两版 HTML、SEO 和 sitemap
 2. 读出声像不像贴吧／B 站懂哥在解释，而不像产品文案？
 3. 有没有为「好读」补造了来源里没有的情节或情绪？
 
-可选加固：对正文（勿动 YAML frontmatter）可用 patina 或 `unslop --deterministic`；冲突时以本站范本与上表为准。
+**写梗正文时的推荐流程（去 AI 味）**
+
+1. 按上表与三问自检一遍正文。
+2. Load／遵循仓库内 [`.agents/skills/humanizer-zh/SKILL.md`](.agents/skills/humanizer-zh/SKILL.md) 再扫一轮（只动正文）。
+3. 需要可对照的模式审计或第二轮改写时，再 Load [`.agents/skills/patina/SKILL.md`](.agents/skills/patina/SKILL.md)：本仓是稀疏 skill 安装（无 CLI），按该 skill 的 instruction-only 路径审计／改写，语言按中文。
+4. 以上与口吻表冲突时，仍以本站范本与上表为准；不要为「去痕迹」改 frontmatter、专名听写或补造来源没有的情节。
 
 ### 找料与来源
 
