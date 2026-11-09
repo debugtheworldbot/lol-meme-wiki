@@ -217,6 +217,7 @@ export function InlineSearch() {
                 {visibleResults.map((record, position) => (
                   <li key={record.href} role="none">
                     <Link
+                      prefetch={false}
                       className={styles.result}
                       href={record.href}
                       id={`${listId}-${position}`}

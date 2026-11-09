@@ -72,7 +72,7 @@ function WikiJoin({
   return <LocalizedContent>{slugs.map((slug, index) => (
     <Fragment key={slug}>
       {index > 0 ? "、" : null}
-      <Link href={`/${kind}/${slug}`}>{getEntityTitle(kind, slug)}</Link>
+      <Link prefetch={false} href={`/${kind}/${slug}`}>{getEntityTitle(kind, slug)}</Link>
     </Fragment>
   ))}</LocalizedContent>;
 }
@@ -161,7 +161,7 @@ export default async function MemeDetailPage({ params }: PageProps) {
                         return (
                           <Fragment key={tag}>
                             {index > 0 ? "、" : null}
-                            <Link className="wiki-tag" href={topic ? `/topics/${topic.slug}` : `/memes?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
+                            <Link prefetch={false} className="wiki-tag" href={topic ? `/topics/${topic.slug}` : `/memes?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
                           </Fragment>
                         );
                       })
@@ -248,7 +248,7 @@ export default async function MemeDetailPage({ params }: PageProps) {
                 return (
                   <Fragment key={tag}>
                     {index > 0 ? "、" : null}
-                    <Link href={topic ? `/topics/${topic.slug}` : `/memes?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
+                    <Link prefetch={false} href={topic ? `/topics/${topic.slug}` : `/memes?tag=${encodeURIComponent(tag)}`}>{tag}</Link>
                   </Fragment>
                 );
               })}

@@ -145,7 +145,7 @@ export function MemeExplorer({ memes, canonicalTags }: { memes: MemeListItem[]; 
         <ul className="entry-list" aria-label="梗词条列表">
           {visible.map((meme) => (
             <li key={meme.slug}>
-              <Link href={`/meme/${meme.slug}`}>{meme.title}</Link>
+              <Link prefetch={false} href={`/meme/${meme.slug}`}>{meme.title}</Link>
               {meme.tags.length ? <span className="entry-alias">{meme.tags.slice(0, 3).join(" · ")}</span> : null}
               <p>{meme.summary}</p>
             </li>

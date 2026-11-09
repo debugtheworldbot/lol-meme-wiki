@@ -35,7 +35,7 @@ export default function TopicsPage() {
             const count = getMemesForTopic(memes, topic).length;
             return (
               <li key={topic.slug}>
-                <Link href={`/topics/${topic.slug}`}>{topic.player ? `${topic.tag} 梗导读` : /^\d{4}$/.test(topic.tag) ? `${topic.tag} 年的新梗` : topic.tag}</Link>
+                <Link prefetch={false} href={`/topics/${topic.slug}`}>{topic.player ? `${topic.tag} 梗导读` : /^\d{4}$/.test(topic.tag) ? `${topic.tag} 年的新梗` : topic.tag}</Link>
                 <span className="entry-alias">{count} 条词条</span>
                 <p>{topic.introduction}</p>
               </li>

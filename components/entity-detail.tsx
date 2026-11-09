@@ -88,7 +88,7 @@ export function EntityDetail({ kind, slug }: { kind: Exclude<EntityKind, "meme">
                 <ul className="wiki-related">
                   {memes.map((meme) => (
                     <li key={meme.slug}>
-                      <Link href={`/meme/${meme.slug}`}>{meme.title}</Link>
+                      <Link prefetch={false} href={`/meme/${meme.slug}`}>{meme.title}</Link>
                       <span>{meme.summary}</span>
                     </li>
                   ))}

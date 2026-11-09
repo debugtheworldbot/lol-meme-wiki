@@ -237,6 +237,7 @@ export function SearchDialog() {
                   {visibleResults.map((record, position) => (
                     <li key={record.href} role="none">
                       <Link
+                        prefetch={false}
                         className="search-result"
                         href={record.href}
                         id={`${listId}-${position}`}

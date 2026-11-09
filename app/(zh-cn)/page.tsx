@@ -81,7 +81,7 @@ export default function HomePage() {
             {examples.length ? (
               <div className="homepage-examples" aria-label="可以从这些梗开始看">
                 <span>比如</span>
-                {examples.map((meme) => <Link key={meme.slug} href={`/meme/${meme.slug}`}>{meme.title}</Link>)}
+                {examples.map((meme) => <Link prefetch={false} key={meme.slug} href={`/meme/${meme.slug}`}>{meme.title}</Link>)}
               </div>
             ) : null}
             <RandomMemeButton compact slugs={memes.map((meme) => meme.slug)} />
@@ -102,7 +102,7 @@ export default function HomePage() {
                   if (!getTopic(slug)) return null;
                   return (
                     <li key={slug}>
-                      <Link href={`/topics/${slug}`}>{label}</Link>
+                      <Link prefetch={false} href={`/topics/${slug}`}>{label}</Link>
                       <p>{description}</p>
                     </li>
                   );
@@ -112,7 +112,7 @@ export default function HomePage() {
             {playerLinks.length ? (
               <section className="homepage-players" aria-labelledby="home-players-title">
                 <h2 id="home-players-title">从选手找梗</h2>
-                <div>{playerLinks.map((player) => <Link key={player.slug} href={`/player/${player.slug}`}>{player.title}</Link>)}</div>
+                <div>{playerLinks.map((player) => <Link prefetch={false} key={player.slug} href={`/player/${player.slug}`}>{player.title}</Link>)}</div>
                 <Link className="homepage-read-link" href="/players">全部选手</Link>
               </section>
             ) : null}

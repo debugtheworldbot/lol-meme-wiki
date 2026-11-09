@@ -21,7 +21,7 @@ export function WikiLinkedText({
   return <LocalizedContent>{parts.map((part, index) => {
     const href = unique.get(part);
     return href ? (
-      <Link key={`${part}-${index}`} href={href}>{part}</Link>
+      <Link prefetch={false} key={`${part}-${index}`} href={href}>{part}</Link>
     ) : (
       <Fragment key={index}>{part}</Fragment>
     );

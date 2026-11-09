@@ -59,7 +59,7 @@ export function HomeMemeList({ latest, chronological }: { latest: HomeMemeListIt
                 <li key={meme.slug}>
                   <article>
                     <div className="homepage-entry-heading">
-                      <h2><Link href={`/meme/${meme.slug}`}>{meme.title}</Link></h2>
+                      <h2><Link prefetch={false} href={`/meme/${meme.slug}`}>{meme.title}</Link></h2>
                       {date ? <time dateTime={/^\d{4}(?:-\d{2}){0,2}$/.test(date) ? date : undefined}>{mode === "latest" ? "收录" : "出现"} {date}</time> : null}
                     </div>
                     <p>{meme.summary}</p>

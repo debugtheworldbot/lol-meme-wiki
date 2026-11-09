@@ -30,6 +30,7 @@ export function MemeContinueReading({
         {items.slice(0, 4).map((item, index) => (
           <li key={item.slug}>
             <Link
+              prefetch={false}
               href={`/meme/${item.slug}`}
               onClick={() => track("Related Meme Click", {
                 from: currentSlug,
@@ -51,6 +52,7 @@ export function MemeContinueReading({
           <span>更多相关</span>
           {items.slice(4).map((item, index) => (
             <Link
+              prefetch={false}
               key={item.slug}
               href={`/meme/${item.slug}`}
               onClick={() => track("Related Meme Click", {

@@ -28,7 +28,7 @@ export function EntityDirectory({ entries, kind }: { entries: EntityEntry[]; kin
     <ul className="entry-list" aria-label={{ player: "选手列表", team: "战队列表", event: "赛事列表" }[kind]}>
       {entries.map((entry) => (
         <li key={entry.slug}>
-          <Link href={`/${kind}/${entry.slug}`}>{entry.title}</Link>
+          <Link prefetch={false} href={`/${kind}/${entry.slug}`}>{entry.title}</Link>
           {entry.display_name && entry.display_name !== entry.title ? <span className="entry-alias">{entry.display_name}</span> : null}
           <p>{entry.summary}</p>
         </li>

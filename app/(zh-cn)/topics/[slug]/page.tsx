@@ -84,7 +84,7 @@ export default async function TopicPage({ params }: PageProps) {
         {memes.length ? <ul className="entry-list" aria-labelledby="topic-memes">
           {memes.map((meme) => (
             <li key={meme.slug}>
-              <Link href={`/meme/${meme.slug}`}>{meme.title}</Link>
+              <Link prefetch={false} href={`/meme/${meme.slug}`}>{meme.title}</Link>
               {meme.aliases?.length ? <span className="entry-alias">又称：{meme.aliases.slice(0, 3).join(" · ")}</span> : null}
               <p>{meme.summary}</p>
             </li>
