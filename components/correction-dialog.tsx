@@ -130,7 +130,7 @@ export function CorrectionDialog({ title, pathname }: { title: string; pathname:
               <div className="correction-result">
                 {result.mode === "created" ? <span className="success-icon"><Check size={20} aria-hidden="true" /></span> : null}
                 <h3 ref={resultHeadingRef} tabIndex={-1}>{result.mode === "created" ? "纠错已提交" : result.mode === "link" ? "还差一步，前往确认提交" : "纠错草稿已生成"}</h3>
-                <p>{result.mode === "created" ? "谢谢你帮忙校对。维护者核实来源后会更新词条，你可以在 GitHub 查看处理进度。" : result.mode === "link" ? "内容已整理好，请打开 GitHub 确认提交。完成前，维护者还不会收到这条纠错。" : "这份草稿尚未提交。请先复制保存，稍后再来提交。"}</p>
+                <p>{result.mode === "created" ? "维护者核实来源后会更新词条，你可以在 GitHub 查看处理进度。" : result.mode === "link" ? "请打开 GitHub 确认提交，维护者才会收到这条纠错。" : "这份草稿尚未提交。请先复制保存，稍后再来提交。"}</p>
                 <div className="success-actions">
                   {result.issueUrl ? <a className="button-primary" href={result.issueUrl} target="_blank" rel="noreferrer">{result.mode === "created" ? "查看处理进度" : "前往 GitHub 提交"}<ExternalLink size={16} aria-hidden="true" /></a> : null}
                   {result.markdown ? <button type="button" className="button-secondary" onClick={() => { void copyDraft(); }}>{copied ? <Check size={16} aria-hidden="true" /> : <Clipboard size={16} aria-hidden="true" />}{copied ? "已复制" : "复制草稿"}</button> : null}

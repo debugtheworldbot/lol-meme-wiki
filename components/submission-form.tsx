@@ -87,7 +87,7 @@ export function SubmissionForm() {
       <div className="submission-success">
         {result.mode === "created" ? <span className="success-icon"><Check size={20} aria-hidden="true" /></span> : null}
         <h2 ref={resultHeadingRef} tabIndex={-1}>{result.mode === "created" ? "投稿已进入审核队列" : result.mode === "link" ? "还差一步，前往确认提交" : "投稿草稿已生成"}</h2>
-        <p>{result.mode === "created" ? "谢谢你补充这个梗。维护者会核实来源、整理措辞，再收录到百科。你可以在 GitHub 查看处理进度。" : result.mode === "link" ? "内容已整理好，请打开 GitHub 确认提交。完成前，维护者还不会收到这份投稿。" : "这份草稿尚未提交。请先复制保存，稍后再来提交。"}</p>
+        <p>{result.mode === "created" ? "维护者会核实来源、整理文案，审核通过后收录。你可以在 GitHub 查看处理进度。" : result.mode === "link" ? "请打开 GitHub 确认提交，维护者才会收到这份投稿。" : "这份草稿尚未提交。请先复制保存，稍后再来提交。"}</p>
         <div className="success-actions">
           {result.issueUrl ? <a className="button-primary" href={result.issueUrl} target="_blank" rel="noreferrer">{result.mode === "created" ? "查看处理进度" : "前往 GitHub 提交"}<ExternalLink size={17} aria-hidden="true" /></a> : null}
           {result.markdown ? <button type="button" className="button-secondary" onClick={() => { void copyDraft(); }}>{copied ? <Check size={17} aria-hidden="true" /> : <Clipboard size={17} aria-hidden="true" />}{copied ? "已复制" : "复制投稿草稿"}</button> : null}

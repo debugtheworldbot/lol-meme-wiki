@@ -22,7 +22,7 @@ function markdown(payload: Submission) {
     `- 类型：${value.sourceType || "未提供"}`,
     `- 链接：${value.sourceUrl || "未提供"}`,
     "",
-    "## 关系节点",
+    "## 相关人物、战队与赛事",
     `- 相关人物：${value.players || "未提供"}`,
     `- 相关战队：${value.teams || "未提供"}`,
     `- 相关赛事：${value.events || "未提供"}`,
