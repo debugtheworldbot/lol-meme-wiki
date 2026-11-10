@@ -12,9 +12,9 @@ import type { HomeMemeListItem, MemeListItem } from "@/lib/types";
 
 const topicLinks = [
   { slug: "xuanshou-geng", label: "选手外号", description: "一个称呼背后的比赛与故事" },
-  { slug: "saishi-geng", label: "赛事名场面", description: "从那场比赛，看到今天的弹幕" },
+  { slug: "saishi-geng", label: "赛事名场面", description: "比赛经过与赛后复读" },
   { slug: "yingxiong-taici", label: "英雄台词", description: "原句、空耳，还有玩家的改写" },
-  { slug: "shuzi-geng", label: "数字梗", description: "把一串数字放回它的语境" },
+  { slug: "shuzi-geng", label: "数字梗", description: "伤害、比分与日期的来历" },
 ] as const;
 
 function toHomeItem(meme: MemeListItem): HomeMemeListItem {
@@ -121,7 +121,7 @@ export default function HomePage() {
 
         <section className="homepage-contribute" aria-labelledby="home-contribute-title">
           <div>
-            <h2 id="home-contribute-title">你记得的，也值得留下来。</h2>
+            <h2 id="home-contribute-title">补充新梗与出处</h2>
             <p>有漏掉的梗，或者更早的出处？带上原帖或视频，一起补全。</p>
           </div>
           <Link href="/submit">提交新梗</Link>

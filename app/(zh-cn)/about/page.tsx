@@ -22,14 +22,14 @@ export default function AboutPage() {
         { id: "contribute", title: "参与共建" },
     ]}>
       <p>
-        研发.lol 是一个记录《英雄联盟》及电竞社区文化的中文词条站。我们把散落在比赛、直播、贴吧、虎扑、B 站里那些“莫名其妙但大家都懂”的梗，尽量考证清楚出处、时间线和用法，收成可检索的条目。
+        研发.lol 是一个中文梗百科，记录《英雄联盟》比赛、直播和贴吧、虎扑、B 站等社区里的梗。每条词条尽量写清出处、时间和用法，方便查找。
       </p>
 
       <h2 id="purpose" className="wiki-h">我们做什么</h2>
       <ul>
         <li>按<Link href="/memes">梗</Link>、<Link href="/players">选手</Link>、<Link href="/teams">战队</Link>、<Link href="/events">赛事</Link>四条线组织词条，相互关联。</li>
         <li>每条公开梗附具体来源（视频 / 比赛 / 帖子 / 文章），并区分原始材料与后来的回顾。</li>
-        <li>区分“事实”与“社区调侃”，考证不确定处会显式说明分歧。</li>
+        <li>区分事实与社区调侃，有争议或尚未确认的说法会单独注明。</li>
       </ul>
 
       <h2 id="sources" className="wiki-h">怎样核对一个梗</h2>
@@ -63,7 +63,7 @@ export default function AboutPage() {
 
       <h2 id="principles" className="wiki-h">收录原则</h2>
       <p>
-        本站<strong>记录社区已有的用法，不代表本站对任何人物、战队的评价或判断</strong>。涉及选手的称呼与梗，描述的是社区语境中的传播现象；我们不以编辑者口吻进行人身攻击，也不编造来源。若你认为某条内容不当或有误，欢迎通过<Link href="/contact">联系方式</Link>提出。
+        本站<strong>记录社区已有的用法，不代表本站对任何人物、战队的评价或判断</strong>。选手外号和相关梗会注明社区怎么说、在什么场景下用，不以编辑者口吻攻击当事人，也不编造来源。发现内容不当或有误，可通过<Link href="/contact">联系方式</Link>反馈。
       </p>
 
       <h2 id="disclaimer" className="wiki-h">免责声明</h2>
@@ -73,7 +73,7 @@ export default function AboutPage() {
 
       <h2 id="contribute" className="wiki-h">参与共建</h2>
       <p>
-        词条由社区共同维护。你可以<Link href="/submit">投稿新梗</Link>，或在任意词条页对已有内容纠错补充。审核核对来源后才会写入。
+        词条由社区共同维护。你可以<Link href="/submit">投稿新梗</Link>，或在词条页补充、纠错。维护者核对来源后再更新正文。
       </p>
     </InfoPage>
   )}</LocalizedContent>;
